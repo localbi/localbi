@@ -6,36 +6,46 @@
     <link rel="stylesheet" href="filterStyle.css">
   </head>
   <body>
+    <div id="localLoader" class="filterLoader"></div>
     <div id="localHeader" class="filterHeader"></div>
     <div id="localContent" class="filterContent">
       <div id="localCharts" class="filterCharts">
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"kpi","slice":"none","width":"400","height":"400"},
+          "display":{"type":"kpi","slice":"none","sort":"none","width":"400","height":"400"},
           "dimensions":[{"label":"Totals","field":"Total"}],
           "measures":[{"label":"Total sales","field":"SalesAmount","aggregation":"sum"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"doughnut","slice":"replace","width":"400","height":"400"},
+          "display":{"type":"doughnut","slice":"replace","sort":"measure","width":"400","height":"400"},
           "dimensions":[{"label":"Managers","field":"Manager"}],
           "measures":[{"label":"Sales","field":"SalesAmount","aggregation":"sum"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"line","slice":"add","width":"400","height":"400"},
-          "dimensions":[{"label":"Periods","field":"Period"}],
+          "display":{"type":"line","slice":"add","sort":"dimension","width":"400","height":"400"},
+          "dimensions":[{"label":"Months","field":"Month"}],
           "measures":[{"label":"Sales","field":"SalesAmount","aggregation":"sum"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"bar","slice":"add","width":"400","height":"400"},
+          "display":{"type":"bar","slice":"add","sort":"measure","width":"400","height":"400"},
           "dimensions":[{"label":"Categories","field":"Category"}],
           "measures":[{"label":"Sales","field":"SalesAmount","aggregation":"sum"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"pivot","slice":"add","width":"400","height":"400"},
+          "display":{"type":"pivot","slice":"add","sort":"none","width":"400","height":"400"},
           "dimensions":[{"label":"Regions","field":"Region"},{"label":"Stores","field":"Store"}],
           "measures":[{"label":"Sales","field":"SalesAmount","aggregation":"sum"}]}'>
         </div>
       </div>
-      <div id="localFields" class="filterFields" data-lbi-fields='["Year","Period","Country","Region","Store","Category","Product","Manager","Employee"]'></div>
+      <div id="localFields" class="filterFields" data-lbi-fields='[
+        {"field":"Year","sort":"number"},
+        {"field":"Month","sort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]},
+        {"field":"Country","sort":"text"},
+        {"field":"Region","sort":"text"},
+        {"field":"Store","sort":"text"},
+        {"field":"Category","sort":"text"},
+        {"field":"Product","sort":"text"},
+        {"field":"Manager","sort":"text"},
+        {"field":"Employee","sort":"text"}]'></div>
     </div>
     <div id="localFooter" class="filterFooter"></div>
     <script src="chart.min.js"></script>

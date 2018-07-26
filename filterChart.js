@@ -17,18 +17,19 @@ function filterChart() {
       let filterFields = document.getElementById(elementId);  //container for all fields
       let listButton = document.createElement('button');  //button to list and clear all filters
       listButton.className = 'filterList';
-      listButton.onclick = function() {  //  clear all fields
+      listButton.onclick = function() {  //  clear all fields and slicer field
         for (let fieldIndex = 0; fieldIndex < filterChart.chartFields.length; fieldIndex++) {
-          let fieldName = filterChart.chartFields[fieldIndex];
+          let fieldName = filterChart.chartFields[fieldIndex].field;
           filterChart.adjustSelect(fieldName,0);
         }
+        filterChart.chartSlicer = null;
         filterChart.refresh();
       };
       listButton.innerText = String.fromCharCode(9671);
       listButton.id = 'filterList';  //NB - this id is used by other code!
       filterFields.appendChild(listButton);
       for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //build field navigation for all fields
-        let fieldName = this.chartFields[fieldIndex];
+        let fieldName = this.chartFields[fieldIndex].field;
 
         let fieldDiv = document.createElement('div');  //container for all field collateral
         fieldDiv.className = 'filterField';
@@ -88,19 +89,20 @@ function filterChart() {
         clearButton.id = fieldName + '.clear';  //NB - this id is used by other code!
         buttonsDiv.appendChild(clearButton);
       }
+      return filterFields;
     },
      /**
      * @description Builds markup for header. Clicking footer does nothing.
      * @param {string} elementId The elementId for the footer.
      */
     buildHeader(elementId) {
-      let filterFooter = document.getElementById(elementId);  //container for footer
-      filterFooter.onclick = function() {  //help text
+      let filterHeader = document.getElementById(elementId);  //container for footer
+      filterHeader.onclick = function() {  //help text
       };
       let span1 = document.createElement('span');  //heading
-      span1.textContent = 'Sales Report 2008';
-      span1.style = 'font-style: italic; font-size: 1rem; color: #000000';
-      filterFooter.appendChild(span1);
+      span1.textContent = 'Sales Report';
+      filterHeader.appendChild(span1);
+      return filterHeader;
     },
     /**
      * @description Builds markup for footer. Clicking footer brings up help.
@@ -121,20 +123,15 @@ function filterChart() {
       anchor.href = "https://github.com/localbi/localbi";
       anchor.target = "_blank";
       filterFooter.appendChild(anchor);
-
-      //https://github.com/localbi/localbi
       let span1 = document.createElement('span');  //local
       span1.textContent = 'local';
-      span1.style = 'font-style: italic; font-size: 1rem; color: #000000';
+      span1.style.color = '#0000ff';
       anchor.appendChild(span1);
       let span2 = document.createElement('span');  //BI
       span2.textContent = 'BI';
-      span2.style = 'font-style: italic; font-size: 1rem; color: #ffffff';
+      span2.style.color = '#ffffff';
       anchor.appendChild(span2);
-      let span3 = document.createElement('span');  //click for help
-      span3.textContent = '... click here for help';
-      span3.style = 'font-size: 0.6rem; color: #000000';
-      anchor.appendChild(span3);
+      return filterFooter;
     },
     /**
      * @description Builds select options from filterField values
@@ -225,6 +222,13 @@ function filterChart() {
      * @param {int} action 1 = sort ascending, 0 = no toggle, -1 = toggle
      */
     sortSelect(elementId, action) {
+			let fieldIsFound = false;  //to check if field exists
+			let fieldIndex = 0;  //position of found field
+			while (fieldIsFound == false && fieldIndex < this.chartFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
+				if(elementId == this.chartFields[fieldIndex].field) fieldIsFound = true;
+				else fieldIndex++;
+      }
+      let fieldSort = this.chartFields[fieldIndex].sort;  //find sort type from field name
       let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
       let title = document.getElementById(elementId + '.sort');  //NB - hardcoded reference qualifier
       let sortIcon = title.textContent.substr(0,1);  //title text is prefixed with sort icon
@@ -248,7 +252,11 @@ function filterChart() {
           if (bIcon == String.fromCharCode(9671)) bIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let aValue = a.text.substr(1);
           let bValue = b.text.substr(1);
-          return aIcon.localeCompare(bIcon) || aValue.localeCompare(bValue);  //icon sort remains the same
+          let iconCompare = aIcon.localeCompare(bIcon);
+          let valueCompare = false;
+          if (fieldSort == 'text' || fieldSort == 'number') valueCompare = aValue.localeCompare(bValue);  //by default do text and number the same
+          else if (fieldSort.length > 0) valueCompare = fieldSort.indexOf(aValue) - fieldSort.indexOf(bValue);  //else use defined sort order
+          return iconCompare || valueCompare;  //icon sort remains the same
         });
       }
       else {  //sort options descending
@@ -259,7 +267,11 @@ function filterChart() {
           if (bIcon == String.fromCharCode(9671)) bIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let aValue = a.text.substr(1);
           let bValue = b.text.substr(1);
-          return aIcon.localeCompare(bIcon) || bValue.localeCompare(aValue);  //icon sort remains the same
+          let iconCompare = aIcon.localeCompare(bIcon);
+          let valueCompare = false;
+          if (fieldSort == 'text' || fieldSort == 'number') valueCompare = bValue.localeCompare(aValue);  //by default do text and number the same
+          else if (fieldSort.length > 0) valueCompare = fieldSort.indexOf(bValue) - fieldSort.indexOf(aValue);  //else use defined sort order
+          return iconCompare || valueCompare;  //icon sort remains the same
         });
       }
       for (let optionIndex = 0; optionIndex < sortedOptions.length; optionIndex++) {  //rearrange options
@@ -288,16 +300,26 @@ function filterChart() {
       };
 
       //sort by either first dimension or first measure
-			function sortHierarchy(hierarchy, sortByFirstDimension, sortAscending) {  //we can only do this once the hierarchy is fully built
-        if (sortByFirstDimension == true) hierarchy = hierarchy.sort(function (a, b) {  //sort by first dimension
-          if (sortAscending == false) return b.value.localeCompare(a.value);
-          else return a.value.localeCompare(b.value);
+      function sortHierarchy(chartHierarchy, chartSpecification) {  //we can only do this once the hierarchy is fully built
+        if (chartSpecification.display.sort == 'dimension') {  //sort by first dimension ascending (currently no provision is made for sorting this descending because it's uncommon and I'm feeling lazy)
+          let fieldIsFound = false;  //to check if field exists
+          let fieldIndex = 0;  //position of found field
+          while (fieldIsFound == false && fieldIndex < filterChart.chartFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
+            if(chartSpecification.dimensions[0].field == filterChart.chartFields[fieldIndex].field) fieldIsFound = true;
+            else fieldIndex++;
+          }
+          let fieldSort = filterChart.chartFields[fieldIndex].sort;  //find sort type from field name
+          if (fieldSort == 'text' || fieldSort == 'number') chartHierarchy = chartHierarchy.sort(function (a, b) {  //sort by first dimension
+            return a.value.localeCompare(b.value);  //by default do text and number the same
+          });
+          else if (fieldSort.length > 0) chartHierarchy = chartHierarchy.sort(function (a, b) {  //sort by first dimension
+            return fieldSort.indexOf(a.value) - fieldSort.indexOf(b.value);  //else use defined sort order
+          });
+        }
+        else if (chartSpecification.display.sort == 'measure') chartHierarchy = chartHierarchy.sort(function (a, b) {  //sort by first measure (currently no provision is made for sorting this descending because it's uncommon and I'm feeling lazy)
+            return parseFloat(b.measures[0].value) - parseFloat(a.measures[0].value);  //numeric compare
         });
-        else hierarchy = hierarchy.sort(function (a, b) {  //sort by first measure
-          if (sortAscending == false) return b.measures[0].value < a.measures[0].value;
-          return a.measures[0].value < b.measures[0].value;
-        });
-        return hierarchy;
+        return chartHierarchy;
       };
 
       let lbiCharts = document.getElementsByName('lbiChart');  //all charts should have the name lbiChart
@@ -319,7 +341,6 @@ function filterChart() {
             fieldName: this.chartSlicer, 
             label: this.chartSlicer 
           };
-          
           let sliceIsFound = false;  //only add/replace slice dimension if not already part of the spec
           let dimensionIndex = 0;
           while (sliceIsFound == false && dimensionIndex < chartSpecification.dimensions.length) {  //exit as soon as we find the slice
@@ -347,7 +368,6 @@ function filterChart() {
           measures: measureSpecifications  //array of measureSpecifications (required).
         });
 
-
         let chartTitle = chartSpecification.measures[0].label;  //automatically use "Measure by Dim1, Dim2" as title
         let dimensionTitle = '';
         if (dimensionSpecifications.length > 0) {
@@ -359,7 +379,7 @@ function filterChart() {
         }
 
         if (chartSpecification.display.type == 'bar') {
-          sortHierarchy(chartHierarchy, false, true);  //sort by first measure asc
+          sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
           let labels = [];  //convert hierarchy to chart.js structure
           let datasets = [];
           for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
@@ -425,7 +445,7 @@ function filterChart() {
           });
         }
         else if (chartSpecification.display.type == 'line') {
-          sortHierarchy(chartHierarchy, true, true);  //sort by first dim asc
+          sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
           let labels = [];  //convert hierarchy to chart.js structure
           let datasets = [];
           for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
@@ -487,7 +507,7 @@ function filterChart() {
           });
         }
         else if (chartSpecification.display.type == 'doughnut' || chartSpecification.display.type == 'pie') {  //pie||doughnut: one dimension and one measure
-          sortHierarchy(chartHierarchy, false, true);  //sort by first measure asc
+          sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
           let labels = [];  //convert hierarchy to chart.js structure
           let datasets = [];
           for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
@@ -563,7 +583,7 @@ function filterChart() {
           totalRow.appendChild(measureCell);
         }
         else if (chartSpecification.display.type == 'pivot') {  //pivot: multiple dimensions and measures
-          sortHierarchy(chartHierarchy, true, false);  //sort by first dim asc
+          sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
           lbiChart.innerHTML = '';  //remove old table
           let htmlDiv = document.createElement('div');  //for some layout stuff we need the table inside a div
           htmlDiv.className = 'filterPivotDiv';
@@ -637,12 +657,13 @@ function filterChart() {
     refresh() {
       let filterDefinitions = [];
       for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //get filter definition from selects
-        let fieldName = this.chartFields[fieldIndex];
+        let fieldName = this.chartFields[fieldIndex].field;
         filterDefinitions = filterDefinitions.concat(this.getSelect(fieldName));
       }
       this.chartTable.filter(filterDefinitions);  //implement the filter definition
 
       let filterList = '';  //display the filter list
+      if (this.chartSlicer != null) filterList += String.fromCharCode(10070) + this.chartSlicer + '\n\n';  //show slicer field
       for (let filterIndex = 0; filterIndex < filterDefinitions.length; filterIndex++) {  //list filtered items
         let filterDefinition = filterDefinitions[filterIndex];
         if (filterDefinition.filterValue != '*') filterList += filterDefinition.fieldName + String.fromCharCode(9670) + filterDefinition.filterValue + '\n';
@@ -653,7 +674,7 @@ function filterChart() {
       else listButton.innerText = filterList;
 
       for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //update all selects
-        let fieldName = this.chartFields[fieldIndex];
+        let fieldName = this.chartFields[fieldIndex].field;
         let sliceButton = document.getElementById(fieldName + '.slice');  //NB - hardcoded reference qualifier
         if (fieldName == this.chartSlicer) {
           sliceButton.style.backgroundColor = '#444444';
@@ -672,9 +693,14 @@ function filterChart() {
   {  //initialise the filterChart
     filterChart.chartTable = filterTable( { tableName : 'Invoices', tableData : simpleData() });
     filterChart.chartFields = JSON.parse(document.getElementById("localFields").dataset.lbiFields);
-    filterChart.buildFields('localFields');
-    filterChart.buildHeader('localHeader');
-    filterChart.buildFooter('localFooter');
+    let localFields = filterChart.buildFields('localFields');
+    let localHeader = filterChart.buildHeader('localHeader');
+    let localFooter = filterChart.buildFooter('localFooter');
+    let localLoader = document.getElementById("localLoader");
+    localLoader.style.display = 'none';  //hide loader
+    localFields.style.display = 'inline-block';  //show fields
+    localHeader.style.display = 'inline-block';  //show header
+    localFooter.style.display = 'inline-block';  //show footer
     filterChart.refresh();
   }
   return filterChart;
