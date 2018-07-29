@@ -177,22 +177,6 @@ function filterTable(tableDefinition) {
 		 */
 		aggregate(aggregateSpecification) {  //build hierarchy of dimensions and aggregate each group's measures from definition
 
-			function aggrSum(dataset) {
-				let result = 0;  //numeric result expected
-				for (let setIndex = 0; setIndex < dataset.length; setIndex++) {
-					result += parseFloat(dataset[setIndex]);
-				}
-				return result;
-			}
-
-			function aggrCount(dataset) {
-				let result = 0;  //numeric result expected
-				for (let setIndex = 0; setIndex < dataset.length; setIndex++) {
-					result += 1;
-				}
-				return result;
-			}
-
 			/** 
 			 * @description Group active filterRecords according to groupFields and returns the groups of filterRecords. Works similar to a GROUP BY statement, except no aggregation is done here.
 			 * @param {groupField[]} groupFields - array of groupFields (required).
@@ -297,8 +281,10 @@ function filterTable(tableDefinition) {
 							}
 						}
 						let measureResult = null;  //the actual aggregation result
-						if (measureDefinition.aggregation == 'sum') measureResult = aggrSum(measureDataset);
-						else if (measureDefinition.aggregation == 'count') measureResult = aggrCount(measureDataset);
+						// if (measureDefinition.aggregation == 'sum') measureResult = aggrSum(measureDataset);
+						// else if (measureDefinition.aggregation == 'count') measureResult = aggrCount(measureDataset);
+						// else if (measureDefinition.aggregation == 'aggrSum') 
+						measureResult = localMeasures[measureDefinition.aggregation](measureDataset)
 						measures[measureIndex] = {  //@typedef hierarchyNode (as measure)
 							label: measureDefinition.label,  //measure label
 							value: measureResult  //measure value

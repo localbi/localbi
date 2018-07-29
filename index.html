@@ -4,6 +4,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Consumer sales</title>
     <link rel="stylesheet" href="filterStyle.css">
+    <script>
+
+      let localMeasures = {  //defined in global scope
+        constant(value) {
+          return value;
+        },
+        sumSales() {
+
+        },
+        
+        sum(dataset) {
+          let result = 0;  //numeric result expected
+          for (let setIndex = 0; setIndex < dataset.length; setIndex++) {
+            result += parseFloat(dataset[setIndex]);
+          }
+          return result;
+        },
+
+        count(dataset) {
+          let result = 0;  //numeric result expected
+          for (let setIndex = 0; setIndex < dataset.length; setIndex++) {
+            result += 1;
+          }
+          return result;
+        }
+      };
+
+    </script>
   </head>
   <body>
     <div id="localLoader" class="filterLoader"></div>
