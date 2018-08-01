@@ -27,6 +27,7 @@ function filterTable(tableDefinition) {
 		tableName : tableDefinition.tableName,
 		filterFields : [],  //store unique field values
 		filterRecords : [],
+		filterFunctions : tableDefinition.tableFunctions,
 
 		/**
 		 * @typedef {Object} filterField
@@ -255,7 +256,6 @@ function filterTable(tableDefinition) {
 					children: [],  //next level down of dimensions gets populated by recursion
 					measures: [],  //aggregated measures
 					groups: []  //consolidated filterGroups - length of this array informs rowspan in pivot
-					//isMeasure : false  //lowest level contains the measures as children REDUNDANT
 				}
 
 				let hierarchyNode = hierarchyChildren[valueIndex];
@@ -272,22 +272,9 @@ function filterTable(tableDefinition) {
 					let measures = [];
 					for (let measureIndex = 0; measureIndex < measureDefinitions.length; measureIndex++) {  //measures are as per definition
 						let measureDefinition = measureDefinitions[measureIndex];
-						let measureDataset = [];
-						for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {
-							let filterGroup = node.groups[groupIndex];
-							for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
-								let filterRecord = filterGroup.groupRecords[rowIndex];
-								measureDataset.push(filterRecord.rowValues[measureDefinition.fieldIndex].valueName);  //pick the correct column in the row as defined for the measure
-							}
-						}
-						let measureResult = null;  //the actual aggregation result
-						// if (measureDefinition.aggregation == 'sum') measureResult = aggrSum(measureDataset);
-						// else if (measureDefinition.aggregation == 'count') measureResult = aggrCount(measureDataset);
-						// else if (measureDefinition.aggregation == 'aggrSum') 
-						measureResult = localMeasures[measureDefinition.aggregation](measureDataset)
 						measures[measureIndex] = {  //@typedef hierarchyNode (as measure)
 							label: measureDefinition.label,  //measure label
-							value: measureResult  //measure value
+							value: filterTable.filterFunctions[measureDefinition.aggregation](node)  //call function to calculate measure, passing node
 						}
 					}
 					node.measures = measures;
@@ -307,7 +294,7 @@ function filterTable(tableDefinition) {
 			for (let measureIndex = 0; measureIndex < aggregateSpecification.measures.length; measureIndex++) {  //build indexed measureDefinitions
 				let measureDefinition = aggregateSpecification.measures[measureIndex];
 				measureDefinitions[measureIndex] = {  //@typedef measureDefinition
-					fieldIndex: this.filterField(measureDefinition.fieldName).fieldIndex,  //field index of measure (required), get fieldIndex from fieldName
+					//fieldIndex: this.filterField(measureDefinition.fieldName).fieldIndex,  //field index of measure (required), get fieldIndex from fieldName
 					label: measureDefinition.label,  //label of aggregated measure (required)
 					aggregation: measureDefinition.aggregation  //aggregation function (required)
 				};
@@ -332,7 +319,10 @@ function filterTable(tableDefinition) {
 				let filterValue = filterField.filterValue(tableDefinition.tableData[rowIndex][colIndex]);  //NB!!! should we pass this by ref or value!!!??
 				if (colIndex == 0) filterTable.filterRecords[rowIndex-1] = {  //define filterRecord and add filterRecord definition only once with the zero-th tableData column. filterRecords will have one less record than tableData due to header row
 					rowIsActive : true,  //all rows active by default
-					rowValues : []  //to be populated below
+					rowValues : [],  //to be populated below
+					fieldIndex(fieldName) {  //return fieldIndex from fieldName
+						return filterTable.filterField(fieldName).fieldIndex;
+					}
 				}
 				filterTable.filterRecords[rowIndex-1].rowValues[colIndex] = filterValue;  //populate filterRecord with field element reference - 0 based, so subtract header row
 			}

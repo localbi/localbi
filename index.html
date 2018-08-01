@@ -4,34 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Consumer sales</title>
     <link rel="stylesheet" href="filterStyle.css">
-    <script>
-
-      let localMeasures = {  //defined in global scope
-        constant(value) {
-          return value;
-        },
-        sumSales() {
-
-        },
-        
-        sum(dataset) {
-          let result = 0;  //numeric result expected
-          for (let setIndex = 0; setIndex < dataset.length; setIndex++) {
-            result += parseFloat(dataset[setIndex]);
-          }
-          return result;
-        },
-
-        count(dataset) {
-          let result = 0;  //numeric result expected
-          for (let setIndex = 0; setIndex < dataset.length; setIndex++) {
-            result += 1;
-          }
-          return result;
-        }
-      };
-
-    </script>
   </head>
   <body>
     <div id="localLoader" class="filterLoader"></div>
@@ -39,46 +11,109 @@
     <div id="localContent" class="filterContent">
       <div id="localCharts" class="filterCharts">
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"kpi","slice":"none","sort":"none","width":"400","height":"400"},
+          "display":{"type":"kpi","flexDimension":"none","flexMeasure":"replace","sort":"none","width":"400","height":"400"},
           "dimensions":[{"label":"Totals","field":"Total"}],
-          "measures":[{"label":"Total sales","field":"SalesAmount","aggregation":"sum"}]}'>
+          "measures":[{"label":"Total sales","aggregation":"totalSales"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"doughnut","slice":"replace","sort":"measure","width":"400","height":"400"},
+          "display":{"type":"doughnut","flexDimension":"replace","flexMeasure":"replace","sort":"measure","width":"400","height":"400"},
           "dimensions":[{"label":"Managers","field":"Manager"}],
-          "measures":[{"label":"Sales","field":"SalesAmount","aggregation":"sum"}]}'>
+          "measures":[{"label":"Sales","aggregation":"totalSales"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"line","slice":"add","sort":"dimension","width":"400","height":"400"},
+          "display":{"type":"line","flexDimension":"add","flexMeasure":"replace","sort":"dimension","width":"400","height":"400"},
           "dimensions":[{"label":"Months","field":"Month"}],
-          "measures":[{"label":"Sales","field":"SalesAmount","aggregation":"sum"}]}'>
+          "measures":[{"label":"Sales","aggregation":"totalSales"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"bar","slice":"add","sort":"measure","width":"400","height":"400"},
+          "display":{"type":"bar","flexDimension":"add","flexMeasure":"replace","sort":"measure","width":"400","height":"400"},
           "dimensions":[{"label":"Categories","field":"Category"}],
-          "measures":[{"label":"Sales","field":"SalesAmount","aggregation":"sum"}]}'>
+          "measures":[{"label":"Sales","aggregation":"totalSales"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
-          "display":{"type":"pivot","slice":"add","sort":"none","width":"400","height":"400"},
+          "display":{"type":"pivot","flexDimension":"add","flexMeasure":"none","sort":"none","width":"400","height":"400"},
           "dimensions":[{"label":"Regions","field":"Region"},{"label":"Stores","field":"Store"}],
-          "measures":[{"label":"Sales","field":"SalesAmount","aggregation":"sum"}]}'>
+          "measures":[
+          {"label":"Sales","aggregation":"totalSales","format":"formatNumeric"},
+          {"label":"Cost","aggregation":"totalCost","format":"formatNumeric"},
+          {"label":"GP%","aggregation":"grossProfitPercentage","format":"formatNumeric"}]}'>
         </div>
       </div>
       <div id="localFields" class="filterFields" data-lbi-fields='[
-        {"field":"Year","sort":"number"},
-        {"field":"Month","sort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]},
-        {"field":"Country","sort":"text"},
-        {"field":"Region","sort":"text"},
-        {"field":"Store","sort":"text"},
-        {"field":"Category","sort":"text"},
-        {"field":"Product","sort":"text"},
-        {"field":"Manager","sort":"text"},
-        {"field":"Employee","sort":"text"}]'></div>
+        {"label":"Years","field":"Year","sort":"number"},
+        {"label":"Months","field":"Month","sort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]},
+        {"label":"countries","field":"Country","sort":"text"},
+        {"label":"regions","field":"Region","sort":"text"},
+        {"label":"stores","field":"Store","sort":"text"},
+        {"label":"categories","field":"Category","sort":"text"},
+        {"label":"products","field":"Product","sort":"text"},
+        {"label":"managers","field":"Manager","sort":"text"},
+        {"label":"employees","field":"Employee","sort":"text"}]' data-lbi-measures='[
+        {"label":"Sales","aggregation":"totalSales"},
+        {"label":"GP%","aggregation":"grossProfitPercentage"}]'></div>
     </div>
     <div id="localFooter" class="filterFooter"></div>
+
     <script src="chart.min.js"></script>
     <script src="filterTable.js"></script>
     <script src="filterData2.js"></script>
     <script src="filterChart.js"></script>
+    <script>
+
+      let localMeasures = {  //measures are functions that access the aggregated node data
+
+        totalSales(node) {  //each master measure operates on the fact rows directly!
+          let salesAmountIndex = node.groups[0].groupRecords[0].fieldIndex('SalesAmount');  //helper method from rows to get the index - faster to do this outside the loop
+          let salesAmountTotal = 0;  //numeric result expected
+          for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
+            let filterGroup = node.groups[groupIndex];
+            for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
+              let filterRecord = filterGroup.groupRecords[rowIndex];
+              salesAmountTotal += parseFloat(filterRecord.rowValues[salesAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+            }
+          }
+          return salesAmountTotal;
+        },
+
+        totalCost(node) {  //each master measure operates on the fact rows directly!
+          let costAmountIndex = node.groups[0].groupRecords[0].fieldIndex('CostAmount');  //helper method from rows to get the index - faster to do this outside the loop
+          let costAmountTotal = 0;  //numeric result expected
+          for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
+            let filterGroup = node.groups[groupIndex];
+            for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
+              let filterRecord = filterGroup.groupRecords[rowIndex];
+              costAmountTotal += parseFloat(filterRecord.rowValues[costAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+            }
+          }
+          return costAmountTotal;
+        },
+
+        grossProfitPercentage(node) {  //each master measure operates on the fact rows directly!
+          let salesAmountIndex = node.groups[0].groupRecords[0].fieldIndex('SalesAmount');  //helper method from rows to get the index - faster to do this outside the loop
+          let costAmountIndex = node.groups[0].groupRecords[0].fieldIndex('CostAmount');  //helper method from rows to get the index - faster to do this outside the loop
+          let salesAmountTotal = 0;  //numeric result expected
+          let costAmountTotal = 0;
+          for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
+            let filterGroup = node.groups[groupIndex];
+            for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
+              let filterRecord = filterGroup.groupRecords[rowIndex];
+              salesAmountTotal += parseFloat(filterRecord.rowValues[salesAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+              costAmountTotal += parseFloat(filterRecord.rowValues[costAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+            }
+          }
+          let result = (salesAmountTotal-costAmountTotal) / salesAmountTotal;
+          //return result.toLocaleString("en", {style: "percent"});
+          return result;
+        },
+
+        formatNumeric(value) {
+          return result.toLocaleString();
+        }
+
+      };
+
+      let localBi = filterChart(localMeasures);  //..and run..
+
+    </script>
   </body>
 </html>

@@ -66,6 +66,15 @@ body {
     vertical-align: top;
     background-color: #888888;
     border-radius: 1rem;
+    white-space: normal;
+}
+.filterMeasures {
+    width: 100%;
+    margin-top: 1rem;
+    height: 2rem;
+    text-align: left;
+    text-align-last: center;
+    border-radius: 1rem;
 }
 .filterList {
     width: 100%;

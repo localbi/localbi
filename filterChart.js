@@ -4,11 +4,13 @@
  * @description Sets up the local BI page.
  * @returns {filterChart}
  */
-function filterChart() {
+function filterChart(filterMeasures) {
   let filterChart = {  //define filterChart
-    chartTable : null,
-    chartFields : null,
-    chartSlicer : null,
+    chartTable: null,
+    chartFields: null,
+    chartMeasures: null,
+    flexDimension: null,
+    flexMeasure: null,
     /**
      * @description Builds markup for page header. Every field in this.chartFields gets a navigation panel.
      * @param {string} elementId The elementId for the header.
@@ -17,17 +19,43 @@ function filterChart() {
       let filterFields = document.getElementById(elementId);  //container for all fields
       let listButton = document.createElement('button');  //button to list and clear all filters
       listButton.className = 'filterList';
-      listButton.onclick = function() {  //  clear all fields and slicer field
+      listButton.onclick = function() {  //  clear all fields and flexDimension field
         for (let fieldIndex = 0; fieldIndex < filterChart.chartFields.length; fieldIndex++) {
           let fieldName = filterChart.chartFields[fieldIndex].field;
           filterChart.adjustSelect(fieldName,0);
         }
-        filterChart.chartSlicer = null;
+        filterChart.flexDimension = null;
+        filterChart.flexMeasure = null;
         filterChart.refresh();
       };
       listButton.innerText = String.fromCharCode(9671);
       listButton.id = 'filterList';  //NB - this id is used by other code!
       filterFields.appendChild(listButton);
+
+      let measureSelect = document.createElement('select');  //measure list
+      measureSelect.className = 'filterMeasures';
+      measureSelect.onchange = function() {  //
+        if (measureSelect.options[measureSelect.selectedIndex].value == null) filterChart.flexMeasure = null;  //we have a non-selection option in the list
+        else filterChart.flexMeasure = {
+          label: measureSelect.options[measureSelect.selectedIndex].text,
+          aggregation: measureSelect.options[measureSelect.selectedIndex].value};
+        filterChart.refresh();
+      };
+      measureSelect.id = 'measureFlex';  //NB - this id is used by other code!
+      measureSelect.multiple = false;
+      filterFields.appendChild(measureSelect);
+      let defaultOption = document.createElement('option');  //default option
+      defaultOption.text = String.fromCharCode(9671);  //label
+      defaultOption.value = null;  //aggregation function
+      measureSelect.add(defaultOption);
+      for (let measureIndex = 0; measureIndex < this.chartMeasures.length; measureIndex++) {  //build field navigation for all fields
+        let measureItem = this.chartMeasures[measureIndex];
+        let option = document.createElement('option');
+        option.text = measureItem.label;  //label
+        option.value = measureItem.aggregation;  //aggregation function
+        measureSelect.add(option);
+      }
+
       for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //build field navigation for all fields
         let fieldName = this.chartFields[fieldIndex].field;
 
@@ -40,7 +68,7 @@ function filterChart() {
         titleButton.onclick = function() {  //sort and toggle through asc/desc
           filterChart.sortSelect(fieldName, -1);
         };
-        titleButton.textContent = 'x' + fieldName;  //initial sort order is unassigned
+        titleButton.textContent = 'x' + this.chartFields[fieldIndex].label;  //initial sort order is unassigned
         titleButton.id = fieldName + '.sort';  //NB - this id is used by other code!
         fieldDiv.appendChild(titleButton);
 
@@ -58,16 +86,19 @@ function filterChart() {
         buttonsDiv.className = 'filterButtons';
         fieldDiv.appendChild(buttonsDiv);
         
-        let sliceButton = document.createElement('button');  //button to set which field is used to slice the charts
-        sliceButton.className = 'filterAdjust';
-        sliceButton.onclick = function() {  //-1 = set all options to inverted
-          if (fieldName == filterChart.chartSlicer) filterChart.chartSlicer = null;  //if set to this field, unset
-          else filterChart.chartSlicer = fieldName;  //otherwise set
+        let flexDimensionButton = document.createElement('button');  //button to set which field is used to flexDimension the charts
+        flexDimensionButton.className = 'filterAdjust';
+        flexDimensionButton.onclick = function() {  //-1 = set all options to inverted
+          if (filterChart.flexDimension != null && fieldName == filterChart.flexDimension.fieldName) filterChart.flexDimension = null;  //if set to this field, unset
+          else filterChart.flexDimension = {  //
+            fieldName: fieldName, 
+            label: fieldName 
+          };  //otherwise set
           filterChart.refresh();
         };
-        sliceButton.textContent = String.fromCharCode(10070);
-        sliceButton.id = fieldName + '.slice';  //NB - this id is used by other code!
-        buttonsDiv.appendChild(sliceButton);
+        flexDimensionButton.textContent = String.fromCharCode(10070);
+        flexDimensionButton.id = fieldName + '.flexDimension';  //NB - this id is used by other code!
+        buttonsDiv.appendChild(flexDimensionButton);
 
         let invertButton = document.createElement('button');  //button to invert field filter
         invertButton.className = 'filterAdjust';
@@ -336,20 +367,16 @@ function filterChart() {
           };
         }
 
-        if (this.chartSlicer != null) {  //wait for a valid slicer field
-          let sliceSpecification = {  //add slicer field as new dimension
-            fieldName: this.chartSlicer, 
-            label: this.chartSlicer 
-          };
-          let sliceIsFound = false;  //only add/replace slice dimension if not already part of the spec
+        if (this.flexDimension != null) {  //wait for a valid flexDimension field
+          let dimensionIsFound = false;  //only add/replace flexDimension if not already part of the spec
           let dimensionIndex = 0;
-          while (sliceIsFound == false && dimensionIndex < chartSpecification.dimensions.length) {  //exit as soon as we find the slice
-            if (dimensionSpecifications[dimensionIndex].fieldName == sliceSpecification.fieldName) sliceIsFound = true;
+          while (dimensionIsFound == false && dimensionIndex < chartSpecification.dimensions.length) {  //exit as soon as we find the flexDimension
+            if (dimensionSpecifications[dimensionIndex].fieldName == this.flexDimension.fieldName) dimensionIsFound = true;
 						else dimensionIndex++;
           }
-          if (sliceIsFound == false) {
-            if (chartSpecification.display.slice == 'add') dimensionSpecifications.push(sliceSpecification);  //add slicer field to end
-            else if (chartSpecification.display.slice == 'replace') dimensionSpecifications[(dimensionSpecifications.length)-1] = sliceSpecification;  //replace last field with slicer field 
+          if (dimensionIsFound == false) {
+            if (chartSpecification.display.flexDimension == 'add') dimensionSpecifications.push(this.flexDimension);  //add flexDimension field to end
+            else if (chartSpecification.display.flexDimension == 'replace') dimensionSpecifications[(dimensionSpecifications.length)-1] = this.flexDimension;  //replace last field with flexDimension field 
           }
         }
 
@@ -357,10 +384,23 @@ function filterChart() {
         for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {
           let measureSpecification = chartSpecification.measures[measureIndex];
           measureSpecifications[measureIndex] = {  //@typedef {Object} measureSpecification - specify a measure by name.
-            fieldName: measureSpecification.field,  //fieldName - field name of measure (required).
+            //fieldName: measureSpecification.field,  //fieldName - field name of measure (required).
             label: measureSpecification.label,  //label - label of aggregated measure (required).
             aggregation: measureSpecification.aggregation  //aggregation - aggregation function (required).
           };
+        }
+
+        if (this.flexMeasure != null) {  //wait for a valid flexMeasure field
+          let measureIsFound = false;  //only add/replace flexmeasure if not already part of the spec
+          let measureIndex = 0;
+          while (measureIsFound == false && measureIndex < chartSpecification.measures.length) {  //exit as soon as we find the flexmeasure
+            if (measureSpecifications[measureIndex].aggregation == this.flexMeasure.aggregation) measureIsFound = true;
+						else measureIndex++;
+          }
+          if (measureIsFound == false) {
+            if (chartSpecification.display.flexMeasure == 'add') measureSpecifications.push(this.flexMeasure);  //add flexMeasure field to end
+            else if (chartSpecification.display.flexMeasure == 'replace') measureSpecifications[(measureSpecifications.length)-1] = this.flexMeasure;  //replace last field with flexMeasure field 
+          }
         }
         
         let chartHierarchy = this.chartTable.aggregate({  //@typedef {Object} aggregateSpecification
@@ -599,12 +639,14 @@ function filterChart() {
             headerCell.textContent = dimensionSpecifications[dimensionIndex].label;
             headerRow.appendChild(headerCell);
           }
+          
           for (let measureIndex = 0; measureIndex < measureSpecifications.length; measureIndex++) {  //measure labels
             let headerCell = document.createElement('th');
             headerCell.className = 'filterPivotHeading';
             headerCell.textContent = measureSpecifications[measureIndex].label;
             headerRow.appendChild(headerCell);
           }
+
           function recurseTable(hierarchy, htmlTable) {  //build pivot table recursively
             let nodeSpan = {
               rows: 0,  //accumulate the total number of rows in this node, including totals
@@ -663,7 +705,7 @@ function filterChart() {
       this.chartTable.filter(filterDefinitions);  //implement the filter definition
 
       let filterList = '';  //display the filter list
-      if (this.chartSlicer != null) filterList += String.fromCharCode(10070) + this.chartSlicer + '\n\n';  //show slicer field
+      if (this.flexDimension != null) filterList += String.fromCharCode(10070) + this.flexDimension.label + '\n\n';  //show flexDimension field
       for (let filterIndex = 0; filterIndex < filterDefinitions.length; filterIndex++) {  //list filtered items
         let filterDefinition = filterDefinitions[filterIndex];
         if (filterDefinition.filterValue != '*') filterList += filterDefinition.fieldName + String.fromCharCode(9670) + filterDefinition.filterValue + '\n';
@@ -673,16 +715,19 @@ function filterChart() {
       if (filterList == '') listButton.innerText = String.fromCharCode(9671);
       else listButton.innerText = filterList;
 
+      let measureSelect = document.getElementById('measureFlex');  //NB - hardcoded reference qualifier
+      if (this.flexMeasure == null) measureSelect.selectedIndex = 0;
+
       for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //update all selects
         let fieldName = this.chartFields[fieldIndex].field;
-        let sliceButton = document.getElementById(fieldName + '.slice');  //NB - hardcoded reference qualifier
-        if (fieldName == this.chartSlicer) {
-          sliceButton.style.backgroundColor = '#444444';
-          sliceButton.style.color = '#ffffff';
+        let flexDimensionButton = document.getElementById(fieldName + '.flexDimension');  //NB - hardcoded reference qualifier
+        if (this.flexDimension != null && fieldName == this.flexDimension.fieldName) {
+          flexDimensionButton.style.backgroundColor = '#444444';
+          flexDimensionButton.style.color = '#ffffff';
         }
         else {
-          sliceButton.style.backgroundColor = null;
-          sliceButton.style.color = null;
+          flexDimensionButton.style.backgroundColor = null;
+          flexDimensionButton.style.color = null;
         }
         this.updateSelect(fieldName);
         this.sortSelect(fieldName,0);
@@ -691,8 +736,9 @@ function filterChart() {
     }
   }
   {  //initialise the filterChart
-    filterChart.chartTable = filterTable( { tableName : 'Invoices', tableData : simpleData() });
+    filterChart.chartTable = filterTable( { tableName : 'Invoices', tableData : simpleData(), tableFunctions : filterMeasures });
     filterChart.chartFields = JSON.parse(document.getElementById("localFields").dataset.lbiFields);
+    filterChart.chartMeasures = JSON.parse(document.getElementById("localFields").dataset.lbiMeasures);
     let localFields = filterChart.buildFields('localFields');
     let localHeader = filterChart.buildHeader('localHeader');
     let localFooter = filterChart.buildFooter('localFooter');
@@ -705,5 +751,3 @@ function filterChart() {
   }
   return filterChart;
 }
-
-filterChart();  //..and run..
