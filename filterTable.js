@@ -166,7 +166,7 @@ function filterTable(tableDefinition) {
 		 * @typedef {Object} measureSpecification - specify a measure by name.
 		 * @property {string} fieldName - field name of measure (required).
 		 * @property {string} label - label of aggregated measure (required).
-		 * @property {string} aggregation - aggregation function (required). Can be expanded to support more aggregation functions.
+		 * @property {string} calculation - calculation function (required). Can be expanded to support more calculation functions.
 		 * 
 		 * @typedef {Object} hierarchyNode - single dimension value with all its subsequent children.
 		 * @property {string} label - node label (required).
@@ -179,7 +179,7 @@ function filterTable(tableDefinition) {
 		aggregate(aggregateSpecification) {  //build hierarchy of dimensions and aggregate each group's measures from definition
 
 			/** 
-			 * @description Group active filterRecords according to groupFields and returns the groups of filterRecords. Works similar to a GROUP BY statement, except no aggregation is done here.
+			 * @description Group active filterRecords according to groupFields and returns the groups of filterRecords. Works similar to a GROUP BY statement, except no calculation is done here.
 			 * @param {groupField[]} groupFields - array of groupFields (required).
 			 * @returns {filterGroup[]} - array of filterGroups.
 			 * 
@@ -238,10 +238,10 @@ function filterTable(tableDefinition) {
 			 * @typedef {Object} measureDefinition - define a measure.
 			 * @property {int} fieldIndex - field index of measure (required).
 			 * @property {string} label - label of aggregated measure (required).
-			 * @property {string} aggregation - aggregation function (required). Can be expanded to support more aggregation functions.
+			 * @property {string} calculation - calculation function (required). Can be expanded to support more calculation functions.
 			 */
 			function buildHierarchy(dimensionDefinitions, measureDefinitions, filterGroup, hierarchyChildren, hierarchyLevel) {  //recursively build the hierarchy of dimensions
-				let nodeLabel = dimensionDefinitions[hierarchyLevel].label;  //get label from definitions
+				//let nodeLabel = dimensionDefinitions[hierarchyLevel].label;  //get label from definitions
 				let nodeValue = filterGroup.groupValues[hierarchyLevel].valueName;  //build list of unique values, for each field in the group
 				let valueIsFound = false;  //to check if value exists
 				let valueIndex = 0;  //position of found value
@@ -250,7 +250,7 @@ function filterTable(tableDefinition) {
 					else valueIndex++;
 				}
 				if (valueIsFound == false) hierarchyChildren[valueIndex] = {  //@typedef hierarchyNode (as dimension)
-					label: nodeLabel,  //dimension label
+					//label: nodeLabel,  //dimension label
 					value: nodeValue,  //dimension unique value
 					level: hierarchyLevel,  //dimension level
 					children: [],  //next level down of dimensions gets populated by recursion
@@ -273,8 +273,8 @@ function filterTable(tableDefinition) {
 					for (let measureIndex = 0; measureIndex < measureDefinitions.length; measureIndex++) {  //measures are as per definition
 						let measureDefinition = measureDefinitions[measureIndex];
 						measures[measureIndex] = {  //@typedef hierarchyNode (as measure)
-							label: measureDefinition.label,  //measure label
-							value: filterTable.filterFunctions[measureDefinition.aggregation](node)  //call function to calculate measure, passing node
+							//label: 'measureDefinition.label',  //measure label
+							value: filterTable.filterFunctions[measureDefinition.calculation](node)  //call function to calculate measure, passing node
 						}
 					}
 					node.measures = measures;
@@ -286,8 +286,8 @@ function filterTable(tableDefinition) {
 			for (let dimensionIndex = 0; dimensionIndex < aggregateSpecification.dimensions.length; dimensionIndex++) {  //build indexed dimensionDefinitions
 				let dimensionDefinition = aggregateSpecification.dimensions[dimensionIndex];
 				dimensionDefinitions[dimensionIndex] = {  //@typedef dimensionDefinition
-					fieldIndex: this.filterField(dimensionDefinition.fieldName).fieldIndex,   //field index of dimension (required), get fieldIndex from fieldName
-					label: dimensionDefinition.label  //label of dimension (required)
+					fieldIndex: this.filterField(dimensionDefinition.field).fieldIndex   //field index of dimension (required), get fieldIndex from fieldName
+					//label: dimensionDefinition.label  //label of dimension (required)
 				};
 			}
 			let measureDefinitions = [];
@@ -295,17 +295,17 @@ function filterTable(tableDefinition) {
 				let measureDefinition = aggregateSpecification.measures[measureIndex];
 				measureDefinitions[measureIndex] = {  //@typedef measureDefinition
 					//fieldIndex: this.filterField(measureDefinition.fieldName).fieldIndex,  //field index of measure (required), get fieldIndex from fieldName
-					label: measureDefinition.label,  //label of aggregated measure (required)
-					aggregation: measureDefinition.aggregation  //aggregation function (required)
+					//label: measureDefinition.label,  //label of aggregated measure (required)
+					calculation: measureDefinition.calculation  //calculation function (required)
 				};
 			}
 			let filterGroups = buildGroups(dimensionDefinitions);  //group by the dimensionDefinitions and return a group of records for each unique combination of dimension values
 			let filterHierarchy = [];  //each successive dimension will form another level in the hierarchy
 			for (let groupIndex = 0; groupIndex < filterGroups.length; groupIndex++) {
 			  	let filterGroup = filterGroups[groupIndex];
-			  	filterHierarchy = buildHierarchy(dimensionDefinitions, measureDefinitions, filterGroup, filterHierarchy, 0);  //recursively work down all the levels of hierarchy, aggregation happens on measures on the lowest level
+			  	filterHierarchy = buildHierarchy(dimensionDefinitions, measureDefinitions, filterGroup, filterHierarchy, 0);  //recursively work down all the levels of hierarchy, calculation happens on measures on the lowest level
 			}
-			//once the hierarchy is built we can do the aggregations
+			//once the hierarchy is built we can do the calculations
 			filterHierarchy = aggregateHierarchy(filterHierarchy);
 			return filterHierarchy;
 		}

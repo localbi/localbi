@@ -36,9 +36,10 @@ function filterChart(filterMeasures) {
       measureSelect.className = 'filterMeasures';
       measureSelect.onchange = function() {  //
         if (measureSelect.options[measureSelect.selectedIndex].value == null) filterChart.flexMeasure = null;  //we have a non-selection option in the list
-        else filterChart.flexMeasure = {
-          label: measureSelect.options[measureSelect.selectedIndex].text,
-          aggregation: measureSelect.options[measureSelect.selectedIndex].value};
+        else filterChart.flexMeasure = JSON.parse(measureSelect.options[measureSelect.selectedIndex].value);
+        // {
+        //   label: measureSelect.options[measureSelect.selectedIndex].text,
+        //   calculation: measureSelect.options[measureSelect.selectedIndex].value};
         filterChart.refresh();
       };
       measureSelect.id = 'measureFlex';  //NB - this id is used by other code!
@@ -46,13 +47,14 @@ function filterChart(filterMeasures) {
       filterFields.appendChild(measureSelect);
       let defaultOption = document.createElement('option');  //default option
       defaultOption.text = String.fromCharCode(9671);  //label
-      defaultOption.value = null;  //aggregation function
+      defaultOption.value = null;  //calculation function
       measureSelect.add(defaultOption);
       for (let measureIndex = 0; measureIndex < this.chartMeasures.length; measureIndex++) {  //build field navigation for all fields
         let measureItem = this.chartMeasures[measureIndex];
         let option = document.createElement('option');
         option.text = measureItem.label;  //label
-        option.value = measureItem.aggregation;  //aggregation function
+        option.value = JSON.stringify(measureItem);  //calculation function
+        console.log(option.value);
         measureSelect.add(option);
       }
 
@@ -91,7 +93,7 @@ function filterChart(filterMeasures) {
         flexDimensionButton.onclick = function() {  //-1 = set all options to inverted
           if (filterChart.flexDimension != null && fieldName == filterChart.flexDimension.fieldName) filterChart.flexDimension = null;  //if set to this field, unset
           else filterChart.flexDimension = {  //
-            fieldName: fieldName, 
+            field: fieldName, 
             label: fieldName 
           };  //otherwise set
           filterChart.refresh();
@@ -358,62 +360,65 @@ function filterChart(filterMeasures) {
         let lbiChart = lbiCharts[chartIndex];
         let chartSpecification = JSON.parse(lbiChart.dataset.lbiChart);  //expect valid JSON in the tag's data-lbi-chart attribute
 
-        let dimensionSpecifications = [];  //build dimensions specification
-        for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
-          let dimensionSpecification = chartSpecification.dimensions[dimensionIndex];
-          dimensionSpecifications[dimensionIndex] = {  //@typedef {Object} dimensionSpecification - specify a dimension by name.
-            fieldName: dimensionSpecification.field,  //field name of dimension (required).
-            label: dimensionSpecification.label  //label of dimension (required).
-          };
-        }
+        // let chartSpecification.dimensions = [];  //build dimensions specification
+        // for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
+        //   let dimensionSpecification = chartSpecification.dimensions[dimensionIndex];
+        //   chartSpecification.dimensions[dimensionIndex] = {  //@typedef {Object} dimensionSpecification - specify a dimension by name.
+        //     fieldName: dimensionSpecification.field,  //field name of dimension (required).
+        //     label: dimensionSpecification.label  //label of dimension (required).
+        //   };
+        // }
 
         if (this.flexDimension != null) {  //wait for a valid flexDimension field
           let dimensionIsFound = false;  //only add/replace flexDimension if not already part of the spec
           let dimensionIndex = 0;
           while (dimensionIsFound == false && dimensionIndex < chartSpecification.dimensions.length) {  //exit as soon as we find the flexDimension
-            if (dimensionSpecifications[dimensionIndex].fieldName == this.flexDimension.fieldName) dimensionIsFound = true;
+            if (chartSpecification.dimensions[dimensionIndex].field == this.flexDimension.field) dimensionIsFound = true;
 						else dimensionIndex++;
           }
           if (dimensionIsFound == false) {
-            if (chartSpecification.display.flexDimension == 'add') dimensionSpecifications.push(this.flexDimension);  //add flexDimension field to end
-            else if (chartSpecification.display.flexDimension == 'replace') dimensionSpecifications[(dimensionSpecifications.length)-1] = this.flexDimension;  //replace last field with flexDimension field 
+            if (chartSpecification.display.flexDimension == 'add') chartSpecification.dimensions.push(this.flexDimension);  //add flexDimension field to end
+            else if (chartSpecification.display.flexDimension == 'replace') chartSpecification.dimensions[(chartSpecification.dimensions.length)-1] = this.flexDimension;  //replace last field with flexDimension field 
           }
         }
 
-        let measureSpecifications = [];  //build measures specification
-        for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {
-          let measureSpecification = chartSpecification.measures[measureIndex];
-          measureSpecifications[measureIndex] = {  //@typedef {Object} measureSpecification - specify a measure by name.
-            //fieldName: measureSpecification.field,  //fieldName - field name of measure (required).
-            label: measureSpecification.label,  //label - label of aggregated measure (required).
-            aggregation: measureSpecification.aggregation  //aggregation - aggregation function (required).
-          };
-        }
+        // let chartSpecification.measures = [];  //build measures specification
+        // for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {
+        //   let measureSpecification = chartSpecification.measures[measureIndex];
+        //   chartSpecification.measures[measureIndex] = {  //@typedef {Object} measureSpecification - specify a measure by name.
+        //     //fieldName: measureSpecification.field,  //fieldName - field name of measure (required).
+        //     label: measureSpecification.label,  //label - label of aggregated measure (required).
+        //     calculation: measureSpecification.calculation  //calculation - calculation function (required).
+        //   };
+        // }
 
         if (this.flexMeasure != null) {  //wait for a valid flexMeasure field
           let measureIsFound = false;  //only add/replace flexmeasure if not already part of the spec
           let measureIndex = 0;
           while (measureIsFound == false && measureIndex < chartSpecification.measures.length) {  //exit as soon as we find the flexmeasure
-            if (measureSpecifications[measureIndex].aggregation == this.flexMeasure.aggregation) measureIsFound = true;
+            if (chartSpecification.measures[measureIndex].calculation == this.flexMeasure.calculation) measureIsFound = true;
 						else measureIndex++;
           }
           if (measureIsFound == false) {
-            if (chartSpecification.display.flexMeasure == 'add') measureSpecifications.push(this.flexMeasure);  //add flexMeasure field to end
-            else if (chartSpecification.display.flexMeasure == 'replace') measureSpecifications[(measureSpecifications.length)-1] = this.flexMeasure;  //replace last field with flexMeasure field 
+            if (chartSpecification.display.flexMeasure == 'add') chartSpecification.measures.push(this.flexMeasure);  //add flexMeasure field to end
+            else if (chartSpecification.display.flexMeasure == 'replace') chartSpecification.measures[(chartSpecification.measures.length)-1] = this.flexMeasure;  //replace last field with flexMeasure field 
           }
         }
         
         let chartHierarchy = this.chartTable.aggregate({  //@typedef {Object} aggregateSpecification
-          dimensions: dimensionSpecifications,  //array of dimensionSpecifications (required).
-          measures: measureSpecifications  //array of measureSpecifications (required).
+          dimensions: chartSpecification.dimensions,  //array of chartSpecification.dimensions (required).
+          measures: chartSpecification.measures  //array of chartSpecification.measures (required).
         });
+
+        
+
 
         let chartTitle = chartSpecification.measures[0].label;  //automatically use "Measure by Dim1, Dim2" as title
         let dimensionTitle = '';
-        if (dimensionSpecifications.length > 0) {
-          for (let dimensionIndex = 0; dimensionIndex < dimensionSpecifications.length; dimensionIndex++) {
+        if (chartSpecification.dimensions.length > 0) {
+          for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
             if (dimensionTitle.length > 0) dimensionTitle += ', ';  //add comma separator
-            dimensionTitle += dimensionSpecifications[dimensionIndex].fieldName;
+            dimensionTitle += chartSpecification.dimensions[dimensionIndex].field;
           }
           chartTitle += ' by ' + dimensionTitle;
         }
@@ -428,7 +433,7 @@ function filterChart(filterMeasures) {
             if (chartLabel.children.length == 0) {  //one dimension, one measure
               let datasetIndex = 0;
               if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
-                label: chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
+                label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                 type: 'bar',
                 backgroundColor: getIndexedColor(datasetIndex, '88'),
                 borderColor : getIndexedColor(datasetIndex, 'FF'),
@@ -494,7 +499,7 @@ function filterChart(filterMeasures) {
             if (chartLabel.children.length == 0) {  //one dimension, one measure
               let datasetIndex = 0;
               if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
-                label: chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
+                label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                 type: 'line',
                 fill: false,
                 backgroundColor: getIndexedColor(datasetIndex, '88'),
@@ -613,12 +618,13 @@ function filterChart(filterMeasures) {
           htmlTable.appendChild(headerRow);
           let headerCell = document.createElement('th');
           headerCell.className = 'filterKpiHeading';
-          headerCell.textContent = chartHierarchy[0].measures[0].label;  //first level hierarchy's first value, and first measure label
+          headerCell.textContent = chartSpecification.measures[0].label;//chartHierarchy[0].measures[0].label;  //first level hierarchy's first value, and first measure label
           headerRow.appendChild(headerCell);
           let totalRow = document.createElement('tr');  //totals row
           htmlTable.appendChild(totalRow);
           let measureCell = document.createElement('td');
-          measureCell.textContent = chartHierarchy[0].measures[0].value.toLocaleString();  //first level hierarchy's first value, and first measure value
+          measureCell.textContent = filterMeasures[chartSpecification.measures[0].format](chartHierarchy[0].measures[0].value);
+          //measureCell.textContent = chartHierarchy[0].measures[0].value.toLocaleString();  //first level hierarchy's first value, and first measure value
           measureCell.className = 'filterKpiMeasure';
           totalRow.appendChild(measureCell);
         }
@@ -633,17 +639,17 @@ function filterChart(filterMeasures) {
           htmlDiv.appendChild(htmlTable);
           let headerRow = document.createElement('tr');  //header row for labels
           htmlTable.appendChild(headerRow);
-          for (let dimensionIndex = 0; dimensionIndex < dimensionSpecifications.length; dimensionIndex++) {  //dimension labels
+          for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {  //dimension labels
             let headerCell = document.createElement('th');
             headerCell.className = 'filterPivotHeading';
-            headerCell.textContent = dimensionSpecifications[dimensionIndex].label;
+            headerCell.textContent = chartSpecification.dimensions[dimensionIndex].label;
             headerRow.appendChild(headerCell);
           }
           
-          for (let measureIndex = 0; measureIndex < measureSpecifications.length; measureIndex++) {  //measure labels
+          for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {  //measure labels
             let headerCell = document.createElement('th');
             headerCell.className = 'filterPivotHeading';
-            headerCell.textContent = measureSpecifications[measureIndex].label;
+            headerCell.textContent = chartSpecification.measures[measureIndex].label;
             headerRow.appendChild(headerCell);
           }
 
@@ -667,7 +673,8 @@ function filterChart(filterMeasures) {
               for (let measureIndex = 0; measureIndex < hierarchyNode.measures.length; measureIndex++) {  //one cell per measure
                 let measure = hierarchyNode.measures[measureIndex];
                 let measureCell = document.createElement('td');
-                measureCell.textContent = measure.value.toLocaleString();
+                measureCell.textContent = filterMeasures[chartSpecification.measures[measureIndex].format](measure.value);  //measure.value.toLocaleString();
+                
                 if (hierarchyNode.children.length > 0) measureCell.className = 'filterPivotTotal';
                 else measureCell.className = 'filterPivotMeasure';
                 totalRow.appendChild(measureCell);
@@ -721,7 +728,7 @@ function filterChart(filterMeasures) {
       for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //update all selects
         let fieldName = this.chartFields[fieldIndex].field;
         let flexDimensionButton = document.getElementById(fieldName + '.flexDimension');  //NB - hardcoded reference qualifier
-        if (this.flexDimension != null && fieldName == this.flexDimension.fieldName) {
+        if (this.flexDimension != null && fieldName == this.flexDimension.field) {
           flexDimensionButton.style.backgroundColor = '#444444';
           flexDimensionButton.style.color = '#ffffff';
         }

@@ -13,30 +13,30 @@
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"kpi","flexDimension":"none","flexMeasure":"replace","sort":"none","width":"400","height":"400"},
           "dimensions":[{"label":"Totals","field":"Total"}],
-          "measures":[{"label":"Total sales","aggregation":"totalSales"}]}'>
+          "measures":[{"label":"Total sales","calculation":"totalSales","format":"formatMoney"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"doughnut","flexDimension":"replace","flexMeasure":"replace","sort":"measure","width":"400","height":"400"},
           "dimensions":[{"label":"Managers","field":"Manager"}],
-          "measures":[{"label":"Sales","aggregation":"totalSales"}]}'>
+          "measures":[{"label":"Sales","calculation":"totalSales"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"line","flexDimension":"add","flexMeasure":"replace","sort":"dimension","width":"400","height":"400"},
           "dimensions":[{"label":"Months","field":"Month"}],
-          "measures":[{"label":"Sales","aggregation":"totalSales"}]}'>
+          "measures":[{"label":"Sales","calculation":"totalSales"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"bar","flexDimension":"add","flexMeasure":"replace","sort":"measure","width":"400","height":"400"},
           "dimensions":[{"label":"Categories","field":"Category"}],
-          "measures":[{"label":"Sales","aggregation":"totalSales"}]}'>
+          "measures":[{"label":"Sales","calculation":"totalSales"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"pivot","flexDimension":"add","flexMeasure":"none","sort":"none","width":"400","height":"400"},
           "dimensions":[{"label":"Regions","field":"Region"},{"label":"Stores","field":"Store"}],
           "measures":[
-          {"label":"Sales","aggregation":"totalSales","format":"formatNumeric"},
-          {"label":"Cost","aggregation":"totalCost","format":"formatNumeric"},
-          {"label":"GP%","aggregation":"grossProfitPercentage","format":"formatNumeric"}]}'>
+          {"label":"Sales","calculation":"totalSales","format":"formatMoney"},
+          {"label":"Cost","calculation":"totalCost","format":"formatMoney"},
+          {"label":"GP%","calculation":"grossProfitPercentage","format":"formatPercentage"}]}'>
         </div>
       </div>
       <div id="localFields" class="filterFields" data-lbi-fields='[
@@ -49,8 +49,8 @@
         {"label":"products","field":"Product","sort":"text"},
         {"label":"managers","field":"Manager","sort":"text"},
         {"label":"employees","field":"Employee","sort":"text"}]' data-lbi-measures='[
-        {"label":"Sales","aggregation":"totalSales"},
-        {"label":"GP%","aggregation":"grossProfitPercentage"}]'></div>
+        {"label":"Sales","calculation":"totalSales","format":"formatMoney"},
+        {"label":"GP%","calculation":"grossProfitPercentage","format":"formatPercentage"}]'></div>
     </div>
     <div id="localFooter" class="filterFooter"></div>
 
@@ -102,12 +102,16 @@
             }
           }
           let result = (salesAmountTotal-costAmountTotal) / salesAmountTotal;
-          //return result.toLocaleString("en", {style: "percent"});
+          
           return result;
         },
 
-        formatNumeric(value) {
-          return result.toLocaleString();
+        formatMoney(value) {
+          return value.toLocaleString();
+        },
+
+        formatPercentage(value) {
+          return value.toLocaleString("en", {style: "percent"});
         }
 
       };
