@@ -1,207 +1,247 @@
-		/** filterTable(tableName)
-		 * => tableName (string): 'my table name' (case sensitive)
-		 * <= filterTable (obj)
-		 ** Finds an existing filterTable by tableName. 
-		 ** If not found it will create a new filterTable and add it to this.filterTables before returning the new filterTable.
-		 */
-		/**
-		 * @typedef {Object} filterRecord
-		 * @property {string} name - Array of active filterRecords included in a filterGroup
-		 */
-/** filterTable(tableDefinition)
- * => tableDefinition (obj) : {
- *		modelName : 'model name',
- *		filterTables : [ 
- *			{ tableName : 'table name 1', tableData : [][] },	
- *			{ tableName : 'table name 2', tableData : [][] }
- *		]	
- *	}
- * <= filterTable (obj)
- ** Build the filterTable's filterTables and filterFields from denormalised tableData [][]
- ** Each field is scanned and only unique values stored in each filterField
- ** Each row is scanned and only a reference to the field value is stored in each filterTable
+"use strict";
+
+/** 
+ * @function filterTable
+ * @description Build the filterTable's filterRecords and filterFields from normalised tableData. Each field is scanned and only unique values stored in each filterField. Each record is scanned and only a reference to the field value is stored in each filterTable.
+ * @param {tableDefinition} tableDefinition - Table definition.
+ * @returns {filterTable} filterTable.
  */
 function filterTable(tableDefinition) {
-	"use strict";
-	let filterTable = {  //define filterTable
-		tableName : tableDefinition.tableName,
-		filterFields : [],  //store unique field values
-		filterRecords : [],
-		filterFunctions : tableDefinition.tableFunctions,
+	/**
+	 * @typedef {object} tableDefinition - Define filterTable's name, fields, records and functions.
+	 * @property {string} tableName - Table name.
+	 * @property {tableField[]} tableFields - Array of field arrays. Each field array is an array of unique field values.
+	 * @property {tableRecord[]} tableRecords - Array of normalised table record arrays. Each record array contains the index of the unique field value.
+	 * @property {tableFunctions} tableFunctions - Functions used to aggregate measures.
+	 */
+
+	/**
+	 * @typedef {array} tableField - Each field array is an array of unique field values.
+	 * @property {string} value - Unique field value.
+	 */
+
+	/**
+	 * @typedef {array} tableRecord - Each record array contains the index of the unique field value.
+	 * @property {int} valueIndex - Index of value in the correspondingly index tableField
+	 */
+	
+	/**
+	 * @typedef {object} tableFunctions - Contains functions used to aggregate measures.
+	 * @property {tableFunction} functionName - This is a function and can be named anything, i.e. not 'functionName'
+	 */
+
+	/**
+	 * @typedef {object} tableFunction - Arbitrarily named function that gets called to aggregate hierarchy records.
+	 * @param {filterTable} table - filterTable reference.
+	 * @param {hierarchyNode} node - hierarchyNode reference.
+	 * @returns {object} Measure result.
+	 */
+
+	//TODO: NB!!! should we pass values  by ref or value!!!??
+	let filterFields = [];
+	for (let fieldIndex = 0; fieldIndex < tableDefinition.tableFields.length; fieldIndex++) {  //build filterFields
+		let tableField = tableDefinition.tableFields[fieldIndex];  //this will be an array of field values
+		let filterValues = [];
+		for (let valueIndex = 0; valueIndex < tableField.length; valueIndex++) {  //value data starts at index 1, but we include the header (which is the field name) so we don't lose any record index references
 
 		/**
-		 * @typedef {Object} filterField
-		 * @property {string} name - Array of filterFields making up a unique filterGroup
+		 * @typedef {object} filterValue - One unique field value (per field).
+		 * @property {string} valueName - description of value (actual value of the incoming cell).
+		 * @property {number} valueIndex - position in parent array.
+		 * @property {number} valueActiveRows - number of active records where this value is found.
+		 * @property {number} valueDormantRows - number of dormant records where this value is found.
+		 * @property {boolean} valueIsActive - indicates whether user has actively filtered this value.
 		 */
-		
-		/** filterField(fieldName)
-		 * => fieldName (string): 'my field name' (case sensitive)
-		 * <= filterField (obj)
-		 ** Finds an existing filterField by fieldName. 
-		 ** If not found it will create a new filterField and add it to this.filterFields before returning the new filterField.
+		let filterValue = {  //@typedef filterValue
+				valueName : tableField[valueIndex],  //unique value name (actually description, but we use name for consistency, and it's shorter :-))
+				valueIndex : valueIndex,  //track position in filterValues
+				valueActiveRows : 0,  //number of rows in which this value is active - determined when we group by
+				valueDormantRows : 0,  //number of rows in which this value is dormant - determined when we group by
+				valueIsActive : true  //actioned by user
+			}
+			filterValues[valueIndex] = filterValue;  //indices here will correspond to the tableRecord indices
+		}
+
+		/** 
+		 * @typedef {object} filterField - One field containing an array of unique filterValues.
+		 * @property {string} fieldName - Name of field.
+		 * @property {number} fieldIndex - Position in parent array.
+		 * @property {filterValue[]} fieldValues - Array of filterValues, one index for each unique value.
 		 */
-		filterField(fieldName) {  //find filterField if it exists, else create it and add it to filterTable
+		let filterField = {  //@typeDef filterField
+			fieldName : tableField[0],  //get field name from header
+			fieldIndex : fieldIndex,  //track position in filterFields
+			fieldValues : filterValues,  //unique field values
+
+			/** 
+			 * @function findValue
+			 * @description Finds an existing filterValue by valueName.
+			 * @param {string} valueName - Value name.
+			 * @returns {filterValue} Found filterValue, or null if not found.
+			 */
+			findValue(valueName) {
+				let valueIsFound = false;  //to check if filterValue exists
+				let valueIndex = 0;  //position of found filterValue
+				while (valueIsFound == false && valueIndex < filterField.fieldValues.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
+					if (valueName == filterField.fieldValues[valueIndex].valueName) valueIsFound = true;
+					else valueIndex++;
+				}
+				if (valueIsFound == false) return null;
+				else return filterField.fieldValues[valueIndex]
+	
+			}			
+		};
+		filterFields[fieldIndex] = filterField;  //indices here will correspond to the tableRecord indices
+	}
+
+	let filterRecords = [];
+	for (let recordIndex = 1; recordIndex < tableDefinition.tableRecords.length; recordIndex++) {  //build filterRecords - record data starts at index 1, skip header
+		let recordValues = [];
+		for (let fieldIndex = 0; fieldIndex < filterFields.length; fieldIndex++) {  //we should have the same number of fields in records
+			let filterField = filterFields[fieldIndex];  //get field from fieldIndex
+			let valueIndex = tableDefinition.tableRecords[recordIndex][fieldIndex];  //tableRecords contains index of filterValue for the same fieldIndex
+			let filterValue = filterField.fieldValues[valueIndex];
+			recordValues[fieldIndex] = filterValue;
+		}
+
+		/**
+		 * @typedef {object} filterRecord - One field containing an array of unique filterValues.
+		 * @property {boolean} recordIsActive - Indicator if record is active or dormant.
+		 * @property {filterValue[]} recordValues - Array of filterValues, one index for every field.
+		 */
+		let filterRecord = {  //@typedef filterRecord
+			recordIsActive : true,  //all records active by default
+			recordValues : recordValues  //lookups to field filterValues
+		}
+		filterRecords[recordIndex-1] = filterRecord;  //we don't keep the header record
+	}
+
+	/** 
+	 * @typedef {object} filterTable - Normalised table structure that facilitates filtering and aggregation.
+	 * @property {string} filterName - Name of table.
+	 * @property {filterField[]} filterFields - Array of filterFields, containing unique field values.
+	 * @property {filterRecord[]} filterRecords - Array of filterRecords, containing references to unique field values.
+	 * @property {function[]} filterFunctions - Array of aggregation functions.
+	 */
+	 let filterTable = {  //@typedef filterTable
+		filterName : tableDefinition.tableName,  //name
+		filterFields : filterFields,  //unique field values
+		filterRecords : filterRecords,  //normalised records
+		filterFunctions : tableDefinition.tableFunctions,  //aggregation functions
+
+		/** 
+		 * @function findField
+		 * @description Finds an existing filterField by name.
+		 * @param {string} fieldName - Field name.
+		 * @returns {filterField} Found filterField, or null if not found.
+		 */
+		findField(fieldName) {  //find filterField if it exists, else return null
 			let fieldIsFound = false;  //to check if filterField exists
 			let fieldIndex = 0;  //position of found filterField
-			while (fieldIsFound == false && fieldIndex < this.filterFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
-				if(fieldName == this.filterFields[fieldIndex].fieldName) fieldIsFound = true;
+			while (fieldIsFound == false && fieldIndex < filterTable.filterFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
+				if (fieldName == filterTable.filterFields[fieldIndex].fieldName) fieldIsFound = true;
 				else fieldIndex++;
 			}
-			if (fieldIsFound == false) this.filterFields[fieldIndex] = {  //define filterField because it wasn't found, and fieldIndex will be at the next open slot already to be added
-				fieldName : fieldName,  //field name
-				fieldIndex : fieldIndex,  //track position in this.filterFields
-				filterValues : [],  //unique field values, to be populated during build process
-
-				/** filterValue(valueName)
-				 * => valueName (string): 'my value name' (case sensitive)
-				 * <= filterValue (obj)
-				 ** Finds an existing filterValue by valueName. 
-				 ** If not found it will create a new filterValue and add it to this.filterValues before returning the new filterValue.
-				 */
-				filterValue(valueName) {  //find valueName if it exists, else create it and add it to filterField. I used "valueName" to be consistent with the naming convention. A better name might be valueValue :-)
-					let valueIsFound = false;  //to check if filterValue exists
-					let valueIndex = 0;  //position of found filterValue
-					while (valueIsFound == false && valueIndex < this.filterValues.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
-						if (valueName == this.filterValues[valueIndex].valueName) valueIsFound = true;
-						else valueIndex++;
-					}
-					if (valueIsFound == false) this.filterValues[valueIndex] = {  //define filterValue because it wasn't found, and valueIndex will be at the next open slot already to be added
-						valueName : valueName,  //unique value value
-						valueIndex : valueIndex,  //track position in this.filterValues
-						valueActiveRows : 0,
-						valueDormantRows : 0,
-						//valueIsActive : false,
-						valueIsFiltered : true  //actioned by user
-						//valueIsActive : true  //due to rowset interaction
-					}
-					return this.filterValues[valueIndex];  //whether found or created, it should exist at this index at this point
-				}
-			}
-			return this.filterFields[fieldIndex];  //whether found or created, it should exist at this index at this point
+			if (fieldIsFound == false) return null;
+			else return filterTable.filterFields[fieldIndex];
 		},
-		
 
-		
-		/** filterTable.filter(filterCollection)
-		 * => filterCollection (obj): [ 
-		 *		{ fieldName : '*', fieldIndex : null, filterValue : '*', valueIsFiltered : true },
-		 *      { fieldName : 'Customers', fieldIndex : null, filterValue : 'CustomerA', valueIsFiltered : false }
-		 *		]
-		 *	where
-		 *		fieldName => actual field name / null / '*' for all
-		 *		fieldIndex => actual numeric index / null (if a specific index is specified it takes precedence over fieldName)
-		 *		filterValue => actual value / '*' for all
-		 *		valueIsFiltered => true / false / ! for invert
-		 * <= (nothing)
-		 ** Apply filterCollection to filterFields and updates the model
-		 ** Filters are applied in the sequence listed
-		 ** Because we use a single denormalised table, every field is represented in every row.
-		 ** If filterValue.valueIsFiltered = true on all fields in a row makes the row active (rowIsActive = true). This is step 1
-		 ** If all the filterValue.valueIsActive = true in an active row, then the row remains active (valueIsActive = true). This is step 2
-		 ** Step 1 does the filtering and some of the state updates based on the data.
-		 ** Step 2 propagates the resultant row and field active states when there are multiple tables
+		/** 
+		 * @function filter
+		 * @description Apply filterSpecifications to filterFields and updates the active states of filterRecords and filterValues. Filters are applied in the sequence listed.
+		 * @param {filterSpecification[]} filterSpecifications - Array of filterSpecification to apply (required).
 		 */
-		filter(filterCollection) {
-			//apply filters
-			for (let filterIndex = 0; filterIndex < filterCollection.length; filterIndex++) {  //set all filterValues' filter state as defined by filterCollection
-				let filterDef = filterCollection[filterIndex];
-				let fieldsToFilter = [];  //place holder for subset of fields to filter
-				if (filterDef.fieldIndex == null) {  //if fieldIndex is not defined, fall back on fieldName
-					if (filterDef.fieldName == '*') fieldsToFilter = this.filterFields;  //special case for all fiels
-					else fieldsToFilter[0] = this.filterField(filterDef.fieldName);  //or single element array with one named field
-				}
-				else fieldsToFilter[0] = this.filterFields[filterDef.fieldIndex];
+		filter(filterSpecifications) {  //apply filters, specification uses fieldName
+			/** 
+			 * @typedef {object} filterSpecification - Specify field and value filter by name
+			 * @property {string} field - Actual field name or '*' for all fields
+			 * @property {string} value - Actual value name or '*' for all values
+			 * @property {string/boolean} isActive - Active status : true / false / '!' for invert
+			 */
+			for (let filterIndex = 0; filterIndex < filterSpecifications.length; filterIndex++) {  //set all filterValues' filter state as defined by filterSpecifications
+				let filterSpecification = filterSpecifications[filterIndex];
+				let fieldsToFilter = [];  //placeholder for subset of fields to filter
+				if (filterSpecification.field == '*') fieldsToFilter = filterTable.filterFields;  //special case for all fields
+				else fieldsToFilter[0] = filterTable.findField(filterSpecification.field);  //or single element array with one named field
 				for (let fieldIndex = 0; fieldIndex < fieldsToFilter.length; fieldIndex++) {  //potentially we can set all filterFields' states
 					let filterField = fieldsToFilter[fieldIndex];
-					let valuesToFilter = [];  //place holder for subset of values to filter
-					if (filterDef.filterValue == '*') valuesToFilter = filterField.filterValues;  //special case for all values
-					else valuesToFilter[0] = filterField.filterValue(filterDef.filterValue);  //or single element array with one named value
+					let valuesToFilter = [];  //placeholder for subset of values to filter
+					if (filterSpecification.value == '*') valuesToFilter = filterField.fieldValues;  //special case for all values
+					else valuesToFilter[0] = filterField.findValue(filterSpecification.value);  //or single element array with one named value
 					for (let valueIndex = 0; valueIndex < valuesToFilter.length; valueIndex++) {  //potentially we can set all filterValues' states
 						let filterValue = valuesToFilter[valueIndex];
-						if (filterDef.valueIsFiltered == true) filterValue.valueIsFiltered = true;  //true
-						if (filterDef.valueIsFiltered == false) filterValue.valueIsFiltered = false;  //false
-						if (filterDef.valueIsFiltered == '!') filterValue.valueIsFiltered = !filterValue.valueIsFiltered;  //invert
+						if (filterSpecification.isActive == true) filterValue.valueIsActive = true;  //true
+						else if (filterSpecification.isActive == false) filterValue.valueIsActive = false;  //false
+						else if (filterSpecification.isActive == '!') filterValue.valueIsActive = !filterValue.valueIsActive;  //invert
 					}
 				}
 			}
-			//reset states
-			for (let fieldIndex = 0; fieldIndex < this.filterFields.length; fieldIndex++) {
-				let filterField = this.filterFields[fieldIndex];
-				for (let valueIndex = 0; valueIndex < filterField.filterValues.length; valueIndex++) {
-					let filterValue = filterField.filterValues[valueIndex];
+
+			for (let fieldIndex = 0; fieldIndex < filterTable.filterFields.length; fieldIndex++) {  //reset all filterValue states for all filterFields
+				let filterField = filterTable.filterFields[fieldIndex];
+				for (let valueIndex = 0; valueIndex < filterField.fieldValues.length; valueIndex++) {
+					let filterValue = filterField.fieldValues[valueIndex];
 					filterValue.valueActiveRows = 0;
 					filterValue.valueDormantRows = 0;
 				}
 			}
-			//set states per table
-				for (let rowIndex = 0; rowIndex < this.filterRecords.length; rowIndex++) {  //scan all filterRecords to calculate active filterRecords and update active field filterValues
-					let filterRecord = this.filterRecords[rowIndex];
-					filterRecord.rowIsActive = true;  //if any fields are NOT filtered, then the row is NOT active, or we can say that the row is only active when all the fields have isFiltered = true
-					let colIndex = 0;
-					while (filterRecord.rowIsActive == true && colIndex < filterRecord.rowValues.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
-						if(filterRecord.rowValues[colIndex].valueIsFiltered == false) filterRecord.rowIsActive = false;  //if any row has non-filtered values, the row becomes false
-						else colIndex++;
-					}
-					for (let colIndex = 0; colIndex < filterRecord.rowValues.length; colIndex++) {  //set the state of each field's filterValue that exists in the row
-						let filterValue = filterRecord.rowValues[colIndex];
-						if (filterRecord.rowIsActive == true) filterValue.valueActiveRows += 1;
-						else filterValue.valueDormantRows += 1;
-					}
+
+			for (let recordIndex = 0; recordIndex < filterTable.filterRecords.length; recordIndex++) {  //scan all filterRecords to calculate active filterRecords and update active filterValues
+				let filterRecord = filterTable.filterRecords[recordIndex];
+				filterRecord.recordIsActive = true;  //if any fields are NOT filtered, then the record is NOT active, or we can say that the record is only active when all the field values have valueIsActive = true
+				let fieldIndex = 0;
+				while (filterRecord.recordIsActive == true && fieldIndex < filterRecord.recordValues.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
+					if (filterRecord.recordValues[fieldIndex].valueIsActive == false) filterRecord.recordIsActive = false;  //if any record has non-filtered values, the record becomes false
+					else fieldIndex++;
 				}
+				for (let fieldIndex = 0; fieldIndex < filterRecord.recordValues.length; fieldIndex++) {  //set the state of each field's filterValue that exists in the record
+					let filterValue = filterRecord.recordValues[fieldIndex];
+					if (filterRecord.recordIsActive == true) filterValue.valueActiveRows += 1;   //record state gets propagated to each filterValue state in that record
+					else filterValue.valueDormantRows += 1;
+				}
+			}
 		},
 		
 		/** 
-		 * @description Group active rows into a hierarchy of dimensions and aggregate the measures at the lowest level of the hierarchy.
-		 * @param {aggregateSpecification} aggregateSpecification - specify dimensions and measures (required).
-		 * @returns {hierarchyNode[]} - array of hierarchyNodes.
-		 * 
-		 * @typedef {Object} aggregateSpecification - specify dimensions and measures by name, but not index
-		 * @property {dimensionSpecification[]} dimensions - array of dimensionSpecifications (required).
-		 * @property {measureSpecification[]} measures - array of measureSpecifications (required).
-		 *
-		 * @typedef {Object} dimensionSpecification - specify a dimension by name.
-		 * @property {string} fieldName - field name of dimension (required).
-		 * @property {string} label - label of dimension (required).
-		 * 
-		 * @typedef {Object} measureSpecification - specify a measure by name.
-		 * @property {string} fieldName - field name of measure (required).
-		 * @property {string} label - label of aggregated measure (required).
-		 * @property {string} calculation - calculation function (required). Can be expanded to support more calculation functions.
-		 * 
-		 * @typedef {Object} hierarchyNode - single dimension value with all its subsequent children.
-		 * @property {string} label - node label (required).
-		 * @property {string} value - node value value(required).
-		 * @property {int} level - node level (required).
-		 * @property {int} records - total number of records in this node (and all children) (required).
-		 * @property {hierarchyNode[]} children - next level's dimensions or measures (required) - this is recursive.
-		 * @property {boolean} isMeasure - lowest level contains the measures (required).
+		 * @function aggregate
+		 * @description Group active rows into a hierarchy of dimensions and calculate the measures at each level of the hierarchy.
+		 * @param {aggregateSpecification} aggregateSpecification - Specify dimensions and measures (required).
+		 * @returns {hierarchyNode[]} Array of hierarchyNodes with calculated measures.
 		 */
-		aggregate(aggregateSpecification) {  //build hierarchy of dimensions and aggregate each group's measures from definition
-
-			/** 
-			 * @description Group active filterRecords according to groupFields and returns the groups of filterRecords. Works similar to a GROUP BY statement, except no calculation is done here.
-			 * @param {groupField[]} groupFields - array of groupFields (required).
-			 * @returns {filterGroup[]} - array of filterGroups.
-			 * 
-			 * @typedef {Object} groupField - filterField that participates in a filterGroup.
-			 * @property {int} fieldIndex - field index to group by (required).
-			 * @property {string} fieldName - field name to group by (optional).
-			 *
-			 * @typedef {Object} filterGroup - group of active filterRecords that are included with the group formed by the unique combination of fieldField values.
-			 * @property {filterValue[]} groupValues - array of groupValues making up a unique filterGroup.
-			 * @property {filterRecord[]} groupRecords - array of active filterRecords included in a filterGroup.
+		aggregate(aggregateSpecification) {  //build hierarchy of dimensions and calculate measures.
+			/**
+			 * @typedef {object} aggregateSpecification - Specify dimensions and measures by name, but not index
+			 * @property {dimensionSpecification[]} dimensions - Array of dimensionSpecifications (required).
+			 * @property {measureSpecification[]} measures - Array of measureSpecifications (required).
 			 */
-			function buildGroups(groupFields) {  //group active filterRecords according to groupFields and returns the groups of filterRecords
+
+			function buildGroups(dimensionSpecifications) {  //group active filterRecords according to dimensionSpecifications and returns the groups of filterRecords
+				/**
+				 * @typedef {object} dimensionSpecification - Specify a dimension by name.
+				 * @property {string} field - Field name of dimension (required).
+				 */
+
+				for (let dimensionIndex = 0; dimensionIndex < dimensionSpecifications.length; dimensionIndex++) {  //build indexed dimensionSpecifications - faster to do this upfront
+					dimensionSpecifications[dimensionIndex].fieldIndex = filterTable.findField(dimensionSpecifications[dimensionIndex].field).fieldIndex;  //get fieldIndex from fieldName
+				}
 				let filterGroups = [];  //result set of filterGroups
 				for (let recordIndex = 0; recordIndex < filterTable.filterRecords.length; recordIndex++) {  //determine group by field combos - scan through all rows, but only use the active ones for groups
 					let filterRecord = filterTable.filterRecords[recordIndex];
-					if (filterRecord.rowIsActive == true) {  //only do active rows
-						let filterGroup = {  //@typedef {Object} filterGroup
+					if (filterRecord.recordIsActive == true) {  //only do active rows
+
+						/**
+						 * @typedef {object} hierarchyGroup - Single group made up of unique combination of filterValues.
+						 * @property {string} value - Node unique value.
+						 * @property {int} level - Node hierarchy level.
+						 * @property {filterValue[]} groupValues - Unique combination of filtervalues that denotes one hierarchyGroup.
+						 * @property {filterRecord[]} groupRecords - Array of all active fiterRecords that belong to this hierarchyGroup.
+						 */
+						let filterGroup = {  //@typedef hierarchyGroup
 							groupValues: [],  //group by unique groupValues combo, will be an array of filterValues
 							groupRecords: []  //rows linked to group, will be an array of filterRecords
 						}
-						for (let fieldIndex = 0; fieldIndex < groupFields.length; fieldIndex++) {  //build filterGroup's groupValues to have columns as per groupFields
-							filterGroup.groupValues[fieldIndex] = filterRecord.rowValues[groupFields[fieldIndex].fieldIndex];  //get unique filterValues by index for group definition
+						for (let dimensionIndex = 0; dimensionIndex < dimensionSpecifications.length; dimensionIndex++) {  //build filterGroup's groupValues to have columns as per dimensionSpecifications
+							filterGroup.groupValues[dimensionIndex] = filterRecord.recordValues[dimensionSpecifications[dimensionIndex].fieldIndex];  //get unique filterValues by index for group definition
 						}
 						let groupIsFound = false;  //to check if filterGroup exists
 						let groupIndex = 0;  //position of found group in filterGroups
@@ -220,28 +260,10 @@ function filterTable(tableDefinition) {
 						filterGroups[groupIndex].groupRecords.push(filterRecord);  //active records belong to the filterGroup that was found or created
 					}
 				}
-				return filterGroups;
+				return filterGroups;   //array of filterGroups
 			}
 
-			/** 
-			 * @description Build hierarchy of dimensions and aggregate the measures at the lowest level of the hierarchy.
-			 * @param {dimensionDefinition[]} dimensionDefinitions - array of measureDefinitions (required).
-			 * @param {measureDefinition[]} measureDefinitions - array of measureDefinitions (required).
-			 * @param {filterGroup} filterGroup - filterGroup with unique dimensions, and its associated filterRecords (required).
-			 * @param {hierarchyNode[]} hierarchyChildren - nested array of hierarchyNodes, gets populated through recursion (required).
-			 * @param {int} hierarchyLevel - hierarchy level, same as dimension index (required).
-			 * 
-			 * @typedef {Object} dimensionDefinition - define a dimension.
-			 * @property {int} fieldIndex - field index of dimension (required).
-			 * @property {string} label - label of dimension (required).
-			 * 
-			 * @typedef {Object} measureDefinition - define a measure.
-			 * @property {int} fieldIndex - field index of measure (required).
-			 * @property {string} label - label of aggregated measure (required).
-			 * @property {string} calculation - calculation function (required). Can be expanded to support more calculation functions.
-			 */
-			function buildHierarchy(dimensionDefinitions, measureDefinitions, filterGroup, hierarchyChildren, hierarchyLevel) {  //recursively build the hierarchy of dimensions
-				//let nodeLabel = dimensionDefinitions[hierarchyLevel].label;  //get label from definitions
+			function buildHierarchy(filterGroup, hierarchyChildren, hierarchyLevel) {  //recursively build the hierarchy of dimensions, one level per dimension, for one filterGroup
 				let nodeValue = filterGroup.groupValues[hierarchyLevel].valueName;  //build list of unique values, for each field in the group
 				let valueIsFound = false;  //to check if value exists
 				let valueIndex = 0;  //position of found value
@@ -249,85 +271,62 @@ function filterTable(tableDefinition) {
 					if (nodeValue == hierarchyChildren[valueIndex].value) valueIsFound = true;
 					else valueIndex++;
 				}
-				if (valueIsFound == false) hierarchyChildren[valueIndex] = {  //@typedef hierarchyNode (as dimension)
-					//label: nodeLabel,  //dimension label
+
+				/**
+				 * @typedef {object} hierarchyNode - Single dimension value with all its subsequent children.
+				 * @property {string} value - Node unique value.
+				 * @property {int} level - Node hierarchy level.
+				 * @property {hierarchyNode[]} children - Next dimension's nodes - this is recursive.
+				 * @property {hierarchyMeasure[]} measures - Calculated measures for each level in hierarchy.
+				 * @property {hierarchyGroup[]} groups - All groups (and subgroups) for each level of hierarchy.
+				 */
+				if (valueIsFound == false) hierarchyChildren[valueIndex] = {  //@typedef hierarchyNode
 					value: nodeValue,  //dimension unique value
-					level: hierarchyLevel,  //dimension level
-					children: [],  //next level down of dimensions gets populated by recursion
-					measures: [],  //aggregated measures
+					level: hierarchyLevel,  //hierarchy level
+					children: [],  //next level of dimensions gets populated by recursion
+					measures: [],  //aggregated measures gets populated only once the hierarchy is fully built
 					groups: []  //consolidated filterGroups - length of this array informs rowspan in pivot
 				}
 
 				let hierarchyNode = hierarchyChildren[valueIndex];
-				if (hierarchyLevel < (filterGroup.groupValues.length-1)) hierarchyNode.children = buildHierarchy(dimensionDefinitions, measureDefinitions, filterGroup, hierarchyNode.children, hierarchyLevel+1);  //only recurse while we have children - the levels can only go as deep as the number of dimension fields/groupValues
+				if (hierarchyLevel < (filterGroup.groupValues.length-1)) hierarchyNode.children = buildHierarchy(filterGroup, hierarchyNode.children, hierarchyLevel+1);  //only recurse while we have children - the levels can only go as deep as the number of dimension fields/groupValues
 
-				hierarchyNode.groups.push(filterGroup);
+				hierarchyNode.groups.push(filterGroup);  //keep track of all groups used to build the hierarchy
 				return hierarchyChildren;
 			}
 
-			function aggregateHierarchy(nodeHierarchy) {
+			function aggregateHierarchy(measureSpecifications, nodeHierarchy) {  //aggregate the active filterRecords for each level in the hierarchy. Passes filterTable and node through to aggregation function defined in tableFunctions.
+				/**
+				 * @typedef {object} measureSpecification - Specify a measure by calculation function.
+				 * @property {string} calculation - Calculation function name (required). 
+				 */
+
 				for (let nodeIndex = 0; nodeIndex < nodeHierarchy.length; nodeIndex++) {
 					let node = nodeHierarchy[nodeIndex];
-					if (node.children.length > 0) aggregateHierarchy(node.children);  //dig deeper
+					if (node.children.length > 0) aggregateHierarchy(measureSpecifications, node.children);  //dig deeper
 					let measures = [];
-					for (let measureIndex = 0; measureIndex < measureDefinitions.length; measureIndex++) {  //measures are as per definition
-						let measureDefinition = measureDefinitions[measureIndex];
-						measures[measureIndex] = {  //@typedef hierarchyNode (as measure)
-							//label: 'measureDefinition.label',  //measure label
-							value: filterTable.filterFunctions[measureDefinition.calculation](node)  //call function to calculate measure, passing node
+					for (let measureIndex = 0; measureIndex < measureSpecifications.length; measureIndex++) {  //measures are as per specification
+						/**
+						 * @typedef {object} hierarchyMeasure - Measure value at one level in hierarchy.
+						 * @property {object} value - Measure value as returned from function call.
+						 */
+						measures[measureIndex] = {  //@typedef hierarchyMeasure
+							value: filterTable.filterFunctions[measureSpecifications[measureIndex].calculation](filterTable, node)  //call function to calculate measure, passing node and filterTable to lookup fields
 						}
 					}
 					node.measures = measures;
 				}
-				return nodeHierarchy;
+				return nodeHierarchy;  //returns updated hierarchy with measures.
 			}
 
-			let dimensionDefinitions = [];
-			for (let dimensionIndex = 0; dimensionIndex < aggregateSpecification.dimensions.length; dimensionIndex++) {  //build indexed dimensionDefinitions
-				let dimensionDefinition = aggregateSpecification.dimensions[dimensionIndex];
-				dimensionDefinitions[dimensionIndex] = {  //@typedef dimensionDefinition
-					fieldIndex: this.filterField(dimensionDefinition.field).fieldIndex   //field index of dimension (required), get fieldIndex from fieldName
-					//label: dimensionDefinition.label  //label of dimension (required)
-				};
-			}
-			let measureDefinitions = [];
-			for (let measureIndex = 0; measureIndex < aggregateSpecification.measures.length; measureIndex++) {  //build indexed measureDefinitions
-				let measureDefinition = aggregateSpecification.measures[measureIndex];
-				measureDefinitions[measureIndex] = {  //@typedef measureDefinition
-					//fieldIndex: this.filterField(measureDefinition.fieldName).fieldIndex,  //field index of measure (required), get fieldIndex from fieldName
-					//label: measureDefinition.label,  //label of aggregated measure (required)
-					calculation: measureDefinition.calculation  //calculation function (required)
-				};
-			}
-			let filterGroups = buildGroups(dimensionDefinitions);  //group by the dimensionDefinitions and return a group of records for each unique combination of dimension values
+			let filterGroups = buildGroups(aggregateSpecification.dimensions);  //group by the dimensionSpecifications and return a group of records for each unique combination of dimension values
 			let filterHierarchy = [];  //each successive dimension will form another level in the hierarchy
 			for (let groupIndex = 0; groupIndex < filterGroups.length; groupIndex++) {
-			  	let filterGroup = filterGroups[groupIndex];
-			  	filterHierarchy = buildHierarchy(dimensionDefinitions, measureDefinitions, filterGroup, filterHierarchy, 0);  //recursively work down all the levels of hierarchy, calculation happens on measures on the lowest level
+			  	filterHierarchy = buildHierarchy(filterGroups[groupIndex], filterHierarchy, 0);  //recursively populate all the levels of hierarchy, one level per dimension
 			}
-			//once the hierarchy is built we can do the calculations
-			filterHierarchy = aggregateHierarchy(filterHierarchy);
-			return filterHierarchy;
+			return aggregateHierarchy(aggregateSpecification.measures, filterHierarchy);  //once the hierarchy is built we can do the calculations
 		}
 	}
 
-	{  //build filterTables and filterFields
-
-		for (let colIndex = 0; colIndex < tableDefinition.tableData[0].length; colIndex++) {  //use table header as basis for number of columns
-			let filterField = filterTable.filterField(tableDefinition.tableData[0][colIndex]);  //find or create filterField by name - NB!!! should we pass this by ref or value!!!??
-			for (let rowIndex = 1; rowIndex < tableDefinition.tableData.length; rowIndex++) {  //table data start at row 1
-				let filterValue = filterField.filterValue(tableDefinition.tableData[rowIndex][colIndex]);  //NB!!! should we pass this by ref or value!!!??
-				if (colIndex == 0) filterTable.filterRecords[rowIndex-1] = {  //define filterRecord and add filterRecord definition only once with the zero-th tableData column. filterRecords will have one less record than tableData due to header row
-					rowIsActive : true,  //all rows active by default
-					rowValues : [],  //to be populated below
-					fieldIndex(fieldName) {  //return fieldIndex from fieldName
-						return filterTable.filterField(fieldName).fieldIndex;
-					}
-				}
-				filterTable.filterRecords[rowIndex-1].rowValues[colIndex] = filterValue;  //populate filterRecord with field element reference - 0 based, so subtract header row
-			}
-		}
-	}	
 	return filterTable;
 }
-
