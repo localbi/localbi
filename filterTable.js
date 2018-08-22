@@ -1,12 +1,18 @@
 "use strict";
 
 /** 
- * @function filterTable
- * @description Build the filterTable's filterRecords and filterFields from normalised tableData. Each field is scanned and only unique values stored in each filterField. Each record is scanned and only a reference to the field value is stored in each filterTable.
- * @param {tableDefinition} tableDefinition - Table definition.
- * @returns {filterTable} filterTable.
+ * Namespace for localBi classes and functions.
+ * @namespace
  */
-function filterTable(tableDefinition) {
+var localBi = localBi || {};
+
+/** 
+ * Constructs filterTable objects. Build the filterTable's filterRecords and filterFields from normalised tableData. Each field is scanned and only unique values stored in each filterField. Each record is scanned and only a reference to the field value is stored in each filterTable.
+ * @constructor
+ * @param {tableDefinition} tableDefinition - Table definition conisting of unique field values and normalised records.
+ * @returns {filterTable} A filterTable object that can be filtered and aggregated.
+ */
+localBi.filterTable = function(tableDefinition) {
 	/**
 	 * @typedef {object} tableDefinition - Define filterTable's name, fields, records and functions.
 	 * @property {string} tableName - Table name.
@@ -27,17 +33,18 @@ function filterTable(tableDefinition) {
 	
 	/**
 	 * @typedef {object} tableFunctions - Contains functions used to aggregate measures.
-	 * @property {tableFunction} functionName - This is a function and can be named anything, i.e. not 'functionName'
+	 * @property {tableFunction} myFunction1 - Your own function to calculate a measure.
+	 * @property {tableFunction} myFunction2 - Your own function to calculate a measure.
+	 * @property {tableFunction} myFucntionN - Your own function to calculate a measure.
 	 */
 
 	/**
-	 * @typedef {object} tableFunction - Arbitrarily named function that gets called to aggregate hierarchy records.
+	 * @typedef {object} tableFunction - Function that gets called to aggregate hierarchy records.
 	 * @param {filterTable} table - filterTable reference.
 	 * @param {hierarchyNode} node - hierarchyNode reference.
-	 * @returns {object} Measure result.
+	 * @returns {object} The calculated measure result.
 	 */
 
-	//TODO: NB!!! should we pass values  by ref or value!!!??
 	let filterFields = [];
 	for (let fieldIndex = 0; fieldIndex < tableDefinition.tableFields.length; fieldIndex++) {  //build filterFields
 		let tableField = tableDefinition.tableFields[fieldIndex];  //this will be an array of field values
@@ -67,6 +74,7 @@ function filterTable(tableDefinition) {
 		 * @property {string} fieldName - Name of field.
 		 * @property {number} fieldIndex - Position in parent array.
 		 * @property {filterValue[]} fieldValues - Array of filterValues, one index for each unique value.
+		 * @property {findValue} findValue - Function that finds an existing filterValue by valueName.
 		 */
 		let filterField = {  //@typeDef filterField
 			fieldName : tableField[0],  //get field name from header
@@ -87,10 +95,9 @@ function filterTable(tableDefinition) {
 					else valueIndex++;
 				}
 				if (valueIsFound == false) return null;
-				else return filterField.fieldValues[valueIndex]
-	
+				else return filterField.fieldValues[valueIndex];
 			}			
-		};
+		}
 		filterFields[fieldIndex] = filterField;  //indices here will correspond to the tableRecord indices
 	}
 
@@ -122,6 +129,9 @@ function filterTable(tableDefinition) {
 	 * @property {filterField[]} filterFields - Array of filterFields, containing unique field values.
 	 * @property {filterRecord[]} filterRecords - Array of filterRecords, containing references to unique field values.
 	 * @property {function[]} filterFunctions - Array of aggregation functions.
+	 * @property {findField} findField - Function that finds an existing filterField by name.
+	 * @property {filter} filter - Function that filters the dataset.
+	 * @property {aggregate} aggregate - Function that aggregates the dataset.
 	 */
 	 let filterTable = {  //@typedef filterTable
 		filterName : tableDefinition.tableName,  //name
@@ -306,6 +316,7 @@ function filterTable(tableDefinition) {
 					if (node.children.length > 0) aggregateHierarchy(measureSpecifications, node.children);  //dig deeper
 					let measures = [];
 					for (let measureIndex = 0; measureIndex < measureSpecifications.length; measureIndex++) {  //measures are as per specification
+
 						/**
 						 * @typedef {object} hierarchyMeasure - Measure value at one level in hierarchy.
 						 * @property {object} value - Measure value as returned from function call.
@@ -327,6 +338,5 @@ function filterTable(tableDefinition) {
 			return aggregateHierarchy(aggregateSpecification.measures, filterHierarchy);  //once the hierarchy is built we can do the calculations
 		}
 	}
-
 	return filterTable;
 }

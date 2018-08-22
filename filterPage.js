@@ -40,11 +40,11 @@ function normaliseTable(tableData) {
 
 function buildHTML() {
     //combine scripts and styles into single html file
-    let combinedScripts = fs.readFileSync('./index.html').toString()
+    let combinedScripts = fs.readFileSync('./filterIndex.html').toString()
     .replace('<link rel="stylesheet" href="filterStyle.css">','<style>' + fs.readFileSync('filterStyle.css') + '</style>')
     .replace('src="chart.min.js">',  '>' + fs.readFileSync('chart.min.js'))
     .replace('src="filterTable.js">', '>' + fs.readFileSync('filterTable.js'))
-    .replace('src="filterData2.js">', '>' + fs.readFileSync('filterData2.js'))
+    .replace('src="filterData.js">', '>' + fs.readFileSync('filterData.js'))
     .replace('src="filterChart.js">', '>' + fs.readFileSync('filterChart.js'));
 
     fs.writeFileSync('localbi.html', combinedScripts);
@@ -55,9 +55,49 @@ function buildHTML() {
 
 const fs = require("fs");
 const parse = require('csv-parse/lib/sync');
-let Table1 = parse(fs.readFileSync('Invoices.csv'), {delimiter: ','});
+let Table1 = parse(fs.readFileSync('filterData.csv'), {delimiter: ','});
 
 
-fs.writeFileSync('normdata.js', normaliseTable(Table1));
+fs.writeFileSync('filterData.js', normaliseTable(Table1));
 
 //buildHTML();
+
+'use strict';
+const nodemailer = require('nodemailer');
+
+// Generate test SMTP service account from ethereal.email
+// Only needed if you don't have a real mail account for testing
+nodemailer.createTestAccount((err, account) => {
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: account.user, // generated ethereal user
+            pass: account.pass // generated ethereal password
+        }
+    });
+
+    // setup email data with unicode symbols
+    let mailOptions = {
+        from: '"Fred Foo 👻" <foo@example.com>', // sender address
+        to: 'rynhardt@hotmail.com', // list of receivers
+        subject: 'Hello ✔', // Subject line
+        text: 'Hello world?', // plain text body
+        html: '<b>Hello world?</b>' // html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);
+        // Preview only available when sending through an Ethereal account
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+    });
+});

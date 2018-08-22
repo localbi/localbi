@@ -56,49 +56,49 @@
 
     <script src="chart.min.js"></script>
     <script src="filterTable.js"></script>
-    <script src="filterData2.js"></script>
+    <script src="filterData.js"></script>
     <script src="filterChart.js"></script>
     <script>
 
       let localMeasures = {  //measures are functions that access the aggregated node data
 
-        totalSales(node) {  //each master measure operates on the fact rows directly!
-          let salesAmountIndex = node.groups[0].groupRecords[0].fieldIndex('SalesAmount');  //helper method from rows to get the index - faster to do this outside the loop
+        totalSales(table, node) {  //each master measure operates on the fact rows directly!
+          let salesAmountIndex = table.findField('SalesAmount').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
           let salesAmountTotal = 0;  //numeric result expected
           for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
             let filterGroup = node.groups[groupIndex];
             for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
               let filterRecord = filterGroup.groupRecords[rowIndex];
-              salesAmountTotal += parseFloat(filterRecord.rowValues[salesAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+              salesAmountTotal += parseFloat(filterRecord.recordValues[salesAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
             }
           }
           return salesAmountTotal;
         },
 
-        totalCost(node) {  //each master measure operates on the fact rows directly!
-          let costAmountIndex = node.groups[0].groupRecords[0].fieldIndex('CostAmount');  //helper method from rows to get the index - faster to do this outside the loop
+        totalCost(table, node) {  //each master measure operates on the fact rows directly!
+          let costAmountIndex = table.findField('CostAmount').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
           let costAmountTotal = 0;  //numeric result expected
           for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
             let filterGroup = node.groups[groupIndex];
             for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
               let filterRecord = filterGroup.groupRecords[rowIndex];
-              costAmountTotal += parseFloat(filterRecord.rowValues[costAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+              costAmountTotal += parseFloat(filterRecord.recordValues[costAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
             }
           }
           return costAmountTotal;
         },
 
-        grossProfitPercentage(node) {  //each master measure operates on the fact rows directly!
-          let salesAmountIndex = node.groups[0].groupRecords[0].fieldIndex('SalesAmount');  //helper method from rows to get the index - faster to do this outside the loop
-          let costAmountIndex = node.groups[0].groupRecords[0].fieldIndex('CostAmount');  //helper method from rows to get the index - faster to do this outside the loop
+        grossProfitPercentage(table, node) {  //each master measure operates on the fact rows directly!
+          let salesAmountIndex = table.findField('SalesAmount').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
+          let costAmountIndex = table.findField('CostAmount').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
           let salesAmountTotal = 0;  //numeric result expected
           let costAmountTotal = 0;
           for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
             let filterGroup = node.groups[groupIndex];
             for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
               let filterRecord = filterGroup.groupRecords[rowIndex];
-              salesAmountTotal += parseFloat(filterRecord.rowValues[salesAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
-              costAmountTotal += parseFloat(filterRecord.rowValues[costAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+              salesAmountTotal += parseFloat(filterRecord.recordValues[salesAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+              costAmountTotal += parseFloat(filterRecord.recordValues[costAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
             }
           }
           let result = (salesAmountTotal-costAmountTotal) / salesAmountTotal;
@@ -116,7 +116,20 @@
 
       };
 
-      let localBi = filterChart(localMeasures);  //..and run..
+
+      /* check if it still works :-)
+      let ft = localBi.filterTable( { tableName : 'Invoices', tableFields : fields, tableRecords : records, tableFunctions : localMeasures });
+      console.log(ft);
+
+      let result = ft.aggregate({
+        dimensions: [{field: 'Category'}, {field: 'Product'}],
+        measures: [{calculation: 'totalSales'}]
+      })
+
+      console.log(result);
+      */
+
+      let localChart = localBi.filterChart(localMeasures);  //..and run..
 
     </script>
   </body>

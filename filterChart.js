@@ -1,10 +1,18 @@
 "use strict";
 
-/**
- * @description Sets up the local BI page.
- * @returns {filterChart}
+/** 
+ * Namespace for localBi classes and functions.
+ * @namespace
  */
-function filterChart(filterMeasures) {
+var localBi = localBi || {};
+
+/** 
+ * Constructs the page.
+ * @constructor
+ * @param {filterMeasures} filterMeasures - Not sure if this is still needed.
+ * @returns {filterChart} A filterChart object that can be cuddled and fondled.
+ */
+localBi.filterChart = function(filterMeasures) {
   let filterChart = {  //define filterChart
     chartTable: null,
     chartFields: null,
@@ -171,14 +179,14 @@ function filterChart(filterMeasures) {
      * @param {string} elementId The elementId of the select element
      */
     buildSelect(elementId) {
-      let filterField = this.chartTable.filterField(elementId);  //get field from name
+      let filterField = this.chartTable.findField(elementId);  //get field from name
       let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      for (let valueIndex = 0; valueIndex < filterField.filterValues.length; valueIndex++) {
-        let fieldValue = filterField.filterValues[valueIndex];
+      for (let valueIndex = 0; valueIndex < filterField.fieldValues.length; valueIndex++) {
+        let fieldValue = filterField.fieldValues[valueIndex];
         let fieldIcon = 'x'; //unassigned
         let option = document.createElement('option');
         option.text = fieldIcon + fieldValue.valueName; //prepend icon to option text
-        option.value = fieldValue.valueIndex;  //references to the filterValues can be done by this index
+        option.value = fieldValue.valueIndex;  //references to the fieldValues can be done by this index
         select.add(option);
       }
     },
@@ -187,12 +195,12 @@ function filterChart(filterMeasures) {
      * @param {string} elementId The elementId of the select element
      */
     updateSelect(elementId) {
-      let filterField = this.chartTable.filterField(elementId);  //get field from name
+      let filterField = this.chartTable.findField(elementId);  //get field from name
       let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
       let options = select.options;
       for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
         let option = options[optionIndex];
-        let fieldValue = filterField.filterValues[option.value];  //this gets the value by its index
+        let fieldValue = filterField.fieldValues[option.value];  //this gets the value by its index
         let fieldIcon = 'x'; //unassigned
         if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows > 0) fieldIcon = String.fromCharCode(9672);  //both = bullseye//9673//10687
         else if (fieldValue.valueActiveRows == 0 && fieldValue.valueDormantRows > 0) fieldIcon = String.fromCharCode(9671); //dormant = empty//9898//11096//9675
@@ -219,16 +227,16 @@ function filterChart(filterMeasures) {
         //clearButton.textContent = String.fromCharCode(9671);  //indicate nothing is selected
         clearButton.style.backgroundColor = null;
         clearButton.style.color = null;
-        filterDefinition.push(   { fieldName : elementId, fieldIndex : null, filterValue : '*', valueIsFiltered : true	});
+        filterDefinition.push(   { field: elementId, value : '*', isActive : true	});
       }
       else {  //something is selected
         let clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
         //clearButton.textContent = String.fromCharCode(9670);  //indicate something is selected
         clearButton.style.backgroundColor = '#444444';
         clearButton.style.color = '#ffffff';
-        filterDefinition.push(   { fieldName : elementId, fieldIndex : null, filterValue : '*', valueIsFiltered : false	});
+        filterDefinition.push(   { field: elementId, value : '*', isActive : false	});
         for (let selectedIndex = 0; selectedIndex < selectedValues.length; selectedIndex++) {  
-          filterDefinition.push( { fieldName : elementId, fieldIndex : null, filterValue : selectedValues[selectedIndex], valueIsFiltered : true })
+          filterDefinition.push( { field: elementId, value : selectedValues[selectedIndex], isActive : true })
         }
       }
       return filterDefinition;
@@ -743,7 +751,7 @@ function filterChart(filterMeasures) {
     }
   }
   {  //initialise the filterChart
-    filterChart.chartTable = filterTable( { tableName : 'Invoices', tableData : simpleData(), tableFunctions : filterMeasures });
+    filterChart.chartTable = localBi.filterTable( { tableName : 'Invoices', tableFields : fields, tableRecords : records, tableFunctions : localMeasures });  //relies on filterData.js to be loaded first
     filterChart.chartFields = JSON.parse(document.getElementById("localFields").dataset.lbiFields);
     filterChart.chartMeasures = JSON.parse(document.getElementById("localFields").dataset.lbiMeasures);
     let localFields = filterChart.buildFields('localFields');
