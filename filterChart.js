@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /** 
  * Namespace for localBi classes and functions.
@@ -13,6 +13,11 @@ var localBi = localBi || {};
  * @returns {filterChart} A filterChart object that can be cuddled and fondled.
  */
 localBi.filterChart = function(filterMeasures) {
+  const filterIcon = {
+    active: String.fromCharCode(9670),
+    inactive: String.fromCharCode(9671)
+  }
+
   let filterChart = {  //define filterChart
     chartTable: null,
     chartFields: null,
@@ -36,7 +41,7 @@ localBi.filterChart = function(filterMeasures) {
         filterChart.flexMeasure = null;
         filterChart.refresh();
       };
-      listButton.innerText = String.fromCharCode(9671);
+      listButton.innerText = filterIcon.inactive;
       listButton.id = 'filterList';  //NB - this id is used by other code!
       filterFields.appendChild(listButton);
 
@@ -54,7 +59,7 @@ localBi.filterChart = function(filterMeasures) {
       measureSelect.multiple = false;
       filterFields.appendChild(measureSelect);
       let defaultOption = document.createElement('option');  //default option
-      defaultOption.text = String.fromCharCode(9671);  //label
+      defaultOption.text = filterIcon.inactive;  //label
       defaultOption.value = null;  //calculation function
       measureSelect.add(defaultOption);
       for (let measureIndex = 0; measureIndex < this.chartMeasures.length; measureIndex++) {  //build field navigation for all fields
@@ -62,7 +67,6 @@ localBi.filterChart = function(filterMeasures) {
         let option = document.createElement('option');
         option.text = measureItem.label;  //label
         option.value = JSON.stringify(measureItem);  //calculation function
-        console.log(option.value);
         measureSelect.add(option);
       }
 
@@ -126,7 +130,7 @@ localBi.filterChart = function(filterMeasures) {
           filterChart.adjustSelect(fieldName,0);
           filterChart.refresh();
         };
-        clearButton.textContent = String.fromCharCode(9671);
+        clearButton.textContent = filterIcon.inactive;
         clearButton.id = fieldName + '.clear';  //NB - this id is used by other code!
         buttonsDiv.appendChild(clearButton);
       }
@@ -181,7 +185,7 @@ localBi.filterChart = function(filterMeasures) {
     buildSelect(elementId) {
       let filterField = this.chartTable.findField(elementId);  //get field from name
       let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      for (let valueIndex = 0; valueIndex < filterField.fieldValues.length; valueIndex++) {
+      for (let valueIndex = 1; valueIndex < filterField.fieldValues.length; valueIndex++) {  //skip 0th element, which is the header
         let fieldValue = filterField.fieldValues[valueIndex];
         let fieldIcon = 'x'; //unassigned
         let option = document.createElement('option');
@@ -203,8 +207,8 @@ localBi.filterChart = function(filterMeasures) {
         let fieldValue = filterField.fieldValues[option.value];  //this gets the value by its index
         let fieldIcon = 'x'; //unassigned
         if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows > 0) fieldIcon = String.fromCharCode(9672);  //both = bullseye//9673//10687
-        else if (fieldValue.valueActiveRows == 0 && fieldValue.valueDormantRows > 0) fieldIcon = String.fromCharCode(9671); //dormant = empty//9898//11096//9675
-        else if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows == 0) fieldIcon = String.fromCharCode(9670); //active = full//9899//11044//9679
+        else if (fieldValue.valueActiveRows == 0 && fieldValue.valueDormantRows > 0) fieldIcon = filterIcon.inactive; //dormant = empty//9898//11096//9675
+        else if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows == 0) fieldIcon = filterIcon.active; //active = full//9899//11044//9679
         option.text = fieldIcon + fieldValue.valueName; //prepend icon to option text
         }
     },
@@ -224,14 +228,14 @@ localBi.filterChart = function(filterMeasures) {
       }
       if (selectedValues.length == 0) {  //nothing selected means everything is selected :)
         let clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
-        //clearButton.textContent = String.fromCharCode(9671);  //indicate nothing is selected
+        //clearButton.textContent = filterIcon.inactive;  //indicate nothing is selected
         clearButton.style.backgroundColor = null;
         clearButton.style.color = null;
         filterDefinition.push(   { field: elementId, value : '*', isActive : true	});
       }
       else {  //something is selected
         let clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
-        //clearButton.textContent = String.fromCharCode(9670);  //indicate something is selected
+        //clearButton.textContent = filterIcon.active;  //indicate something is selected
         clearButton.style.backgroundColor = '#444444';
         clearButton.style.color = '#ffffff';
         filterDefinition.push(   { field: elementId, value : '*', isActive : false	});
@@ -288,9 +292,9 @@ localBi.filterChart = function(filterMeasures) {
       if (sortIcon == String.fromCharCode(9650)) {  //sort options ascending
         sortedOptions = unsortedOptions.sort(function (a, b) {
           let aIcon = a.text.substr(0,1);
-          if (aIcon == String.fromCharCode(9671)) aIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
+          if (aIcon == filterIcon.inactive) aIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let bIcon = b.text.substr(0,1);
-          if (bIcon == String.fromCharCode(9671)) bIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
+          if (bIcon == filterIcon.inactive) bIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let aValue = a.text.substr(1);
           let bValue = b.text.substr(1);
           let iconCompare = aIcon.localeCompare(bIcon);
@@ -303,9 +307,9 @@ localBi.filterChart = function(filterMeasures) {
       else {  //sort options descending
         sortedOptions = unsortedOptions.sort(function (a, b) {
           let aIcon = a.text.substr(0,1);
-          if (aIcon == String.fromCharCode(9671)) aIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
+          if (aIcon == filterIcon.inactive) aIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let bIcon = b.text.substr(0,1);
-          if (bIcon == String.fromCharCode(9671)) bIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
+          if (bIcon == filterIcon.inactive) bIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let aValue = a.text.substr(1);
           let bValue = b.text.substr(1);
           let iconCompare = aIcon.localeCompare(bIcon);
@@ -418,45 +422,34 @@ localBi.filterChart = function(filterMeasures) {
           measures: chartSpecification.measures  //array of chartSpecification.measures (required).
         });
 
-        
-
-
-        let chartTitle = chartSpecification.measures[0].label;  //automatically use "Measure by Dim1, Dim2" as title
-        let dimensionTitle = '';
-        if (chartSpecification.dimensions.length > 0) {
-          for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
-            if (dimensionTitle.length > 0) dimensionTitle += ', ';  //add comma separator
-            dimensionTitle += chartSpecification.dimensions[dimensionIndex].field;
-          }
-          chartTitle += ' by ' + dimensionTitle;
+        if (chartHierarchy.length == 0) {
+          let warningDiv = document.createElement('div');
+          warningDiv.textContent = 'No data - please clear some filters';
+          lbiChart.innerHTML = '';  //remove old chart.js canvas
+          lbiChart.appendChild(warningDiv);
         }
-
-        if (chartSpecification.display.type == 'bar') {
-          sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
-          let labels = [];  //convert hierarchy to chart.js structure
-          let datasets = [];
-          for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-            let chartLabel = chartHierarchy[labelIndex];
-            labels[labelIndex] = chartLabel.value;
-            if (chartLabel.children.length == 0) {  //one dimension, one measure
-              let datasetIndex = 0;
-              if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
-                label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
-                type: 'bar',
-                backgroundColor: getIndexedColor(datasetIndex, '88'),
-                borderColor : getIndexedColor(datasetIndex, 'FF'),
-                borderWidth : 1,
-                hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
-                hoverBorderWidth : 1,
-                data: []
-              }
-              datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
+        else {
+          let chartTitle = chartSpecification.measures[0].label;  //automatically use "Measure by Dim1, Dim2" as title
+          let dimensionTitle = '';
+          if (chartSpecification.dimensions.length > 0) {
+            for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
+              if (dimensionTitle.length > 0) dimensionTitle += ', ';  //add comma separator
+              dimensionTitle += chartSpecification.dimensions[dimensionIndex].field;
             }
-            else {  //two dimensions, one measure
-              for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+            chartTitle += ' by ' + dimensionTitle;
+          }
+
+          if (chartSpecification.display.type == 'bar') {
+            sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
+            let labels = [];  //convert hierarchy to chart.js structure
+            let datasets = [];
+            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              let chartLabel = chartHierarchy[labelIndex];
+              labels[labelIndex] = chartLabel.value;
+              if (chartLabel.children.length == 0) {  //one dimension, one measure
+                let datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
-                  label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
+                  label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'bar',
                   backgroundColor: getIndexedColor(datasetIndex, '88'),
                   borderColor : getIndexedColor(datasetIndex, 'FF'),
@@ -466,64 +459,63 @@ localBi.filterChart = function(filterMeasures) {
                   hoverBorderWidth : 1,
                   data: []
                 }
-                datasets[datasetIndex].data[labelIndex] = chartLabel.children[datasetIndex].measures[0].value;  //use only the first measure of second dimension
+                datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
+              }
+              else {  //two dimensions, one measure
+                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                  if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
+                    label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
+                    type: 'bar',
+                    backgroundColor: getIndexedColor(datasetIndex, '88'),
+                    borderColor : getIndexedColor(datasetIndex, 'FF'),
+                    borderWidth : 1,
+                    hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
+                    hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                    hoverBorderWidth : 1,
+                    data: []
+                  }
+                  datasets[datasetIndex].data[labelIndex] = chartLabel.children[datasetIndex].measures[0].value;  //use only the first measure of second dimension
+                }
               }
             }
-          }
-          let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
-          chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
-          chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
-          lbiChart.innerHTML = '';  //remove old chart.js canvas
-          lbiChart.appendChild(chartCanvas);
-          let newChart = new Chart(chartCanvas, {
-            type: 'bar',
-            data: {
-              labels: labels,
-              datasets: datasets
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                xAxes: [ {    
-                  categoryPercentage: 0.5,
-                  barPercentage: 1.0
-                }]
+            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
+            chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
+            lbiChart.innerHTML = '';  //remove old chart.js canvas
+            lbiChart.appendChild(chartCanvas);
+            let newChart = new Chart(chartCanvas, {
+              type: 'bar',
+              data: {
+                labels: labels,
+                datasets: datasets
               },
-              title: {
-                display: true,
-                text: chartTitle
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  xAxes: [ {    
+                    categoryPercentage: 0.5,
+                    barPercentage: 1.0
+                  }]
+                },
+                title: {
+                  display: true,
+                  text: chartTitle
+                }
               }
-            }
-          });
-        }
-        else if (chartSpecification.display.type == 'line') {
-          sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
-          let labels = [];  //convert hierarchy to chart.js structure
-          let datasets = [];
-          for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-            let chartLabel = chartHierarchy[labelIndex];
-            labels[labelIndex] = chartLabel.value;
-            if (chartLabel.children.length == 0) {  //one dimension, one measure
-              let datasetIndex = 0;
-              if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
-                label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
-                type: 'line',
-                fill: false,
-                backgroundColor: getIndexedColor(datasetIndex, '88'),
-                borderColor : getIndexedColor(datasetIndex, 'FF'),
-                borderWidth : 1,
-                hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
-                hoverBorderWidth : 1,
-                data: []
-              }
-              datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
-            }
-            else {  //two dimensions, one measure
-              for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+            });
+          }
+          else if (chartSpecification.display.type == 'line') {
+            sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
+            let labels = [];  //convert hierarchy to chart.js structure
+            let datasets = [];
+            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              let chartLabel = chartHierarchy[labelIndex];
+              labels[labelIndex] = chartLabel.value;
+              if (chartLabel.children.length == 0) {  //one dimension, one measure
+                let datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
-                  label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
+                  label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'line',
                   fill: false,
                   backgroundColor: getIndexedColor(datasetIndex, '88'),
@@ -534,56 +526,58 @@ localBi.filterChart = function(filterMeasures) {
                   hoverBorderWidth : 1,
                   data: []
                 }
-                datasets[datasetIndex].data[labelIndex] = chartLabel.children[datasetIndex].measures[0].value;  //use only the first measure of second dimension
+                datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
+              }
+              else {  //two dimensions, one measure
+                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                  if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
+                    label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
+                    type: 'line',
+                    fill: false,
+                    backgroundColor: getIndexedColor(datasetIndex, '88'),
+                    borderColor : getIndexedColor(datasetIndex, 'FF'),
+                    borderWidth : 1,
+                    hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
+                    hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                    hoverBorderWidth : 1,
+                    data: []
+                  }
+                  datasets[datasetIndex].data[labelIndex] = chartLabel.children[datasetIndex].measures[0].value;  //use only the first measure of second dimension
+                }
               }
             }
+            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
+            chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
+            lbiChart.innerHTML = '';  //remove old chart.js canvas
+            lbiChart.appendChild(chartCanvas);
+            let newChart = new Chart(chartCanvas, {
+              type: 'line',
+              data: {
+                labels: labels,
+                datasets: datasets
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                  display: true,
+                  text: chartTitle
+                }
+              }
+            });
           }
-          let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
-          chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
-          chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
-          lbiChart.innerHTML = '';  //remove old chart.js canvas
-          lbiChart.appendChild(chartCanvas);
-          let newChart = new Chart(chartCanvas, {
-            type: 'line',
-            data: {
-              labels: labels,
-              datasets: datasets
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              title: {
-                display: true,
-                text: chartTitle
-              }
-            }
-          });
-        }
-        else if (chartSpecification.display.type == 'doughnut' || chartSpecification.display.type == 'pie') {  //pie||doughnut: one dimension and one measure
-          sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
-          let labels = [];  //convert hierarchy to chart.js structure
-          let datasets = [];
-          for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-            let chartLabel = chartHierarchy[labelIndex];
-            labels[labelIndex] = chartLabel.value;
-            if (chartLabel.children.length == 0) {  //one dimension, one measure
-              let datasetIndex = 0;
-              if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
-                label: chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
-                backgroundColor: getIndexedColorArray('88'),
-                borderColor : getIndexedColorArray('FF'),
-                borderWidth : 1,
-                hoverBackgroundColor: getIndexedColorArray('CC'),
-                hoverBordercolor : getIndexedColorArray('FF'),
-                hoverBorderWidth : 1,
-                data: []
-              }
-              datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
-            }
-            else {  //two dimensions, one measure
-              for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+          else if (chartSpecification.display.type == 'doughnut' || chartSpecification.display.type == 'pie') {  //pie||doughnut: one dimension and one measure
+            sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
+            let labels = [];  //convert hierarchy to chart.js structure
+            let datasets = [];
+            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              let chartLabel = chartHierarchy[labelIndex];
+              labels[labelIndex] = chartLabel.value;
+              if (chartLabel.children.length == 0) {  //one dimension, one measure
+                let datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
-                  label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
+                  label: chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   backgroundColor: getIndexedColorArray('88'),
                   borderColor : getIndexedColorArray('FF'),
                   borderWidth : 1,
@@ -592,119 +586,134 @@ localBi.filterChart = function(filterMeasures) {
                   hoverBorderWidth : 1,
                   data: []
                 }
-                datasets[datasetIndex].data[labelIndex] = chartLabel.children[datasetIndex].measures[0].value;  //use only the first measure of second dimension
+                datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
+              }
+              else {  //two dimensions, one measure
+                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                  if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
+                    label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
+                    backgroundColor: getIndexedColorArray('88'),
+                    borderColor : getIndexedColorArray('FF'),
+                    borderWidth : 1,
+                    hoverBackgroundColor: getIndexedColorArray('CC'),
+                    hoverBordercolor : getIndexedColorArray('FF'),
+                    hoverBorderWidth : 1,
+                    data: []
+                  }
+                  datasets[datasetIndex].data[labelIndex] = chartLabel.children[datasetIndex].measures[0].value;  //use only the first measure of second dimension
+                }
               }
             }
+            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
+            chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
+            lbiChart.innerHTML = '';  //remove old chart.js canvas
+            lbiChart.appendChild(chartCanvas);
+            new Chart(chartCanvas, {
+              type: chartSpecification.display.type,
+              data: {
+                labels: labels,
+                datasets: datasets
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                  display: true,
+                  text: chartTitle
+                }
+              }
+            });
           }
-          let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
-          chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
-          chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
-          lbiChart.innerHTML = '';  //remove old chart.js canvas
-          lbiChart.appendChild(chartCanvas);
-          new Chart(chartCanvas, {
-            type: chartSpecification.display.type,
-            data: {
-              labels: labels,
-              datasets: datasets
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              title: {
-                display: true,
-                text: chartTitle
-              }
-            }
-          });
-        }
-        else if (chartSpecification.display.type == 'kpi') {  //kpi: one dimension with one value, and one measure
-          let htmlTable = document.createElement('table');
-          htmlTable.className = 'filterKpiTable';
-          lbiChart.innerHTML = '';  //remove old table
-          lbiChart.appendChild(htmlTable);
-          let headerRow = document.createElement('tr');  //header row for labels
-          htmlTable.appendChild(headerRow);
-          let headerCell = document.createElement('th');
-          headerCell.className = 'filterKpiHeading';
-          headerCell.textContent = chartSpecification.measures[0].label;//chartHierarchy[0].measures[0].label;  //first level hierarchy's first value, and first measure label
-          headerRow.appendChild(headerCell);
-          let totalRow = document.createElement('tr');  //totals row
-          htmlTable.appendChild(totalRow);
-          let measureCell = document.createElement('td');
-          measureCell.textContent = filterMeasures[chartSpecification.measures[0].format](chartHierarchy[0].measures[0].value);
-          //measureCell.textContent = chartHierarchy[0].measures[0].value.toLocaleString();  //first level hierarchy's first value, and first measure value
-          measureCell.className = 'filterKpiMeasure';
-          totalRow.appendChild(measureCell);
-        }
-        else if (chartSpecification.display.type == 'pivot') {  //pivot: multiple dimensions and measures
-          sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
-          lbiChart.innerHTML = '';  //remove old table
-          let htmlDiv = document.createElement('div');  //for some layout stuff we need the table inside a div
-          htmlDiv.className = 'filterPivotDiv';
-          lbiChart.appendChild(htmlDiv);
-          let htmlTable = document.createElement('table');
-          htmlTable.className = 'filterPivotTable';
-          htmlDiv.appendChild(htmlTable);
-          let headerRow = document.createElement('tr');  //header row for labels
-          htmlTable.appendChild(headerRow);
-          for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {  //dimension labels
+          else if (chartSpecification.display.type == 'kpi') {  //kpi: one dimension with one value, and one measure
+            let htmlTable = document.createElement('table');
+            htmlTable.className = 'filterKpiTable';
+            lbiChart.innerHTML = '';  //remove old table
+            lbiChart.appendChild(htmlTable);
+            let headerRow = document.createElement('tr');  //header row for labels
+            htmlTable.appendChild(headerRow);
             let headerCell = document.createElement('th');
-            headerCell.className = 'filterPivotHeading';
-            headerCell.textContent = chartSpecification.dimensions[dimensionIndex].label;
+            headerCell.className = 'filterKpiHeading';
+            headerCell.textContent = chartSpecification.measures[0].label;//chartHierarchy[0].measures[0].label;  //first level hierarchy's first value, and first measure label
             headerRow.appendChild(headerCell);
+            let totalRow = document.createElement('tr');  //totals row
+            htmlTable.appendChild(totalRow);
+            let measureCell = document.createElement('td');
+            measureCell.textContent = filterMeasures[chartSpecification.measures[0].format](chartHierarchy[0].measures[0].value);
+            //measureCell.textContent = chartHierarchy[0].measures[0].value.toLocaleString();  //first level hierarchy's first value, and first measure value
+            measureCell.className = 'filterKpiMeasure';
+            totalRow.appendChild(measureCell);
           }
-          
-          for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {  //measure labels
-            let headerCell = document.createElement('th');
-            headerCell.className = 'filterPivotHeading';
-            headerCell.textContent = chartSpecification.measures[measureIndex].label;
-            headerRow.appendChild(headerCell);
-          }
-
-          function recurseTable(hierarchy, htmlTable) {  //build pivot table recursively
-            let nodeSpan = {
-              rows: 0,  //accumulate the total number of rows in this node, including totals
-              cols: 0  //keep track of columns to span for totals
+          else if (chartSpecification.display.type == 'pivot') {  //pivot: multiple dimensions and measures
+            sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
+            lbiChart.innerHTML = '';  //remove old table
+            let htmlDiv = document.createElement('div');  //for some layout stuff we need the table inside a div
+            htmlDiv.className = 'filterPivotDiv';
+            lbiChart.appendChild(htmlDiv);
+            let htmlTable = document.createElement('table');
+            htmlTable.className = 'filterPivotTable';
+            htmlDiv.appendChild(htmlTable);
+            let headerRow = document.createElement('tr');  //header row for labels
+            htmlTable.appendChild(headerRow);
+            for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {  //dimension labels
+              let headerCell = document.createElement('th');
+              headerCell.className = 'filterPivotHeading';
+              headerCell.textContent = chartSpecification.dimensions[dimensionIndex].label;
+              headerRow.appendChild(headerCell);
             }
-            for (let nodeIndex = 0; nodeIndex < hierarchy.length; nodeIndex++) {
-              let hierarchyNode = hierarchy[nodeIndex];
-              let totalRow = document.createElement('tr');  //totals row
-              htmlTable.appendChild(totalRow);
-              let dimensionCell = document.createElement('td');  //dimension cell
-              dimensionCell.textContent = hierarchyNode.value.toLocaleString();
-              dimensionCell.className = 'filterPivotDimension';
-              totalRow.appendChild(dimensionCell);
-              let totalCell = document.createElement('td');  //totals cell
-              totalCell.textContent = 'Total';
-              totalCell.className = 'filterPivotTotal';
-              if (hierarchyNode.children.length > 0) totalRow.appendChild(totalCell);  //no totals on final dimension
-              for (let measureIndex = 0; measureIndex < hierarchyNode.measures.length; measureIndex++) {  //one cell per measure
-                let measure = hierarchyNode.measures[measureIndex];
-                let measureCell = document.createElement('td');
-                measureCell.textContent = filterMeasures[chartSpecification.measures[measureIndex].format](measure.value);  //measure.value.toLocaleString();
-                
-                if (hierarchyNode.children.length > 0) measureCell.className = 'filterPivotTotal';
-                else measureCell.className = 'filterPivotMeasure';
-                totalRow.appendChild(measureCell);
-              }
-              if (hierarchyNode.children.length > 0) {  //drill down into hierarchy if there are children
-                let childSpan = recurseTable(hierarchyNode.children, htmlTable);
-                nodeSpan.rows += childSpan.rows;  //keep track of rows to span, including total
-                nodeSpan.cols = childSpan.cols + 1;  //keep track of cols to span, for totals
-                dimensionCell.rowSpan = childSpan.rows;
-                totalCell.colSpan = childSpan.cols;
-              }
-              else {
-                nodeSpan.rows = hierarchy.length;
-                nodeSpan.cols = 1;
-              }
+            
+            for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {  //measure labels
+              let headerCell = document.createElement('th');
+              headerCell.className = 'filterPivotHeading';
+              headerCell.textContent = chartSpecification.measures[measureIndex].label;
+              headerRow.appendChild(headerCell);
             }
-            return { 
-              rows: nodeSpan.rows + 1, 
-              cols: nodeSpan.cols };
-          }
 
-          recurseTable(chartHierarchy, htmlTable);
+            function recurseTable(hierarchy, htmlTable) {  //build pivot table recursively
+              let nodeSpan = {
+                rows: 0,  //accumulate the total number of rows in this node, including totals
+                cols: 0  //keep track of columns to span for totals
+              }
+              for (let nodeIndex = 0; nodeIndex < hierarchy.length; nodeIndex++) {
+                let hierarchyNode = hierarchy[nodeIndex];
+                let totalRow = document.createElement('tr');  //totals row
+                htmlTable.appendChild(totalRow);
+                let dimensionCell = document.createElement('td');  //dimension cell
+                dimensionCell.textContent = hierarchyNode.value.toLocaleString();
+                dimensionCell.className = 'filterPivotDimension';
+                totalRow.appendChild(dimensionCell);
+                let totalCell = document.createElement('td');  //totals cell
+                totalCell.textContent = 'Total';
+                totalCell.className = 'filterPivotTotal';
+                if (hierarchyNode.children.length > 0) totalRow.appendChild(totalCell);  //no totals on final dimension
+                for (let measureIndex = 0; measureIndex < hierarchyNode.measures.length; measureIndex++) {  //one cell per measure
+                  let measure = hierarchyNode.measures[measureIndex];
+                  let measureCell = document.createElement('td');
+                  measureCell.textContent = filterMeasures[chartSpecification.measures[measureIndex].format](measure.value);  //measure.value.toLocaleString();
+                  
+                  if (hierarchyNode.children.length > 0) measureCell.className = 'filterPivotTotal';
+                  else measureCell.className = 'filterPivotMeasure';
+                  totalRow.appendChild(measureCell);
+                }
+                if (hierarchyNode.children.length > 0) {  //drill down into hierarchy if there are children
+                  let childSpan = recurseTable(hierarchyNode.children, htmlTable);
+                  nodeSpan.rows += childSpan.rows;  //keep track of rows to span, including total
+                  nodeSpan.cols = childSpan.cols + 1;  //keep track of cols to span, for totals
+                  dimensionCell.rowSpan = childSpan.rows;
+                  totalCell.colSpan = childSpan.cols;
+                }
+                else {
+                  nodeSpan.rows = hierarchy.length;
+                  nodeSpan.cols = 1;
+                }
+              }
+              return { 
+                rows: nodeSpan.rows + 1, 
+                cols: nodeSpan.cols };
+            }
+
+            recurseTable(chartHierarchy, htmlTable);
+          }
         }
       }
     },
@@ -723,11 +732,11 @@ localBi.filterChart = function(filterMeasures) {
       if (this.flexDimension != null) filterList += String.fromCharCode(10070) + this.flexDimension.label + '\n\n';  //show flexDimension field
       for (let filterIndex = 0; filterIndex < filterDefinitions.length; filterIndex++) {  //list filtered items
         let filterDefinition = filterDefinitions[filterIndex];
-        if (filterDefinition.filterValue != '*') filterList += filterDefinition.fieldName + String.fromCharCode(9670) + filterDefinition.filterValue + '\n';
+        if (filterDefinition.value != '*') filterList += filterDefinition.field + filterIcon.active + filterDefinition.value + '\n';
       }
 
       let listButton = document.getElementById('filterList');  //NB - hardcoded reference qualifier
-      if (filterList == '') listButton.innerText = String.fromCharCode(9671);
+      if (filterList == '') listButton.innerText = filterIcon.inactive;
       else listButton.innerText = filterList;
 
       let measureSelect = document.getElementById('measureFlex');  //NB - hardcoded reference qualifier

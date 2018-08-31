@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /** 
  * Namespace for localBi classes and functions.
@@ -7,7 +7,7 @@
 var localBi = localBi || {};
 
 /** 
- * Constructs filterTable objects. Build the filterTable's filterRecords and filterFields from normalised tableData. Each field is scanned and only unique values stored in each filterField. Each record is scanned and only a reference to the field value is stored in each filterTable.
+ * Constructs filterTable objects. Build the filterTable's filterRecords and filterFields from normalised tableData. Each field is scanned and only unique values stored in each filterField. Each record is scanned and only a reference to the field value is stored in each filterRecord.
  * @constructor
  * @param {tableDefinition} tableDefinition - Table definition conisting of unique field values and normalised records.
  * @returns {filterTable} A filterTable object that can be filtered and aggregated.
