@@ -1,4 +1,3 @@
-'use strict';
 
 /** 
  * Namespace for localBi classes and functions.
@@ -13,7 +12,7 @@ var localBi = localBi || {};
  * @returns {filterChart} A filterChart object that can be cuddled and fondled.
  */
 localBi.filterChart = function(filterMeasures) {
-  const filterIcon = {
+  var filterIcon = {
     active: String.fromCharCode(9672),
     inactive: String.fromCharCode(9671),
     flex: String.fromCharCode(10070),
@@ -22,7 +21,7 @@ localBi.filterChart = function(filterMeasures) {
     descending: String.fromCharCode(9660)
   }
 
-  let filterChart = {  //define filterChart
+  var filterChart = {  //define filterChart
     chartTable: null,
     chartFields: null,
     chartMeasures: null,
@@ -33,12 +32,12 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId for the header.
      */
     buildFields(elementId) {
-      let filterFields = document.getElementById(elementId);  //container for all fields
-      let listButton = document.createElement('button');  //button to list and clear all filters
+      var filterFields = document.getElementById(elementId);  //container for all fields
+      var listButton = document.createElement('button');  //button to list and clear all filters
       listButton.className = 'filterList';
       listButton.onclick = function() {  //  clear all fields and flexDimension field
-        for (let fieldIndex = 0; fieldIndex < filterChart.chartFields.length; fieldIndex++) {
-          let fieldName = filterChart.chartFields[fieldIndex].field;
+        for (var fieldIndex = 0; fieldIndex < filterChart.chartFields.length; fieldIndex++) {
+          var fieldName = filterChart.chartFields[fieldIndex].field;
           filterChart.adjustSelect(fieldName,0);
         }
         filterChart.flexDimension = null;
@@ -49,7 +48,7 @@ localBi.filterChart = function(filterMeasures) {
       listButton.id = 'filterList';  //NB - this id is used by other code!
       filterFields.appendChild(listButton);
 
-      let measureSelect = document.createElement('select');  //measure list
+      var measureSelect = document.createElement('select');  //measure list
       measureSelect.className = 'filterMeasures';
       measureSelect.onchange = function() {  //
         if (measureSelect.options[measureSelect.selectedIndex].value == null) filterChart.flexMeasure = null;  //we have a non-selection option in the list
@@ -62,26 +61,26 @@ localBi.filterChart = function(filterMeasures) {
       measureSelect.id = 'measureFlex';  //NB - this id is used by other code!
       measureSelect.multiple = false;
       filterFields.appendChild(measureSelect);
-      let defaultOption = document.createElement('option');  //default option
+      var defaultOption = document.createElement('option');  //default option
       defaultOption.text = filterIcon.inactive;  //label
       defaultOption.value = null;  //calculation function
       measureSelect.add(defaultOption);
-      for (let measureIndex = 0; measureIndex < this.chartMeasures.length; measureIndex++) {  //build field navigation for all fields
-        let measureItem = this.chartMeasures[measureIndex];
-        let option = document.createElement('option');
+      for (var measureIndex = 0; measureIndex < this.chartMeasures.length; measureIndex++) {  //build field navigation for all fields
+        var measureItem = this.chartMeasures[measureIndex];
+        var option = document.createElement('option');
         option.text = measureItem.label;  //label
         option.value = JSON.stringify(measureItem);  //calculation function
         measureSelect.add(option);
       }
 
-      for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //build field navigation for all fields
-        let fieldName = this.chartFields[fieldIndex].field;
+      for (var fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //build field navigation for all fields
+        var fieldName = this.chartFields[fieldIndex].field;
 
-        let fieldDiv = document.createElement('div');  //container for all field collateral
+        var fieldDiv = document.createElement('div');  //container for all field collateral
         fieldDiv.className = 'filterField';
         filterFields.appendChild(fieldDiv);
 
-        let titleButton = document.createElement('button');  //title button, click to sort
+        var titleButton = document.createElement('button');  //title button, click to sort
         titleButton.className = 'filterTitle';
         titleButton.onclick = function() {  //sort and toggle through asc/desc
           filterChart.sortSelect(fieldName, -1);
@@ -90,7 +89,7 @@ localBi.filterChart = function(filterMeasures) {
         titleButton.id = fieldName + '.sort';  //NB - this id is used by other code!
         fieldDiv.appendChild(titleButton);
 
-        let fieldSelect = document.createElement('select');  //select list, click to refresh
+        var fieldSelect = document.createElement('select');  //select list, click to refresh
         fieldSelect.className = 'filterSelect';
         fieldSelect.onchange = function() {  //refresh the page
           filterChart.refresh();
@@ -100,11 +99,11 @@ localBi.filterChart = function(filterMeasures) {
         fieldDiv.appendChild(fieldSelect);
         this.buildSelect(fieldName);
 
-        let buttonsDiv = document.createElement('div');  //container for all field collateral
+        var buttonsDiv = document.createElement('div');  //container for all field collateral
         buttonsDiv.className = 'filterButtons';
         fieldDiv.appendChild(buttonsDiv);
         
-        let flexDimensionButton = document.createElement('button');  //button to set which field is used to flexDimension the charts
+        var flexDimensionButton = document.createElement('button');  //button to set which field is used to flexDimension the charts
         flexDimensionButton.className = 'filterAdjust';
         flexDimensionButton.onclick = function() {  //-1 = set all options to inverted
           if (filterChart.flexDimension != null && fieldName == filterChart.flexDimension.field) filterChart.flexDimension = null;  //if set to this field, unset
@@ -118,7 +117,7 @@ localBi.filterChart = function(filterMeasures) {
         flexDimensionButton.id = fieldName + '.flexDimension';  //NB - this id is used by other code!
         buttonsDiv.appendChild(flexDimensionButton);
 
-        let invertButton = document.createElement('button');  //button to invert field filter
+        var invertButton = document.createElement('button');  //button to invert field filter
         invertButton.className = 'filterAdjust';
         invertButton.onclick = function() {  //-1 = set all options to inverted
           filterChart.adjustSelect(fieldName,-1);
@@ -128,7 +127,7 @@ localBi.filterChart = function(filterMeasures) {
         invertButton.id = fieldName + '.invert';  //NB - this id is used by other code!
         buttonsDiv.appendChild(invertButton);
         
-        let clearButton = document.createElement('button');  //button to clear field filters
+        var clearButton = document.createElement('button');  //button to clear field filters
         clearButton.className = 'filterAdjust';
         clearButton.onclick = function() {  //0 = set all options to false
           filterChart.adjustSelect(fieldName,0);
@@ -145,10 +144,10 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId for the footer.
      */
     buildHeader(elementId) {
-      let filterHeader = document.getElementById(elementId);  //container for footer
+      var filterHeader = document.getElementById(elementId);  //container for footer
       filterHeader.onclick = function() {  //help text
       };
-      let span1 = document.createElement('span');  //heading
+      var span1 = document.createElement('span');  //heading
       span1.textContent = document.title;  //'Sales Report';
       filterHeader.appendChild(span1);
       return filterHeader;
@@ -158,16 +157,16 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId for the footer.
      */
     buildFooter(elementId) {
-      let filterFooter = document.getElementById(elementId);  //container for footer
-      let anchor = document.createElement('a');  //local
+      var filterFooter = document.getElementById(elementId);  //container for footer
+      var anchor = document.createElement('a');  //local
       anchor.href = "https://github.com/localbi/localbi";
       anchor.target = "_blank";
       filterFooter.appendChild(anchor);
-      let span1 = document.createElement('span');  //local
+      var span1 = document.createElement('span');  //local
       span1.textContent = 'local';
       span1.style.color = '#0000ff';
       anchor.appendChild(span1);
-      let span2 = document.createElement('span');  //BI
+      var span2 = document.createElement('span');  //BI
       span2.textContent = 'BI';
       span2.style.color = '#ffffff';
       anchor.appendChild(span2);
@@ -178,12 +177,12 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId of the select element
      */
     buildSelect(elementId) {
-      let filterField = this.chartTable.findField(elementId);  //get field from name
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      for (let valueIndex = 1; valueIndex < filterField.fieldValues.length; valueIndex++) {  //skip 0th element, which is the header
-        let fieldValue = filterField.fieldValues[valueIndex];
-        let fieldIcon = 'x'; //unassigned
-        let option = document.createElement('option');
+      var filterField = this.chartTable.findField(elementId);  //get field from name
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      for (var valueIndex = 1; valueIndex < filterField.fieldValues.length; valueIndex++) {  //skip 0th element, which is the header
+        var fieldValue = filterField.fieldValues[valueIndex];
+        var fieldIcon = 'x'; //unassigned
+        var option = document.createElement('option');
         option.text = fieldIcon + fieldValue.valueName; //prepend icon to option text
         option.value = fieldValue.valueIndex;  //references to the fieldValues can be done by this index
         select.add(option);
@@ -194,13 +193,13 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId of the select element
      */
     updateSelect(elementId) {
-      let filterField = this.chartTable.findField(elementId);  //get field from name
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      let options = select.options;
-      for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
-        let option = options[optionIndex];
-        let fieldValue = filterField.fieldValues[option.value];  //this gets the value by its index
-        let fieldIcon = 'x'; //unassigned
+      var filterField = this.chartTable.findField(elementId);  //get field from name
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      var options = select.options;
+      for (var optionIndex = 0; optionIndex < options.length; optionIndex++) {
+        var option = options[optionIndex];
+        var fieldValue = filterField.fieldValues[option.value];  //this gets the value by its index
+        var fieldIcon = 'x'; //unassigned
         if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows > 0) fieldIcon = filterIcon.active;  //we're simplifying this display to only be active/dormant, as most people have trouble interpreting the 'both' state
         else if (fieldValue.valueActiveRows == 0 && fieldValue.valueDormantRows > 0) fieldIcon = filterIcon.inactive; //dormant = empty//9898//11096//9675
         else if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows == 0) fieldIcon = filterIcon.active; //active = full//9899//11044//9679
@@ -213,28 +212,28 @@ localBi.filterChart = function(filterMeasures) {
      * @returns {filterDefinition}
      */
     getSelect(elementId) {
-      let filterDefinition = [];
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      let selectedValues = [];
-      let options = select.options;
-      for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
-        let option = options[optionIndex];
+      var filterDefinition = [];
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      var selectedValues = [];
+      var options = select.options;
+      for (var optionIndex = 0; optionIndex < options.length; optionIndex++) {
+        var option = options[optionIndex];
         if (option.selected) selectedValues.push(option.text.substr(1));  //save only the selected options's value (minus icon) - can we use index here?? yes but only if we update the filterTable code which currently does not suppor this
       }
       if (selectedValues.length == 0) {  //nothing selected means everything is selected :)
-        let clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
+        var clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
         //clearButton.textContent = filterIcon.inactive;  //indicate nothing is selected
         clearButton.style.backgroundColor = null;
         clearButton.style.color = null;
         filterDefinition.push(   { field: elementId, value : '*', isActive : true	});
       }
       else {  //something is selected
-        let clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
+        var clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
         //clearButton.textContent = filterIcon.active;  //indicate something is selected
         clearButton.style.backgroundColor = '#444444';
         clearButton.style.color = '#ffffff';
         filterDefinition.push(   { field: elementId, value : '*', isActive : false	});
-        for (let selectedIndex = 0; selectedIndex < selectedValues.length; selectedIndex++) {  
+        for (var selectedIndex = 0; selectedIndex < selectedValues.length; selectedIndex++) {  
           filterDefinition.push( { field: elementId, value : selectedValues[selectedIndex], isActive : true })
         }
       }
@@ -246,10 +245,10 @@ localBi.filterChart = function(filterMeasures) {
      * @param {int} action 1 = true, 0 = false, -1 = invert
      */
     adjustSelect(elementId, action) {
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      let options = select.options;
-      for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
-        let option = options[optionIndex];
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      var options = select.options;
+      for (var optionIndex = 0; optionIndex < options.length; optionIndex++) {
+        var option = options[optionIndex];
         if (action == 1) option.selected = true;
         else if (action == 0) option.selected = false;
         else if (action == -1) option.selected = !option.selected;
@@ -262,20 +261,20 @@ localBi.filterChart = function(filterMeasures) {
      * @param {int} action 1 = sort ascending, 0 = no toggle, -1 = toggle
      */
     sortSelect(elementId, action) {
-			let fieldIsFound = false;  //to check if field exists
-			let fieldIndex = 0;  //position of found field
+			var fieldIsFound = false;  //to check if field exists
+			var fieldIndex = 0;  //position of found field
 			while (fieldIsFound == false && fieldIndex < this.chartFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
 				if(elementId == this.chartFields[fieldIndex].field) fieldIsFound = true;
 				else fieldIndex++;
       }
-      let fieldSort = this.chartFields[fieldIndex].sort;  //find sort type from field name
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      let title = document.getElementById(elementId + '.sort');  //NB - hardcoded reference qualifier
-      let sortIcon = title.textContent.substr(0,1);  //title text is prefixed with sort icon
-      let options = select.options;
-      let unsortedOptions = [];
-      let sortedOptions = [];
-      for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {  //get unsorted options
+      var fieldSort = this.chartFields[fieldIndex].sort;  //find sort type from field name
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      var title = document.getElementById(elementId + '.sort');  //NB - hardcoded reference qualifier
+      var sortIcon = title.textContent.substr(0,1);  //title text is prefixed with sort icon
+      var options = select.options;
+      var unsortedOptions = [];
+      var sortedOptions = [];
+      for (var optionIndex = 0; optionIndex < options.length; optionIndex++) {  //get unsorted options
         unsortedOptions.push(options[optionIndex]);
       }
       if (action == 1 || sortIcon == 'x') sortIcon = filterIcon.ascending;  //we check the unassiged char here, so we can keep all the unicode stuff in one place - default to asc first time
@@ -286,12 +285,12 @@ localBi.filterChart = function(filterMeasures) {
       title.textContent = sortIcon + title.textContent.substr(1);  //update title
       if (sortIcon == filterIcon.ascending) {  //sort options ascending
         sortedOptions = unsortedOptions.sort(function (a, b) {
-          let aIcon = a.text.substr(0,1);
-          let bIcon = b.text.substr(0,1);
-          let aValue = a.text.substr(1);
-          let bValue = b.text.substr(1);
-          let iconCompare = bIcon.localeCompare(aIcon);
-          let valueCompare = false;
+          var aIcon = a.text.substr(0,1);
+          var bIcon = b.text.substr(0,1);
+          var aValue = a.text.substr(1);
+          var bValue = b.text.substr(1);
+          var iconCompare = bIcon.localeCompare(aIcon);
+          var valueCompare = false;
           if (fieldSort == 'text' || fieldSort == 'number') valueCompare = aValue.localeCompare(bValue);  //by default do text and number the same
           else if (fieldSort.length > 0) valueCompare = fieldSort.indexOf(aValue) - fieldSort.indexOf(bValue);  //else use defined sort order
           return iconCompare || valueCompare;  //icon sort remains the same
@@ -299,18 +298,18 @@ localBi.filterChart = function(filterMeasures) {
       }
       else {  //sort options descending
         sortedOptions = unsortedOptions.sort(function (a, b) {
-          let aIcon = a.text.substr(0,1);
-          let bIcon = b.text.substr(0,1);
-          let aValue = a.text.substr(1);
-          let bValue = b.text.substr(1);
-          let iconCompare = bIcon.localeCompare(aIcon);
-          let valueCompare = false;
+          var aIcon = a.text.substr(0,1);
+          var bIcon = b.text.substr(0,1);
+          var aValue = a.text.substr(1);
+          var bValue = b.text.substr(1);
+          var iconCompare = bIcon.localeCompare(aIcon);
+          var valueCompare = false;
           if (fieldSort == 'text' || fieldSort == 'number') valueCompare = bValue.localeCompare(aValue);  //by default do text and number the same
           else if (fieldSort.length > 0) valueCompare = fieldSort.indexOf(bValue) - fieldSort.indexOf(aValue);  //else use defined sort order
           return iconCompare || valueCompare;  //icon sort remains the same
         });
       }
-      for (let optionIndex = 0; optionIndex < sortedOptions.length; optionIndex++) {  //rearrange options
+      for (var optionIndex = 0; optionIndex < sortedOptions.length; optionIndex++) {  //rearrange options
         options[optionIndex] = sortedOptions[optionIndex];
       }
     },
@@ -319,32 +318,31 @@ localBi.filterChart = function(filterMeasures) {
      * @description Creates all chart types
      */
     buildCharts() {  //looks like we cater for max 2 dims and 2 meas, some charts will have more or less
-      "use strict";
 
       function getIndexedColorArray(alpha) {  //returns all chart colours, with an alpha
-        let kellyColors = ['#FFB300','#803E75','#FF6800','#A6BDD7','#C10020','#CEA262','#817066','#007D34','#F6768E','#00538A','#FF7A5C','#53377A','#FF8E00','#B32851','#F4C800','#7F180D','#93AA00','#593315','#F13A13','#232C16'];  //Kelly's colors of maximum contrast
-        for (let colorIndex = 0; colorIndex < kellyColors.length; colorIndex++) {
+        var kellyColors = ['#FFB300','#803E75','#FF6800','#A6BDD7','#C10020','#CEA262','#817066','#007D34','#F6768E','#00538A','#FF7A5C','#53377A','#FF8E00','#B32851','#F4C800','#7F180D','#93AA00','#593315','#F13A13','#232C16'];  //Kelly's colors of maximum contrast
+        for (var colorIndex = 0; colorIndex < kellyColors.length; colorIndex++) {
           kellyColors[colorIndex] = kellyColors[colorIndex] + alpha;  //add alpha value (hex expected)
         }
         return kellyColors;
       };
 
       function getIndexedColor(colorIndex, alpha) {  //looks up chart colour from an index
-        let kellyColors = getIndexedColorArray(alpha);  //apply alpha
-        let remainder = colorIndex%(kellyColors.length);  //if we exceed the length, start again
+        var kellyColors = getIndexedColorArray(alpha);  //apply alpha
+        var remainder = colorIndex%(kellyColors.length);  //if we exceed the length, start again
         return kellyColors[remainder];  //add alpha value (hex expected)
       };
 
       //sort by either first dimension or first measure
       function sortHierarchy(chartHierarchy, chartSpecification) {  //we can only do this once the hierarchy is fully built
         if (chartSpecification.display.sort == 'dimension') {  //sort by first dimension ascending (currently no provision is made for sorting this descending because it's uncommon and I'm feeling lazy)
-          let fieldIsFound = false;  //to check if field exists
-          let fieldIndex = 0;  //position of found field
+          var fieldIsFound = false;  //to check if field exists
+          var fieldIndex = 0;  //position of found field
           while (fieldIsFound == false && fieldIndex < filterChart.chartFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
             if(chartSpecification.dimensions[0].field == filterChart.chartFields[fieldIndex].field) fieldIsFound = true;
             else fieldIndex++;
           }
-          let fieldSort = filterChart.chartFields[fieldIndex].sort;  //find sort type from field name
+          var fieldSort = filterChart.chartFields[fieldIndex].sort;  //find sort type from field name
           if (fieldSort == 'text' || fieldSort == 'number') chartHierarchy = chartHierarchy.sort(function (a, b) {  //sort by first dimension
             return a.value.localeCompare(b.value);  //by default do text and number the same
           });
@@ -358,14 +356,14 @@ localBi.filterChart = function(filterMeasures) {
         return chartHierarchy;
       };
 
-      let lbiCharts = document.getElementsByName('lbiChart');  //all charts should have the name lbiChart
-      for (let chartIndex = 0; chartIndex < lbiCharts.length; chartIndex++) {  //we should get a collection of all the charts defined in the html tags
-        let lbiChart = lbiCharts[chartIndex];
-        let chartSpecification = JSON.parse(lbiChart.dataset.lbiChart);  //expect valid JSON in the tag's data-lbi-chart attribute
+      var lbiCharts = document.getElementsByName('lbiChart');  //all charts should have the name lbiChart
+      for (var chartIndex = 0; chartIndex < lbiCharts.length; chartIndex++) {  //we should get a collection of all the charts defined in the html tags
+        var lbiChart = lbiCharts[chartIndex];
+        var chartSpecification = JSON.parse(lbiChart.dataset.lbiChart);  //expect valid JSON in the tag's data-lbi-chart attribute
 
-        // let chartSpecification.dimensions = [];  //build dimensions specification
-        // for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
-        //   let dimensionSpecification = chartSpecification.dimensions[dimensionIndex];
+        // var chartSpecification.dimensions = [];  //build dimensions specification
+        // for (var dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
+        //   var dimensionSpecification = chartSpecification.dimensions[dimensionIndex];
         //   chartSpecification.dimensions[dimensionIndex] = {  //@typedef {Object} dimensionSpecification - specify a dimension by name.
         //     fieldName: dimensionSpecification.field,  //field name of dimension (required).
         //     label: dimensionSpecification.label  //label of dimension (required).
@@ -373,8 +371,8 @@ localBi.filterChart = function(filterMeasures) {
         // }
 
         if (this.flexDimension != null) {  //wait for a valid flexDimension field
-          let dimensionIsFound = false;  //only add/replace flexDimension if not already part of the spec
-          let dimensionIndex = 0;
+          var dimensionIsFound = false;  //only add/replace flexDimension if not already part of the spec
+          var dimensionIndex = 0;
           while (dimensionIsFound == false && dimensionIndex < chartSpecification.dimensions.length) {  //exit as soon as we find the flexDimension
             if (chartSpecification.dimensions[dimensionIndex].field == this.flexDimension.field) dimensionIsFound = true;
 						else dimensionIndex++;
@@ -385,9 +383,9 @@ localBi.filterChart = function(filterMeasures) {
           }
         }
 
-        // let chartSpecification.measures = [];  //build measures specification
-        // for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {
-        //   let measureSpecification = chartSpecification.measures[measureIndex];
+        // var chartSpecification.measures = [];  //build measures specification
+        // for (var measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {
+        //   var measureSpecification = chartSpecification.measures[measureIndex];
         //   chartSpecification.measures[measureIndex] = {  //@typedef {Object} measureSpecification - specify a measure by name.
         //     //fieldName: measureSpecification.field,  //fieldName - field name of measure (required).
         //     label: measureSpecification.label,  //label - label of aggregated measure (required).
@@ -396,8 +394,8 @@ localBi.filterChart = function(filterMeasures) {
         // }
 
         if (this.flexMeasure != null) {  //wait for a valid flexMeasure field
-          let measureIsFound = false;  //only add/replace flexmeasure if not already part of the spec
-          let measureIndex = 0;
+          var measureIsFound = false;  //only add/replace flexmeasure if not already part of the spec
+          var measureIndex = 0;
           while (measureIsFound == false && measureIndex < chartSpecification.measures.length) {  //exit as soon as we find the flexmeasure
             if (chartSpecification.measures[measureIndex].calculation == this.flexMeasure.calculation) measureIsFound = true;
 						else measureIndex++;
@@ -408,22 +406,22 @@ localBi.filterChart = function(filterMeasures) {
           }
         }
         
-        let chartHierarchy = this.chartTable.aggregate({  //@typedef {Object} aggregateSpecification
+        var chartHierarchy = this.chartTable.aggregate({  //@typedef {Object} aggregateSpecification
           dimensions: chartSpecification.dimensions,  //array of chartSpecification.dimensions (required).
           measures: chartSpecification.measures  //array of chartSpecification.measures (required).
         });
 
         if (chartHierarchy.length == 0) {
-          let warningDiv = document.createElement('div');
+          var warningDiv = document.createElement('div');
           warningDiv.textContent = 'No data - please clear some filters';
           lbiChart.innerHTML = '';  //remove old chart.js canvas
           lbiChart.appendChild(warningDiv);
         }
         else {
-          let chartTitle = chartSpecification.measures[0].label;  //automatically use "Measure by Dim1, Dim2" as title
-          let dimensionTitle = '';
+          var chartTitle = chartSpecification.measures[0].label;  //automatically use "Measure by Dim1, Dim2" as title
+          var dimensionTitle = '';
           if (chartSpecification.dimensions.length > 0) {
-            for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
+            for (var dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
               if (dimensionTitle.length > 0) dimensionTitle += ', ';  //add comma separator
               dimensionTitle += chartSpecification.dimensions[dimensionIndex].field;
             }
@@ -432,13 +430,13 @@ localBi.filterChart = function(filterMeasures) {
 
           if (chartSpecification.display.type == 'bar') {
             sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
-            let labels = [];  //convert hierarchy to chart.js structure
-            let datasets = [];
-            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-              let chartLabel = chartHierarchy[labelIndex];
+            var labels = [];  //convert hierarchy to chart.js structure
+            var datasets = [];
+            for (var labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              var chartLabel = chartHierarchy[labelIndex];
               labels[labelIndex] = chartLabel.value;
               if (chartLabel.children.length == 0) {  //one dimension, one measure
-                let datasetIndex = 0;
+                var datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'bar',
@@ -453,7 +451,7 @@ localBi.filterChart = function(filterMeasures) {
                 datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
               }
               else {  //two dimensions, one measure
-                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                for (var datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     type: 'bar',
@@ -469,12 +467,12 @@ localBi.filterChart = function(filterMeasures) {
                 }
               }
             }
-            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            var chartCanvas = document.createElement('canvas');  //recreate the canvas each time
             chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
             chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
             lbiChart.innerHTML = '';  //remove old chart.js canvas
             lbiChart.appendChild(chartCanvas);
-            let newChart = new Chart(chartCanvas, {
+            var newChart = new Chart(chartCanvas, {
               type: 'bar',
               data: {
                 labels: labels,
@@ -498,13 +496,13 @@ localBi.filterChart = function(filterMeasures) {
           }
           else if (chartSpecification.display.type == 'line') {
             sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
-            let labels = [];  //convert hierarchy to chart.js structure
-            let datasets = [];
-            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-              let chartLabel = chartHierarchy[labelIndex];
+            var labels = [];  //convert hierarchy to chart.js structure
+            var datasets = [];
+            for (var labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              var chartLabel = chartHierarchy[labelIndex];
               labels[labelIndex] = chartLabel.value;
               if (chartLabel.children.length == 0) {  //one dimension, one measure
-                let datasetIndex = 0;
+                var datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'line',
@@ -520,7 +518,7 @@ localBi.filterChart = function(filterMeasures) {
                 datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
               }
               else {  //two dimensions, one measure
-                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                for (var datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     type: 'line',
@@ -537,12 +535,12 @@ localBi.filterChart = function(filterMeasures) {
                 }
               }
             }
-            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            var chartCanvas = document.createElement('canvas');  //recreate the canvas each time
             chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
             chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
             lbiChart.innerHTML = '';  //remove old chart.js canvas
             lbiChart.appendChild(chartCanvas);
-            let newChart = new Chart(chartCanvas, {
+            var newChart = new Chart(chartCanvas, {
               type: 'line',
               data: {
                 labels: labels,
@@ -560,13 +558,13 @@ localBi.filterChart = function(filterMeasures) {
           }
           else if (chartSpecification.display.type == 'doughnut' || chartSpecification.display.type == 'pie') {  //pie||doughnut: one dimension and one measure
             sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
-            let labels = [];  //convert hierarchy to chart.js structure
-            let datasets = [];
-            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-              let chartLabel = chartHierarchy[labelIndex];
+            var labels = [];  //convert hierarchy to chart.js structure
+            var datasets = [];
+            for (var labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              var chartLabel = chartHierarchy[labelIndex];
               labels[labelIndex] = chartLabel.value;
               if (chartLabel.children.length == 0) {  //one dimension, one measure
-                let datasetIndex = 0;
+                var datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   backgroundColor: getIndexedColorArray('88'),
@@ -580,7 +578,7 @@ localBi.filterChart = function(filterMeasures) {
                 datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
               }
               else {  //two dimensions, one measure
-                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                for (var datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     backgroundColor: getIndexedColorArray('88'),
@@ -595,7 +593,7 @@ localBi.filterChart = function(filterMeasures) {
                 }
               }
             }
-            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            var chartCanvas = document.createElement('canvas');  //recreate the canvas each time
             chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
             chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
             lbiChart.innerHTML = '';  //remove old chart.js canvas
@@ -617,19 +615,19 @@ localBi.filterChart = function(filterMeasures) {
             });
           }
           else if (chartSpecification.display.type == 'kpi') {  //kpi: one dimension with one value, and one measure
-            let htmlTable = document.createElement('table');
+            var htmlTable = document.createElement('table');
             htmlTable.className = 'filterKpiTable';
             lbiChart.innerHTML = '';  //remove old table
             lbiChart.appendChild(htmlTable);
-            let headerRow = document.createElement('tr');  //header row for labels
+            var headerRow = document.createElement('tr');  //header row for labels
             htmlTable.appendChild(headerRow);
-            let headerCell = document.createElement('th');
+            var headerCell = document.createElement('th');
             headerCell.className = 'filterKpiHeading';
             headerCell.textContent = chartSpecification.measures[0].label;//chartHierarchy[0].measures[0].label;  //first level hierarchy's first value, and first measure label
             headerRow.appendChild(headerCell);
-            let totalRow = document.createElement('tr');  //totals row
+            var totalRow = document.createElement('tr');  //totals row
             htmlTable.appendChild(totalRow);
-            let measureCell = document.createElement('td');
+            var measureCell = document.createElement('td');
             measureCell.textContent = filterMeasures[chartSpecification.measures[0].format](chartHierarchy[0].measures[0].value);
             //measureCell.textContent = chartHierarchy[0].measures[0].value.toLocaleString();  //first level hierarchy's first value, and first measure value
             measureCell.className = 'filterKpiMeasure';
@@ -638,48 +636,48 @@ localBi.filterChart = function(filterMeasures) {
           else if (chartSpecification.display.type == 'pivot') {  //pivot: multiple dimensions and measures
             sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
             lbiChart.innerHTML = '';  //remove old table
-            let htmlDiv = document.createElement('div');  //for some layout stuff we need the table inside a div
+            var htmlDiv = document.createElement('div');  //for some layout stuff we need the table inside a div
             htmlDiv.className = 'filterPivotDiv';
             lbiChart.appendChild(htmlDiv);
-            let htmlTable = document.createElement('table');
+            var htmlTable = document.createElement('table');
             htmlTable.className = 'filterPivotTable';
             htmlDiv.appendChild(htmlTable);
-            let headerRow = document.createElement('tr');  //header row for labels
+            var headerRow = document.createElement('tr');  //header row for labels
             htmlTable.appendChild(headerRow);
-            for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {  //dimension labels
-              let headerCell = document.createElement('th');
+            for (var dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {  //dimension labels
+              var headerCell = document.createElement('th');
               headerCell.className = 'filterPivotHeading';
               headerCell.textContent = chartSpecification.dimensions[dimensionIndex].label;
               headerRow.appendChild(headerCell);
             }
             
-            for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {  //measure labels
-              let headerCell = document.createElement('th');
+            for (var measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {  //measure labels
+              var headerCell = document.createElement('th');
               headerCell.className = 'filterPivotHeading';
               headerCell.textContent = chartSpecification.measures[measureIndex].label;
               headerRow.appendChild(headerCell);
             }
 
             function recurseTable(hierarchy, htmlTable) {  //build pivot table recursively
-              let nodeSpan = {
+              var nodeSpan = {
                 rows: 0,  //accumulate the total number of rows in this node, including totals
                 cols: 0  //keep track of columns to span for totals
               }
-              for (let nodeIndex = 0; nodeIndex < hierarchy.length; nodeIndex++) {
-                let hierarchyNode = hierarchy[nodeIndex];
-                let totalRow = document.createElement('tr');  //totals row
+              for (var nodeIndex = 0; nodeIndex < hierarchy.length; nodeIndex++) {
+                var hierarchyNode = hierarchy[nodeIndex];
+                var totalRow = document.createElement('tr');  //totals row
                 htmlTable.appendChild(totalRow);
-                let dimensionCell = document.createElement('td');  //dimension cell
+                var dimensionCell = document.createElement('td');  //dimension cell
                 dimensionCell.textContent = hierarchyNode.value.toLocaleString();
                 dimensionCell.className = 'filterPivotDimension';
                 totalRow.appendChild(dimensionCell);
-                let totalCell = document.createElement('td');  //totals cell
+                var totalCell = document.createElement('td');  //totals cell
                 totalCell.textContent = 'Total';
                 totalCell.className = 'filterPivotTotal';
                 if (hierarchyNode.children.length > 0) totalRow.appendChild(totalCell);  //no totals on final dimension
-                for (let measureIndex = 0; measureIndex < hierarchyNode.measures.length; measureIndex++) {  //one cell per measure
-                  let measure = hierarchyNode.measures[measureIndex];
-                  let measureCell = document.createElement('td');
+                for (var measureIndex = 0; measureIndex < hierarchyNode.measures.length; measureIndex++) {  //one cell per measure
+                  var measure = hierarchyNode.measures[measureIndex];
+                  var measureCell = document.createElement('td');
                   measureCell.textContent = filterMeasures[chartSpecification.measures[measureIndex].format](measure.value);  //measure.value.toLocaleString();
                   
                   if (hierarchyNode.children.length > 0) measureCell.className = 'filterPivotTotal';
@@ -687,7 +685,7 @@ localBi.filterChart = function(filterMeasures) {
                   totalRow.appendChild(measureCell);
                 }
                 if (hierarchyNode.children.length > 0) {  //drill down into hierarchy if there are children
-                  let childSpan = recurseTable(hierarchyNode.children, htmlTable);
+                  var childSpan = recurseTable(hierarchyNode.children, htmlTable);
                   nodeSpan.rows += childSpan.rows;  //keep track of rows to span, including total
                   nodeSpan.cols = childSpan.cols + 1;  //keep track of cols to span, for totals
                   dimensionCell.rowSpan = childSpan.rows;
@@ -712,30 +710,30 @@ localBi.filterChart = function(filterMeasures) {
      * @description Refreshes all document elements, based on filter values
      */
     refresh() {
-      let filterDefinitions = [];
-      for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //get filter definition from selects
-        let fieldName = this.chartFields[fieldIndex].field;
+      var filterDefinitions = [];
+      for (var fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //get filter definition from selects
+        var fieldName = this.chartFields[fieldIndex].field;
         filterDefinitions = filterDefinitions.concat(this.getSelect(fieldName));
       }
       this.chartTable.filter(filterDefinitions);  //implement the filter definition
 
-      let filterList = '';  //display the filter list
+      var filterList = '';  //display the filter list
       if (this.flexDimension != null) filterList += filterIcon.flex + this.flexDimension.label + '\n\n';  //show flexDimension field
-      for (let filterIndex = 0; filterIndex < filterDefinitions.length; filterIndex++) {  //list filtered items
-        let filterDefinition = filterDefinitions[filterIndex];
+      for (var filterIndex = 0; filterIndex < filterDefinitions.length; filterIndex++) {  //list filtered items
+        var filterDefinition = filterDefinitions[filterIndex];
         if (filterDefinition.value != '*') filterList += filterDefinition.field + filterIcon.active + filterDefinition.value + '\n';
       }
 
-      let listButton = document.getElementById('filterList');  //NB - hardcoded reference qualifier
+      var listButton = document.getElementById('filterList');  //NB - hardcoded reference qualifier
       if (filterList == '') listButton.innerText = filterIcon.inactive;
       else listButton.innerText = filterList;
 
-      let measureSelect = document.getElementById('measureFlex');  //NB - hardcoded reference qualifier
+      var measureSelect = document.getElementById('measureFlex');  //NB - hardcoded reference qualifier
       if (this.flexMeasure == null) measureSelect.selectedIndex = 0;
 
-      for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //update all selects
-        let fieldName = this.chartFields[fieldIndex].field;
-        let flexDimensionButton = document.getElementById(fieldName + '.flexDimension');  //NB - hardcoded reference qualifier
+      for (var fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //update all selects
+        var fieldName = this.chartFields[fieldIndex].field;
+        var flexDimensionButton = document.getElementById(fieldName + '.flexDimension');  //NB - hardcoded reference qualifier
         if (this.flexDimension != null && fieldName == this.flexDimension.field) {
           flexDimensionButton.style.backgroundColor = '#444444';
           flexDimensionButton.style.color = '#ffffff';
@@ -754,10 +752,10 @@ localBi.filterChart = function(filterMeasures) {
     filterChart.chartTable = localBi.filterTable( { tableName : 'Invoices', tableFields : fields, tableRecords : records, tableFunctions : localMeasures });  //relies on filterData.js to be loaded first
     filterChart.chartFields = JSON.parse(document.getElementById("localFields").dataset.lbiFields);
     filterChart.chartMeasures = JSON.parse(document.getElementById("localFields").dataset.lbiMeasures);
-    let localFields = filterChart.buildFields('localFields');
-    let localHeader = filterChart.buildHeader('localHeader');
-    let localFooter = filterChart.buildFooter('localFooter');
-    let localLoader = document.getElementById("localLoader");
+    var localFields = filterChart.buildFields('localFields');
+    var localHeader = filterChart.buildHeader('localHeader');
+    var localFooter = filterChart.buildFooter('localFooter');
+    var localLoader = document.getElementById("localLoader");
     localLoader.style.display = 'none';  //hide loader
     localFields.style.display = 'inline-block';  //show fields
     localHeader.style.display = 'inline-block';  //show header

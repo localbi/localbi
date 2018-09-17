@@ -53,15 +53,15 @@
     <script src="filterChart.js"></script>
     <script>
 
-      let localMeasures = {  //measures are functions that access the aggregated node data
+      var localMeasures = {  //measures are functions that access the aggregated node data
 
         totalIncidents(table, node) {  //each master measure operates on the fact rows directly!
-          let incidentIndex = table.findField('Incidents').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
-          let incidentTotal = 0;  //numeric result expected
-          for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
-            let filterGroup = node.groups[groupIndex];
-            for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
-              let filterRecord = filterGroup.groupRecords[rowIndex];
+          var incidentIndex = table.findField('Incidents').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
+          var incidentTotal = 0;  //numeric result expected
+          for (var groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
+            var filterGroup = node.groups[groupIndex];
+            for (var rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
+              var filterRecord = filterGroup.groupRecords[rowIndex];
               incidentTotal += parseFloat(filterRecord.recordValues[incidentIndex].valueName);  //pick the correct column in the row as defined for the measure
             }
           }
@@ -74,7 +74,7 @@
 
       };
 
-      let localChart = localBi.filterChart(localMeasures);  //..and run..
+      var localChart = localBi.filterChart(localMeasures);  //..and run..
 
     </script>
   </body>

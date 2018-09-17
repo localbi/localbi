@@ -27,7 +27,7 @@ body {
     border-radius: 1rem;
     font-style: italic; 
     font-size: 1.5rem; 
-    color: #ffffff
+    color: #ffffff;
 }
 .filterFooter {
     display: none;
@@ -39,7 +39,7 @@ body {
     border-radius: 1rem;
     font-style: italic; 
     font-size: 1.5rem; 
-    color: #ffffff'
+    color: #ffffff;
 }
 .filterContent {
     display: inline-block;

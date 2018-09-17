@@ -55,8 +55,8 @@ localBi.filterPage = function() {
                 normalisedRecords[rowIndex][colIndex] = valueIndex;  //assign index of value - assume colIndex is persistent
             }
         }
-        let result = 'let fields=' + JSON.stringify(normalisedFields) + ';';
-        result += '\nlet records=' + JSON.stringify(normalisedRecords).replace('"','') + ';';  //numeric keys, the quotes take up lotsa space so we remove them
+        let result = 'var fields=' + JSON.stringify(normalisedFields) + ';';
+        result += '\nvar records=' + JSON.stringify(normalisedRecords).replace('"','') + ';';  //numeric keys, the quotes take up lotsa space so we remove them
         return result;
     }
 
@@ -99,10 +99,10 @@ localBi.filterPage = function() {
         
         let combinedScripts = fs.readFileSync('./filterIndex.html').toString()  //combine scripts and styles into single html file
         .replace('<link rel="stylesheet" href="filterStyle.css">','<style>' + fs.readFileSync('filterStyle.css') + '</style>')
-        .replace('src="chart.min.js">',  '>' + fs.readFileSync('chart.min.js'))
-        .replace('src="filterTable.js">', '>' + fs.readFileSync('filterTable.js'))
-        .replace('src="filterData.js">', '>' + fs.readFileSync('filterData.js'))
-        .replace('src="filterChart.js">', '>' + fs.readFileSync('filterChart.js'));
+        .replace(' src="chart.min.js">',  '>\n' + fs.readFileSync('chart.min.js'))
+        .replace(' src="filterTable.js">', '>\n' + fs.readFileSync('filterTable.js'))
+        .replace(' src="filterData.js">', '>\n' + fs.readFileSync('filterData.js'))
+        .replace(' src="filterChart.js">', '>\n' + fs.readFileSync('filterChart.js'));
 
         fs.writeFileSync(fileName, combinedScripts);
         return combinedScripts;
@@ -113,7 +113,7 @@ localBi.filterPage = function() {
         let parse = require('csv-parse/lib/sync');
         let mailData = parse(fs.readFileSync('filterMail.csv'), {delimiter: ','});
         let mailContent = buildPage('localBi.html')
-        
+        /*
         for (let mailIndex = 1; mailIndex < mailData.length; mailIndex++) {  //skip header
             mailPage({
                 user: mailData[mailIndex][mailData[0].indexOf('user')],
@@ -126,7 +126,7 @@ localBi.filterPage = function() {
                 content: mailContent
             });
         }
-        
+        */
     }
 }
 
