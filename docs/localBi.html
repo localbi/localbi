@@ -279,11 +279,11 @@ localBi.filterTable = function(tableDefinition) {
 	 * @returns {object} The calculated measure result.
 	 */
 
-	let filterFields = [];
-	for (let fieldIndex = 0; fieldIndex < tableDefinition.tableFields.length; fieldIndex++) {  //build filterFields
-		let tableField = tableDefinition.tableFields[fieldIndex];  //this will be an array of field values
-		let filterValues = [];
-		for (let valueIndex = 0; valueIndex < tableField.length; valueIndex++) {  //value data starts at index 1, but we include the header (which is the field name) so we don't lose any record index references
+	var filterFields = [];
+	for (var fieldIndex = 0; fieldIndex < tableDefinition.tableFields.length; fieldIndex++) {  //build filterFields
+		var tableField = tableDefinition.tableFields[fieldIndex];  //this will be an array of field values
+		var filterValues = [];
+		for (var valueIndex = 0; valueIndex < tableField.length; valueIndex++) {  //value data starts at index 1, but we include the header (which is the field name) so we don't lose any record index references
 
 		/**
 		 * @typedef {object} filterValue - One unique field value (per field).
@@ -293,7 +293,7 @@ localBi.filterTable = function(tableDefinition) {
 		 * @property {number} valueDormantRows - number of dormant records where this value is found.
 		 * @property {boolean} valueIsActive - indicates whether user has actively filtered this value.
 		 */
-		let filterValue = {  //@typedef filterValue
+		var filterValue = {  //@typedef filterValue
 				valueName : tableField[valueIndex],  //unique value name (actually description, but we use name for consistency, and it's shorter :-))
 				valueIndex : valueIndex,  //track position in filterValues
 				valueActiveRows : 0,  //number of rows in which this value is active - determined when we group by
@@ -310,7 +310,7 @@ localBi.filterTable = function(tableDefinition) {
 		 * @property {filterValue[]} fieldValues - Array of filterValues, one index for each unique value.
 		 * @property {findValue} findValue - Function that finds an existing filterValue by valueName.
 		 */
-		let filterField = {  //@typeDef filterField
+		var filterField = {  //@typeDef filterField
 			fieldName : tableField[0],  //get field name from header
 			fieldIndex : fieldIndex,  //track position in filterFields
 			fieldValues : filterValues,  //unique field values
@@ -322,8 +322,8 @@ localBi.filterTable = function(tableDefinition) {
 			 * @returns {filterValue} Found filterValue, or null if not found.
 			 */
 			findValue(valueName) {
-				let valueIsFound = false;  //to check if filterValue exists
-				let valueIndex = 0;  //position of found filterValue
+				var valueIsFound = false;  //to check if filterValue exists
+				var valueIndex = 0;  //position of found filterValue
 				while (valueIsFound == false && valueIndex < filterField.fieldValues.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
 					if (valueName == filterField.fieldValues[valueIndex].valueName) valueIsFound = true;
 					else valueIndex++;
@@ -335,13 +335,13 @@ localBi.filterTable = function(tableDefinition) {
 		filterFields[fieldIndex] = filterField;  //indices here will correspond to the tableRecord indices
 	}
 
-	let filterRecords = [];
-	for (let recordIndex = 1; recordIndex < tableDefinition.tableRecords.length; recordIndex++) {  //build filterRecords - record data starts at index 1, skip header
-		let recordValues = [];
-		for (let fieldIndex = 0; fieldIndex < filterFields.length; fieldIndex++) {  //we should have the same number of fields in records
-			let filterField = filterFields[fieldIndex];  //get field from fieldIndex
-			let valueIndex = tableDefinition.tableRecords[recordIndex][fieldIndex];  //tableRecords contains index of filterValue for the same fieldIndex
-			let filterValue = filterField.fieldValues[valueIndex];
+	var filterRecords = [];
+	for (var recordIndex = 1; recordIndex < tableDefinition.tableRecords.length; recordIndex++) {  //build filterRecords - record data starts at index 1, skip header
+		var recordValues = [];
+		for (var fieldIndex = 0; fieldIndex < filterFields.length; fieldIndex++) {  //we should have the same number of fields in records
+			var filterField = filterFields[fieldIndex];  //get field from fieldIndex
+			var valueIndex = tableDefinition.tableRecords[recordIndex][fieldIndex];  //tableRecords contains index of filterValue for the same fieldIndex
+			var filterValue = filterField.fieldValues[valueIndex];
 			recordValues[fieldIndex] = filterValue;
 		}
 
@@ -350,7 +350,7 @@ localBi.filterTable = function(tableDefinition) {
 		 * @property {boolean} recordIsActive - Indicator if record is active or dormant.
 		 * @property {filterValue[]} recordValues - Array of filterValues, one index for every field.
 		 */
-		let filterRecord = {  //@typedef filterRecord
+		var filterRecord = {  //@typedef filterRecord
 			recordIsActive : true,  //all records active by default
 			recordValues : recordValues  //lookups to field filterValues
 		}
@@ -367,7 +367,7 @@ localBi.filterTable = function(tableDefinition) {
 	 * @property {filter} filter - Function that filters the dataset.
 	 * @property {aggregate} aggregate - Function that aggregates the dataset.
 	 */
-	 let filterTable = {  //@typedef filterTable
+	 var filterTable = {  //@typedef filterTable
 		filterName : tableDefinition.tableName,  //name
 		filterFields : filterFields,  //unique field values
 		filterRecords : filterRecords,  //normalised records
@@ -380,8 +380,8 @@ localBi.filterTable = function(tableDefinition) {
 		 * @returns {filterField} Found filterField, or null if not found.
 		 */
 		findField(fieldName) {  //find filterField if it exists, else return null
-			let fieldIsFound = false;  //to check if filterField exists
-			let fieldIndex = 0;  //position of found filterField
+			var fieldIsFound = false;  //to check if filterField exists
+			var fieldIndex = 0;  //position of found filterField
 			while (fieldIsFound == false && fieldIndex < filterTable.filterFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
 				if (fieldName == filterTable.filterFields[fieldIndex].fieldName) fieldIsFound = true;
 				else fieldIndex++;
@@ -402,18 +402,18 @@ localBi.filterTable = function(tableDefinition) {
 			 * @property {string} value - Actual value name or '*' for all values
 			 * @property {string/boolean} isActive - Active status : true / false / '!' for invert
 			 */
-			for (let filterIndex = 0; filterIndex < filterSpecifications.length; filterIndex++) {  //set all filterValues' filter state as defined by filterSpecifications
-				let filterSpecification = filterSpecifications[filterIndex];
-				let fieldsToFilter = [];  //placeholder for subset of fields to filter
+			for (var filterIndex = 0; filterIndex < filterSpecifications.length; filterIndex++) {  //set all filterValues' filter state as defined by filterSpecifications
+				var filterSpecification = filterSpecifications[filterIndex];
+				var fieldsToFilter = [];  //placeholder for subset of fields to filter
 				if (filterSpecification.field == '*') fieldsToFilter = filterTable.filterFields;  //special case for all fields
 				else fieldsToFilter[0] = filterTable.findField(filterSpecification.field);  //or single element array with one named field
-				for (let fieldIndex = 0; fieldIndex < fieldsToFilter.length; fieldIndex++) {  //potentially we can set all filterFields' states
-					let filterField = fieldsToFilter[fieldIndex];
-					let valuesToFilter = [];  //placeholder for subset of values to filter
+				for (var fieldIndex = 0; fieldIndex < fieldsToFilter.length; fieldIndex++) {  //potentially we can set all filterFields' states
+					var filterField = fieldsToFilter[fieldIndex];
+					var valuesToFilter = [];  //placeholder for subset of values to filter
 					if (filterSpecification.value == '*') valuesToFilter = filterField.fieldValues;  //special case for all values
 					else valuesToFilter[0] = filterField.findValue(filterSpecification.value);  //or single element array with one named value
-					for (let valueIndex = 0; valueIndex < valuesToFilter.length; valueIndex++) {  //potentially we can set all filterValues' states
-						let filterValue = valuesToFilter[valueIndex];
+					for (var valueIndex = 0; valueIndex < valuesToFilter.length; valueIndex++) {  //potentially we can set all filterValues' states
+						var filterValue = valuesToFilter[valueIndex];
 						if (filterSpecification.isActive == true) filterValue.valueIsActive = true;  //true
 						else if (filterSpecification.isActive == false) filterValue.valueIsActive = false;  //false
 						else if (filterSpecification.isActive == '!') filterValue.valueIsActive = !filterValue.valueIsActive;  //invert
@@ -421,25 +421,25 @@ localBi.filterTable = function(tableDefinition) {
 				}
 			}
 
-			for (let fieldIndex = 0; fieldIndex < filterTable.filterFields.length; fieldIndex++) {  //reset all filterValue states for all filterFields
-				let filterField = filterTable.filterFields[fieldIndex];
-				for (let valueIndex = 0; valueIndex < filterField.fieldValues.length; valueIndex++) {
-					let filterValue = filterField.fieldValues[valueIndex];
+			for (var fieldIndex = 0; fieldIndex < filterTable.filterFields.length; fieldIndex++) {  //reset all filterValue states for all filterFields
+				var filterField = filterTable.filterFields[fieldIndex];
+				for (var valueIndex = 0; valueIndex < filterField.fieldValues.length; valueIndex++) {
+					var filterValue = filterField.fieldValues[valueIndex];
 					filterValue.valueActiveRows = 0;
 					filterValue.valueDormantRows = 0;
 				}
 			}
 
-			for (let recordIndex = 0; recordIndex < filterTable.filterRecords.length; recordIndex++) {  //scan all filterRecords to calculate active filterRecords and update active filterValues
-				let filterRecord = filterTable.filterRecords[recordIndex];
+			for (var recordIndex = 0; recordIndex < filterTable.filterRecords.length; recordIndex++) {  //scan all filterRecords to calculate active filterRecords and update active filterValues
+				var filterRecord = filterTable.filterRecords[recordIndex];
 				filterRecord.recordIsActive = true;  //if any fields are NOT filtered, then the record is NOT active, or we can say that the record is only active when all the field values have valueIsActive = true
-				let fieldIndex = 0;
+				var fieldIndex = 0;
 				while (filterRecord.recordIsActive == true && fieldIndex < filterRecord.recordValues.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
 					if (filterRecord.recordValues[fieldIndex].valueIsActive == false) filterRecord.recordIsActive = false;  //if any record has non-filtered values, the record becomes false
 					else fieldIndex++;
 				}
-				for (let fieldIndex = 0; fieldIndex < filterRecord.recordValues.length; fieldIndex++) {  //set the state of each field's filterValue that exists in the record
-					let filterValue = filterRecord.recordValues[fieldIndex];
+				for (var fieldIndex = 0; fieldIndex < filterRecord.recordValues.length; fieldIndex++) {  //set the state of each field's filterValue that exists in the record
+					var filterValue = filterRecord.recordValues[fieldIndex];
 					if (filterRecord.recordIsActive == true) filterValue.valueActiveRows += 1;   //record state gets propagated to each filterValue state in that record
 					else filterValue.valueDormantRows += 1;
 				}
@@ -465,12 +465,12 @@ localBi.filterTable = function(tableDefinition) {
 				 * @property {string} field - Field name of dimension (required).
 				 */
 
-				for (let dimensionIndex = 0; dimensionIndex < dimensionSpecifications.length; dimensionIndex++) {  //build indexed dimensionSpecifications - faster to do this upfront
+				for (var dimensionIndex = 0; dimensionIndex < dimensionSpecifications.length; dimensionIndex++) {  //build indexed dimensionSpecifications - faster to do this upfront
 					dimensionSpecifications[dimensionIndex].fieldIndex = filterTable.findField(dimensionSpecifications[dimensionIndex].field).fieldIndex;  //get fieldIndex from fieldName
 				}
-				let filterGroups = [];  //result set of filterGroups
-				for (let recordIndex = 0; recordIndex < filterTable.filterRecords.length; recordIndex++) {  //determine group by field combos - scan through all rows, but only use the active ones for groups
-					let filterRecord = filterTable.filterRecords[recordIndex];
+				var filterGroups = [];  //result set of filterGroups
+				for (var recordIndex = 0; recordIndex < filterTable.filterRecords.length; recordIndex++) {  //determine group by field combos - scan through all rows, but only use the active ones for groups
+					var filterRecord = filterTable.filterRecords[recordIndex];
 					if (filterRecord.recordIsActive == true) {  //only do active rows
 
 						/**
@@ -480,19 +480,19 @@ localBi.filterTable = function(tableDefinition) {
 						 * @property {filterValue[]} groupValues - Unique combination of filtervalues that denotes one hierarchyGroup.
 						 * @property {filterRecord[]} groupRecords - Array of all active fiterRecords that belong to this hierarchyGroup.
 						 */
-						let filterGroup = {  //@typedef hierarchyGroup
+						var filterGroup = {  //@typedef hierarchyGroup
 							groupValues: [],  //group by unique groupValues combo, will be an array of filterValues
 							groupRecords: []  //rows linked to group, will be an array of filterRecords
 						}
-						for (let dimensionIndex = 0; dimensionIndex < dimensionSpecifications.length; dimensionIndex++) {  //build filterGroup's groupValues to have columns as per dimensionSpecifications
+						for (var dimensionIndex = 0; dimensionIndex < dimensionSpecifications.length; dimensionIndex++) {  //build filterGroup's groupValues to have columns as per dimensionSpecifications
 							filterGroup.groupValues[dimensionIndex] = filterRecord.recordValues[dimensionSpecifications[dimensionIndex].fieldIndex];  //get unique filterValues by index for group definition
 						}
-						let groupIsFound = false;  //to check if filterGroup exists
-						let groupIndex = 0;  //position of found group in filterGroups
+						var groupIsFound = false;  //to check if filterGroup exists
+						var groupIndex = 0;  //position of found group in filterGroups
 						while (groupIsFound == false && groupIndex < filterGroups.length) {  //search until we can confirm filterGroup does exist in the existing filterGroups
-							let existingGroup = filterGroups[groupIndex];
-							let groupIsSame = true;  //remains true until we find one value that doesn't match, exit early
-							let fieldIndex = 0;  //to compare the same dimension indices across groups
+							var existingGroup = filterGroups[groupIndex];
+							var groupIsSame = true;  //remains true until we find one value that doesn't match, exit early
+							var fieldIndex = 0;  //to compare the same dimension indices across groups
 							while (groupIsSame == true && fieldIndex < existingGroup.groupValues.length) {  //for filterGroup, compare indices against existingGroup
 								if (filterGroup.groupValues[fieldIndex] != existingGroup.groupValues[fieldIndex]) groupIsSame = false;  //exit as soon as the entire filterGroup doesn't match
 								else fieldIndex++;
@@ -508,9 +508,9 @@ localBi.filterTable = function(tableDefinition) {
 			}
 
 			function buildHierarchy(filterGroup, hierarchyChildren, hierarchyLevel) {  //recursively build the hierarchy of dimensions, one level per dimension, for one filterGroup
-				let nodeValue = filterGroup.groupValues[hierarchyLevel].valueName;  //build list of unique values, for each field in the group
-				let valueIsFound = false;  //to check if value exists
-				let valueIndex = 0;  //position of found value
+				var nodeValue = filterGroup.groupValues[hierarchyLevel].valueName;  //build list of unique values, for each field in the group
+				var valueIsFound = false;  //to check if value exists
+				var valueIndex = 0;  //position of found value
 				while (valueIsFound == false && valueIndex < hierarchyChildren.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
 					if (nodeValue == hierarchyChildren[valueIndex].value) valueIsFound = true;
 					else valueIndex++;
@@ -532,7 +532,7 @@ localBi.filterTable = function(tableDefinition) {
 					groups: []  //consolidated filterGroups - length of this array informs rowspan in pivot
 				}
 
-				let hierarchyNode = hierarchyChildren[valueIndex];
+				var hierarchyNode = hierarchyChildren[valueIndex];
 				if (hierarchyLevel < (filterGroup.groupValues.length-1)) hierarchyNode.children = buildHierarchy(filterGroup, hierarchyNode.children, hierarchyLevel+1);  //only recurse while we have children - the levels can only go as deep as the number of dimension fields/groupValues
 
 				hierarchyNode.groups.push(filterGroup);  //keep track of all groups used to build the hierarchy
@@ -545,11 +545,11 @@ localBi.filterTable = function(tableDefinition) {
 				 * @property {string} calculation - Calculation function name (required). 
 				 */
 
-				for (let nodeIndex = 0; nodeIndex < nodeHierarchy.length; nodeIndex++) {
-					let node = nodeHierarchy[nodeIndex];
+				for (var nodeIndex = 0; nodeIndex < nodeHierarchy.length; nodeIndex++) {
+					var node = nodeHierarchy[nodeIndex];
 					if (node.children.length > 0) aggregateHierarchy(measureSpecifications, node.children);  //dig deeper
-					let measures = [];
-					for (let measureIndex = 0; measureIndex < measureSpecifications.length; measureIndex++) {  //measures are as per specification
+					var measures = [];
+					for (var measureIndex = 0; measureIndex < measureSpecifications.length; measureIndex++) {  //measures are as per specification
 
 						/**
 						 * @typedef {object} hierarchyMeasure - Measure value at one level in hierarchy.
@@ -564,9 +564,9 @@ localBi.filterTable = function(tableDefinition) {
 				return nodeHierarchy;  //returns updated hierarchy with measures.
 			}
 
-			let filterGroups = buildGroups(aggregateSpecification.dimensions);  //group by the dimensionSpecifications and return a group of records for each unique combination of dimension values
-			let filterHierarchy = [];  //each successive dimension will form another level in the hierarchy
-			for (let groupIndex = 0; groupIndex < filterGroups.length; groupIndex++) {
+			var filterGroups = buildGroups(aggregateSpecification.dimensions);  //group by the dimensionSpecifications and return a group of records for each unique combination of dimension values
+			var filterHierarchy = [];  //each successive dimension will form another level in the hierarchy
+			for (var groupIndex = 0; groupIndex < filterGroups.length; groupIndex++) {
 			  	filterHierarchy = buildHierarchy(filterGroups[groupIndex], filterHierarchy, 0);  //recursively populate all the levels of hierarchy, one level per dimension
 			}
 			return aggregateHierarchy(aggregateSpecification.measures, filterHierarchy);  //once the hierarchy is built we can do the calculations
@@ -575,8 +575,8 @@ localBi.filterTable = function(tableDefinition) {
 	return filterTable;
 }</script>
     <script>
-let fields=[["Total"],["Province","Eastern Cape"],["Precinct","Aberdeen","Addo","Adelaide","Afsondering","Alexandria","Algoapark","Alice","Alicedale","Aliwal North","Avondale","Balfour","Barkly East","Bathurst","Baviaanskloof","Beacon Bay","Bedford","Bell","Berlin","Bethelsdorp","Bhisho","Bholo","Bholothwa","Bityi","Bluewater","Bridge Camp","Buffalo Flats","Burgersdorp","Butterworth","Cala","Cambridge","Cathcart","Cedarville","Centane","Chalumna","Chungwa","Coffee Bay","Cofimvaba","Committees","Cookhouse","Cradock","Dalasile","Despatch","Dimbaza","Dordrecht","Doringkloof","Duncan Village","Dutywa","East London","Elands Height","Elliot","Elliotdale","Ezibeleni","Flagstaff","Floukraal","Fort Beaufort","Fort Brown","Gelvandale","Glen Grey","Gonubie","Graaff-Reinet","Grahamstown","Hamburg","Hankey","Healdtown","Henderson","Hlababomvu","Hofmeyr","Hogsback","Humansdorp","Humewood","Ida","Ikamvelihle","Ilinge","Indwe","Inyibiba","Jamestown","Jansenville","Jeffreys Bay","Joubertina","Joza","Kabega Park","Kamesh","Kareedouw","Katkop","Kei Bridge","Kei Mouth","Kei Road","Keiskammahoek","Kenton On Sea","Khubusidrift","Kidds Beach","King William'S Town","Kinkelbos","Kirkwood","Kleinbulhoek","Klipplaat","Kolomane","Komga","Kwaaiman","Kwadwesi","Kwandengane","Kwanobuhle","Kwazakele","Lady Frere","Lady Grey","Libode","Lukholweni","Lusikisiki","Macleantown","Maclear","Madeira","Maletswai","Maluti","Matatiele","Mbizana","Mbizeni","Mdantsane","Middelburg(Ec)","Middledrift","Mlungisi","Molteno","Mooiplaas","Motherwell","Mount Ayliff","Mount Fletcher","Mount Frere","Mount Road","Moyeni","Mpisi","Mqanduli","Msobomvu","Mthatha","Mtontsasa","Mzamba","Ndevana","Nemato","New Brighton","Ngangelizwe","Ngcobo","Ngqamakhwe","Ngqeleni","Ntabankulu","Ntabethemba","Palmietfontein","Patensie","Paterson","Pearston","Peddie","Phumalanga","Port Alfred","Port St Johns","Punzana","Queenstown","Qumbu","Rhodes","Riebeeck East","Rietbron","Rossouw","Scenery Park","Seafield","Seven Fountains","Seymour","Somerset East","St Francis Bay","Sterkspruit","Sterkstroom","Steve Vukile Tshwete","Steynsburg","Steytlerville","Storms River","Stutterheim","Sulenkama","Swartkops","Tabase","Tamara","Tarkastad","Thina Falls","Thomas River","Thornhill","Thornhill Ciskei","Tsolo","Tsomo","Tyefu","Tylden","Ugie","Uitenhage","Venterstad","Vulindlela","Walmer","Whittlesea","Willowmore","Willowvale","Wolwefontein","Zamuxolo","Zele","Zwelitsha"],["Category","Assault"],["Crime","Assault","Common assault","Sexual assault"],["Year","2013","2014","2015","2016","2017","2018"],["Incidents","57","54","78","87","61","58","20","21","23","48","24","1","187","174","155","150","127","94","46","44","39","32","6","82","81","75","64","30","37","22","5","4","2","69","60","59","18","12","14","107","86","96","67","72","77","91","80","103","3","164","148","161","137","129","254","226","181","10","7","8","11","9","310","315","280","299","270","26","35","36","29","28","15","27","17","171","136","176","140","146","123","62","70","83","66","88","73","63","84","38","33","31","85","124","110","120","47","55","65","139","133","177","170","163","53","89","19","16","40","25","51","42","665","611","592","473","492","407","553","490","467","377","408","362","165","126","128","115","41","43","34","160","116","102","152","45","340","334","298","292","268","283","71","238","300","253","244","119","113","235","246","225","215","218","241","259","157","169","200","183","162","406","288","217","167","179","387","242","208","256","234","13","56","237","269","279","232","216","104","130","97","99","93","252","229","198","194","359","323","356","320","289","199","186","230","223","207","109","111","101","74","301","333","293","286","277","68","98","594","607","507","460","462","411","90","191","166","205","195","243","49","488","420","386","336","335","365","437","399","307","211","173","266","106","92","125","145","219","196","131","151","100","79","374","332","317","371","338","328","154","118","147","526","417","367","312","274","532","396","294","347","76","132","141","337","248","249","220","184","185","149","649","653","203","493","511","329","355","331","188","204","108","112","212","193","213","182","117","233","190","50","159","105","143","316","303","175","206","284","257","221","282","189","352","326","346","291","239","52","240","209","250","285","324","210","260","197","122","134","520","458","435","341","255","153","156","679","697","601","591","508","463","400","287","353","178","295","228","409","482","414","376","227","158","144","95","502","469","412","381","433","361","344","168","385","397","330","263","236","222","202","354","357","297","342","267","677","498","427","449","638","142","262","138","180","684","619","522","503","373","388","398","348","296","311","265","271","644","319","325","343","192","121","276","114","247","313","368","278","275","308","224","201"]];
-let records=[[0,0,0,0,0,0,0],[0,1,1,1,1,1,1],[0,1,1,1,1,2,2],[0,1,1,1,1,3,3],[0,1,1,1,1,4,4],[0,1,1,1,1,5,5],[0,1,1,1,1,6,6],[0,1,1,1,2,1,7],[0,1,1,1,2,2,8],[0,1,1,1,2,3,9],[0,1,1,1,2,4,10],[0,1,1,1,2,5,11],[0,1,1,1,2,6,11],[0,1,1,1,3,2,12],[0,1,1,1,3,3,12],[0,1,1,1,3,4,12],[0,1,1,1,3,6,12],[0,1,2,1,1,1,13],[0,1,2,1,1,2,14],[0,1,2,1,1,3,15],[0,1,2,1,1,4,16],[0,1,2,1,1,5,17],[0,1,2,1,1,6,18],[0,1,2,1,2,1,19],[0,1,2,1,2,2,10],[0,1,2,1,2,3,20],[0,1,2,1,2,4,10],[0,1,2,1,2,5,21],[0,1,2,1,2,6,22],[0,1,2,1,3,1,12],[0,1,2,1,3,2,12],[0,1,2,1,3,3,12],[0,1,2,1,3,4,12],[0,1,2,1,3,5,23],[0,1,2,1,3,6,12],[0,1,3,1,1,1,24],[0,1,3,1,1,2,25],[0,1,3,1,1,3,26],[0,1,3,1,1,4,26],[0,1,3,1,1,5,6],[0,1,3,1,1,6,27],[0,1,3,1,2,1,11],[0,1,3,1,2,2,28],[0,1,3,1,2,3,29],[0,1,3,1,2,4,30],[0,1,3,1,2,5,9],[0,1,3,1,2,6,9],[0,1,3,1,3,1,31],[0,1,3,1,3,2,32],[0,1,3,1,3,4,12],[0,1,3,1,3,5,33],[0,1,3,1,3,6,33],[0,1,4,1,1,1,34],[0,1,4,1,1,2,35],[0,1,4,1,1,3,6],[0,1,4,1,1,4,2],[0,1,4,1,1,5,2],[0,1,4,1,1,6,36],[0,1,4,1,2,1,28],[0,1,4,1,2,2,37],[0,1,4,1,2,3,37],[0,1,4,1,2,4,38],[0,1,4,1,2,5,38],[0,1,4,1,2,6,39],[0,1,4,1,3,1,12],[0,1,4,1,3,2,33],[0,1,4,1,3,6,12],[0,1,5,1,1,1,40],[0,1,5,1,1,2,41],[0,1,5,1,1,3,42],[0,1,5,1,1,4,41],[0,1,5,1,1,5,43],[0,1,5,1,1,6,44],[0,1,5,1,2,1,45],[0,1,5,1,2,2,46],[0,1,5,1,2,3,47],[0,1,5,1,2,4,25],[0,1,5,1,2,5,18],[0,1,5,1,2,6,48],[0,1,5,1,3,1,23],[0,1,5,1,3,2,49],[0,1,5,1,3,3,32],[0,1,5,1,3,4,32],[0,1,5,1,3,5,33],[0,1,5,1,3,6,49],[0,1,6,1,1,1,50],[0,1,6,1,1,2,51],[0,1,6,1,1,3,52],[0,1,6,1,1,4,53],[0,1,6,1,1,5,54],[0,1,6,1,1,6,48],[0,1,6,1,2,1,55],[0,1,6,1,2,2,56],[0,1,6,1,2,3,57],[0,1,6,1,2,4,14],[0,1,6,1,2,5,51],[0,1,6,1,2,6,14],[0,1,6,1,3,1,58],[0,1,6,1,3,2,59],[0,1,6,1,3,3,60],[0,1,6,1,3,4,61],[0,1,6,1,3,5,62],[0,1,6,1,3,6,39],[0,1,7,1,1,1,63],[0,1,7,1,1,2,64],[0,1,7,1,1,3,65],[0,1,7,1,1,4,66],[0,1,7,1,1,5,65],[0,1,7,1,1,6,67],[0,1,7,1,2,1,21],[0,1,7,1,2,2,21],[0,1,7,1,2,3,68],[0,1,7,1,2,4,69],[0,1,7,1,2,5,70],[0,1,7,1,2,6,30],[0,1,7,1,3,1,49],[0,1,7,1,3,2,49],[0,1,7,1,3,4,33],[0,1,7,1,3,5,12],[0,1,7,1,3,6,58],[0,1,8,1,1,1,9],[0,1,8,1,1,2,71],[0,1,8,1,1,3,39],[0,1,8,1,1,4,72],[0,1,8,1,1,5,30],[0,1,8,1,1,6,73],[0,1,8,1,2,1,69],[0,1,8,1,2,2,74],[0,1,8,1,2,3,9],[0,1,8,1,2,4,20],[0,1,8,1,2,5,74],[0,1,8,1,2,6,75],[0,1,8,1,3,4,12],[0,1,9,1,1,1,76],[0,1,9,1,1,2,77],[0,1,9,1,1,3,78],[0,1,9,1,1,4,79],[0,1,9,1,1,5,80],[0,1,9,1,1,6,81],[0,1,9,1,2,1,82],[0,1,9,1,2,2,83],[0,1,9,1,2,3,84],[0,1,9,1,2,4,83],[0,1,9,1,2,5,85],[0,1,9,1,2,6,86],[0,1,9,1,3,1,59],[0,1,9,1,3,2,49],[0,1,9,1,3,3,49],[0,1,9,1,3,4,12],[0,1,9,1,3,5,32],[0,1,9,1,3,6,32],[0,1,10,1,1,1,87],[0,1,10,1,1,2,88],[0,1,10,1,1,3,86],[0,1,10,1,1,4,4],[0,1,10,1,1,5,83],[0,1,10,1,1,6,89],[0,1,10,1,2,1,60],[0,1,10,1,2,2,59],[0,1,10,1,2,3,31],[0,1,10,1,2,4,31],[0,1,10,1,2,5,59],[0,1,10,1,2,6,31],[0,1,10,1,3,2,33],[0,1,10,1,3,4,33],[0,1,10,1,3,5,33],[0,1,10,1,3,6,12],[0,1,11,1,1,1,19],[0,1,11,1,1,2,90],[0,1,11,1,1,3,91],[0,1,11,1,1,4,29],[0,1,11,1,1,5,92],[0,1,11,1,1,6,28],[0,1,11,1,2,1,23],[0,1,11,1,2,2,23],[0,1,11,1,2,3,23],[0,1,11,1,2,4,59],[0,1,11,1,2,5,59],[0,1,11,1,2,6,59],[0,1,11,1,3,1,12],[0,1,11,1,3,3,12],[0,1,11,1,3,6,33],[0,1,12,1,1,1,93],[0,1,12,1,1,2,25],[0,1,12,1,1,3,46],[0,1,12,1,1,4,94],[0,1,12,1,1,5,95],[0,1,12,1,1,6,96],[0,1,12,1,2,1,23],[0,1,12,1,2,2,23],[0,1,12,1,2,3,39],[0,1,12,1,2,4,59],[0,1,12,1,2,5,58],[0,1,12,1,2,6,75],[0,1,12,1,3,1,49],[0,1,12,1,3,2,12],[0,1,12,1,3,3,12],[0,1,12,1,3,4,12],[0,1,12,1,3,5,33],[0,1,12,1,3,6,49],[0,1,13,1,1,1,27],[0,1,13,1,1,2,44],[0,1,13,1,1,3,97],[0,1,13,1,1,4,98],[0,1,13,1,1,5,99],[0,1,13,1,1,6,36],[0,1,13,1,2,1,8],[0,1,13,1,2,2,30],[0,1,13,1,2,3,38],[0,1,13,1,2,4,72],[0,1,13,1,2,5,75],[0,1,13,1,2,6,21],[0,1,13,1,3,1,12],[0,1,13,1,3,2,49],[0,1,13,1,3,3,32],[0,1,13,1,3,4,33],[0,1,13,1,3,5,49],[0,1,13,1,3,6,23],[0,1,14,1,1,1,33],[0,1,14,1,1,2,31],[0,1,14,1,1,3,49],[0,1,14,1,1,4,12],[0,1,14,1,1,5,12],[0,1,14,1,1,6,49],[0,1,14,1,2,1,12],[0,1,14,1,2,2,49],[0,1,14,1,2,3,33],[0,1,14,1,2,4,49],[0,1,14,1,2,5,33],[0,1,14,1,2,6,59],[0,1,14,1,3,4,12],[0,1,15,1,1,1,100],[0,1,15,1,1,2,101],[0,1,15,1,1,3,102],[0,1,15,1,1,4,103],[0,1,15,1,1,5,79],[0,1,15,1,1,6,104],[0,1,15,1,2,1,84],[0,1,15,1,2,2,82],[0,1,15,1,2,3,43],[0,1,15,1,2,4,105],[0,1,15,1,2,5,2],[0,1,15,1,2,6,90],[0,1,15,1,3,1,23],[0,1,15,1,3,2,32],[0,1,15,1,3,3,12],[0,1,15,1,3,4,33],[0,1,15,1,3,5,60],[0,1,15,1,3,6,32],[0,1,16,1,1,1,26],[0,1,16,1,1,2,35],[0,1,16,1,1,3,106],[0,1,16,1,1,4,84],[0,1,16,1,1,5,36],[0,1,16,1,1,6,99],[0,1,16,1,2,1,22],[0,1,16,1,2,2,107],[0,1,16,1,2,3,22],[0,1,16,1,2,4,8],[0,1,16,1,2,5,108],[0,1,16,1,2,6,74],[0,1,16,1,3,1,31],[0,1,16,1,3,2,32],[0,1,16,1,3,3,23],[0,1,16,1,3,4,32],[0,1,16,1,3,6,12],[0,1,17,1,1,1,109],[0,1,17,1,1,2,71],[0,1,17,1,1,3,74],[0,1,17,1,1,4,7],[0,1,17,1,1,5,108],[0,1,17,1,1,6,110],[0,1,17,1,2,1,31],[0,1,17,1,2,2,60],[0,1,17,1,2,3,31],[0,1,17,1,2,4,33],[0,1,17,1,2,5,60],[0,1,17,1,2,6,58],[0,1,17,1,3,3,12],[0,1,17,1,3,4,33],[0,1,17,1,3,6,12],[0,1,18,1,1,1,111],[0,1,18,1,1,2,112],[0,1,18,1,1,3,20],[0,1,18,1,1,4,29],[0,1,18,1,1,5,70],[0,1,18,1,1,6,72],[0,1,18,1,2,1,58],[0,1,18,1,2,2,62],[0,1,18,1,2,3,60],[0,1,18,1,2,4,61],[0,1,18,1,2,5,59],[0,1,18,1,2,6,58],[0,1,18,1,3,1,33],[0,1,18,1,3,2,12],[0,1,18,1,3,3,12],[0,1,18,1,3,4,33],[0,1,18,1,3,5,33],[0,1,18,1,3,6,33],[0,1,19,1,1,1,113],[0,1,19,1,1,2,114],[0,1,19,1,1,3,115],[0,1,19,1,1,4,116],[0,1,19,1,1,5,117],[0,1,19,1,1,6,118],[0,1,19,1,2,1,119],[0,1,19,1,2,2,120],[0,1,19,1,2,3,121],[0,1,19,1,2,4,122],[0,1,19,1,2,5,123],[0,1,19,1,2,6,124],[0,1,19,1,3,1,90],[0,1,19,1,3,2,7],[0,1,19,1,3,3,73],[0,1,19,1,3,4,9],[0,1,19,1,3,5,38],[0,1,19,1,3,6,72],[0,1,20,1,1,1,125],[0,1,20,1,1,2,125],[0,1,20,1,1,3,94],[0,1,20,1,1,4,126],[0,1,20,1,1,5,127],[0,1,20,1,1,6,128],[0,1,20,1,2,1,19],[0,1,20,1,2,2,129],[0,1,20,1,2,3,70],[0,1,20,1,2,4,92],[0,1,20,1,2,5,11],[0,1,20,1,2,6,108],[0,1,20,1,3,1,32],[0,1,20,1,3,2,32],[0,1,20,1,3,3,49],[0,1,20,1,3,4,32],[0,1,20,1,3,5,49],[0,1,20,1,3,6,31],[0,1,21,1,1,1,28],[0,1,21,1,1,2,7],[0,1,21,1,1,3,39],[0,1,21,1,1,4,75],[0,1,21,1,1,5,108],[0,1,21,1,1,6,107],[0,1,21,1,2,1,49],[0,1,21,1,2,2,31],[0,1,21,1,2,3,59],[0,1,21,1,2,4,33],[0,1,21,1,2,5,32],[0,1,21,1,3,4,12],[0,1,22,1,1,1,97],[0,1,22,1,1,2,130],[0,1,22,1,1,3,131],[0,1,22,1,1,4,69],[0,1,22,1,1,5,112],[0,1,22,1,1,6,22],[0,1,22,1,2,1,39],[0,1,22,1,2,2,61],[0,1,22,1,2,3,62],[0,1,22,1,2,4,31],[0,1,22,1,2,5,32],[0,1,22,1,2,6,31],[0,1,22,1,3,2,49],[0,1,22,1,3,3,49],[0,1,22,1,3,6,33],[0,1,23,1,1,1,132],[0,1,23,1,1,2,17],[0,1,23,1,1,3,133],[0,1,23,1,1,4,134],[0,1,23,1,1,5,135],[0,1,23,1,1,6,54],[0,1,23,1,2,1,70],[0,1,23,1,2,2,69],[0,1,23,1,2,3,75],[0,1,23,1,2,4,72],[0,1,23,1,2,5,74],[0,1,23,1,2,6,37],[0,1,23,1,3,1,23],[0,1,23,1,3,2,33],[0,1,23,1,3,3,23],[0,1,23,1,3,4,59],[0,1,23,1,3,5,31],[0,1,23,1,3,6,62],[0,1,24,1,1,1,9],[0,1,24,1,1,2,91],[0,1,24,1,1,3,136],[0,1,24,1,1,4,29],[0,1,24,1,1,5,130],[0,1,24,1,1,6,90],[0,1,24,1,2,1,12],[0,1,24,1,2,2,33],[0,1,24,1,2,3,33],[0,1,24,1,2,5,31],[0,1,24,1,2,6,23],[0,1,24,1,3,4,12],[0,1,24,1,3,5,12],[0,1,25,1,1,1,85],[0,1,25,1,1,2,5],[0,1,25,1,1,3,130],[0,1,25,1,1,4,29],[0,1,25,1,1,5,129],[0,1,25,1,1,6,2],[0,1,25,1,2,1,37],[0,1,25,1,2,2,61],[0,1,25,1,2,3,33],[0,1,25,1,2,6,62],[0,1,26,1,1,1,137],[0,1,26,1,1,2,138],[0,1,26,1,1,3,139],[0,1,26,1,1,4,140],[0,1,26,1,1,5,141],[0,1,26,1,1,6,142],[0,1,26,1,2,1,106],[0,1,26,1,2,2,34],[0,1,26,1,2,3,2],[0,1,26,1,2,4,6],[0,1,26,1,2,5,143],[0,1,26,1,2,6,36],[0,1,26,1,3,1,39],[0,1,26,1,3,2,58],[0,1,26,1,3,3,32],[0,1,26,1,3,4,59],[0,1,26,1,3,5,38],[0,1,26,1,3,6,61],[0,1,27,1,1,1,144],[0,1,27,1,1,2,145],[0,1,27,1,1,3,55],[0,1,27,1,1,4,146],[0,1,27,1,1,5,147],[0,1,27,1,1,6,14],[0,1,27,1,2,1,148],[0,1,27,1,2,2,127],[0,1,27,1,2,3,149],[0,1,27,1,2,4,41],[0,1,27,1,2,5,133],[0,1,27,1,2,6,134],[0,1,27,1,3,1,60],[0,1,27,1,3,2,59],[0,1,27,1,3,3,62],[0,1,27,1,3,4,23],[0,1,27,1,3,5,23],[0,1,27,1,3,6,60],[0,1,28,1,1,1,150],[0,1,28,1,1,2,151],[0,1,28,1,1,3,152],[0,1,28,1,1,4,153],[0,1,28,1,1,5,154],[0,1,28,1,1,6,103],[0,1,28,1,2,1,155],[0,1,28,1,2,2,156],[0,1,28,1,2,3,57],[0,1,28,1,2,4,157],[0,1,28,1,2,5,158],[0,1,28,1,2,6,135],[0,1,28,1,3,1,59],[0,1,28,1,3,2,32],[0,1,28,1,3,3,31],[0,1,28,1,3,4,49],[0,1,28,1,3,5,49],[0,1,28,1,3,6,23],[0,1,29,1,1,1,159],[0,1,29,1,1,2,56],[0,1,29,1,1,3,78],[0,1,29,1,1,4,160],[0,1,29,1,1,5,161],[0,1,29,1,1,6,160],[0,1,29,1,2,1,19],[0,1,29,1,2,2,82],[0,1,29,1,2,3,36],[0,1,29,1,2,4,131],[0,1,29,1,2,5,90],[0,1,29,1,2,6,21],[0,1,29,1,3,2,12],[0,1,29,1,3,3,12],[0,1,29,1,3,4,32],[0,1,29,1,3,5,33],[0,1,29,1,3,6,32],[0,1,30,1,1,1,162],[0,1,30,1,1,2,163],[0,1,30,1,1,3,164],[0,1,30,1,1,4,165],[0,1,30,1,1,5,161],[0,1,30,1,1,6,166],[0,1,30,1,2,1,167],[0,1,30,1,2,2,145],[0,1,30,1,2,3,168],[0,1,30,1,2,4,169],[0,1,30,1,2,5,170],[0,1,30,1,2,6,171],[0,1,30,1,3,1,75],[0,1,30,1,3,2,62],[0,1,30,1,3,3,60],[0,1,30,1,3,4,172],[0,1,30,1,3,5,75],[0,1,30,1,3,6,75],[0,1,31,1,1,1,36],[0,1,31,1,1,2,173],[0,1,31,1,1,3,82],[0,1,31,1,1,4,3],[0,1,31,1,1,5,44],[0,1,31,1,1,6,98],[0,1,31,1,2,1,90],[0,1,31,1,2,2,110],[0,1,31,1,2,3,75],[0,1,31,1,2,4,39],[0,1,31,1,2,5,7],[0,1,31,1,2,6,21],[0,1,31,1,3,1,33],[0,1,31,1,3,2,31],[0,1,31,1,3,4,33],[0,1,31,1,3,5,32],[0,1,31,1,3,6,32],[0,1,32,1,1,1,7],[0,1,32,1,1,2,68],[0,1,32,1,1,3,7],[0,1,32,1,1,4,90],[0,1,32,1,1,5,129],[0,1,32,1,1,6,10],[0,1,32,1,2,1,39],[0,1,32,1,2,2,38],[0,1,32,1,2,3,39],[0,1,32,1,2,4,7],[0,1,32,1,2,5,75],[0,1,32,1,2,6,58],[0,1,32,1,3,1,12],[0,1,32,1,3,2,49],[0,1,32,1,3,3,33],[0,1,32,1,3,4,33],[0,1,32,1,3,6,49],[0,1,33,1,1,1,174],[0,1,33,1,1,2,175],[0,1,33,1,1,3,176],[0,1,33,1,1,4,156],[0,1,33,1,1,5,177],[0,1,33,1,1,6,178],[0,1,33,1,2,1,179],[0,1,33,1,2,2,101],[0,1,33,1,2,3,134],[0,1,33,1,2,4,180],[0,1,33,1,2,5,181],[0,1,33,1,2,6,126],[0,1,33,1,3,1,62],[0,1,33,1,3,2,58],[0,1,33,1,3,3,59],[0,1,33,1,3,4,61],[0,1,33,1,3,5,23],[0,1,33,1,3,6,62],[0,1,34,1,1,1,69],[0,1,34,1,1,2,2],[0,1,34,1,1,3,90],[0,1,34,1,1,4,90],[0,1,34,1,1,5,92],[0,1,34,1,1,6,173],[0,1,34,1,2,1,58],[0,1,34,1,2,2,61],[0,1,34,1,2,3,23],[0,1,34,1,2,4,33],[0,1,34,1,2,5,23],[0,1,34,1,2,6,33],[0,1,34,1,3,1,33],[0,1,34,1,3,2,33],[0,1,34,1,3,3,12],[0,1,34,1,3,4,12],[0,1,34,1,3,5,31],[0,1,34,1,3,6,12],[0,1,35,1,1,1,44],[0,1,35,1,1,2,179],[0,1,35,1,1,3,182],[0,1,35,1,1,4,106],[0,1,35,1,1,5,183],[0,1,35,1,1,6,183],[0,1,35,1,2,1,62],[0,1,35,1,2,2,61],[0,1,35,1,2,3,39],[0,1,35,1,2,4,61],[0,1,35,1,2,5,62],[0,1,35,1,2,6,60],[0,1,35,1,3,1,33],[0,1,35,1,3,2,31],[0,1,35,1,3,3,33],[0,1,35,1,3,4,32],[0,1,35,1,3,5,49],[0,1,35,1,3,6,33],[0,1,36,1,1,1,82],[0,1,36,1,1,2,44],[0,1,36,1,1,3,99],[0,1,36,1,1,4,20],[0,1,36,1,1,5,35],[0,1,36,1,1,6,10],[0,1,36,1,2,1,21],[0,1,36,1,2,2,69],[0,1,36,1,2,3,72],[0,1,36,1,2,4,31],[0,1,36,1,2,5,59],[0,1,36,1,2,6,31],[0,1,36,1,3,3,12],[0,1,36,1,3,6,12],[0,1,37,1,1,1,184],[0,1,37,1,1,2,185],[0,1,37,1,1,3,186],[0,1,37,1,1,4,178],[0,1,37,1,1,5,187],[0,1,37,1,1,6,185],[0,1,37,1,2,1,143],[0,1,37,1,2,2,71],[0,1,37,1,2,3,107],[0,1,37,1,2,4,75],[0,1,37,1,2,5,109],[0,1,37,1,2,6,97],[0,1,37,1,3,1,33],[0,1,37,1,3,2,31],[0,1,37,1,3,3,33],[0,1,37,1,3,5,33],[0,1,37,1,3,6,31],[0,1,38,1,1,1,12],[0,1,38,1,1,2,33],[0,1,38,1,1,3,12],[0,1,38,1,1,4,12],[0,1,38,1,1,5,49],[0,1,38,1,2,2,12],[0,1,38,1,2,5,12],[0,1,39,1,1,1,98],[0,1,39,1,1,2,89],[0,1,39,1,1,3,82],[0,1,39,1,1,4,24],[0,1,39,1,1,5,21],[0,1,39,1,1,6,6],[0,1,39,1,2,1,22],[0,1,39,1,2,2,27],[0,1,39,1,2,3,97],[0,1,39,1,2,4,130],[0,1,39,1,2,5,111],[0,1,39,1,2,6,6],[0,1,39,1,3,1,12],[0,1,39,1,3,2,23],[0,1,39,1,3,3,60],[0,1,39,1,3,4,33],[0,1,39,1,3,5,33],[0,1,39,1,3,6,49],[0,1,40,1,1,1,188],[0,1,40,1,1,2,189],[0,1,40,1,1,3,137],[0,1,40,1,1,4,190],[0,1,40,1,1,5,191],[0,1,40,1,1,6,192],[0,1,40,1,2,1,166],[0,1,40,1,2,2,193],[0,1,40,1,2,3,194],[0,1,40,1,2,4,195],[0,1,40,1,2,5,196],[0,1,40,1,2,6,197],[0,1,40,1,3,1,58],[0,1,40,1,3,2,38],[0,1,40,1,3,3,108],[0,1,40,1,3,4,58],[0,1,40,1,3,5,59],[0,1,40,1,3,6,60],[0,1,41,1,1,1,47],[0,1,41,1,1,2,88],[0,1,41,1,1,3,43],[0,1,41,1,1,4,99],[0,1,41,1,1,5,3],[0,1,41,1,1,6,34],[0,1,41,1,2,1,58],[0,1,41,1,2,2,61],[0,1,41,1,2,3,58],[0,1,41,1,2,4,62],[0,1,41,1,2,5,30],[0,1,41,1,2,6,107],[0,1,41,1,3,1,32],[0,1,41,1,3,2,33],[0,1,41,1,3,3,32],[0,1,41,1,3,4,23],[0,1,41,1,3,5,31],[0,1,42,1,1,1,133],[0,1,42,1,1,2,198],[0,1,42,1,1,3,18],[0,1,42,1,1,4,89],[0,1,42,1,1,5,43],[0,1,42,1,1,6,45],[0,1,42,1,2,1,179],[0,1,42,1,2,2,199],[0,1,42,1,2,3,200],[0,1,42,1,2,4,47],[0,1,42,1,2,5,201],[0,1,42,1,2,6,47],[0,1,42,1,3,1,31],[0,1,42,1,3,2,38],[0,1,42,1,3,3,32],[0,1,42,1,3,4,32],[0,1,42,1,3,5,58],[0,1,42,1,3,6,60],[0,1,43,1,1,1,202],[0,1,43,1,1,2,203],[0,1,43,1,1,3,204],[0,1,43,1,1,4,139],[0,1,43,1,1,5,205],[0,1,43,1,1,6,206],[0,1,43,1,2,1,82],[0,1,43,1,2,2,27],[0,1,43,1,2,3,85],[0,1,43,1,2,4,207],[0,1,43,1,2,5,34],[0,1,43,1,2,6,3],[0,1,43,1,3,1,49],[0,1,43,1,3,2,32],[0,1,43,1,3,3,32],[0,1,43,1,3,4,49],[0,1,43,1,3,5,108],[0,1,43,1,3,6,23],[0,1,44,1,1,1,148],[0,1,44,1,1,2,128],[0,1,44,1,1,3,86],[0,1,44,1,1,4,106],[0,1,44,1,1,5,41],[0,1,44,1,1,6,208],[0,1,44,1,2,1,112],[0,1,44,1,2,2,68],[0,1,44,1,2,3,7],[0,1,44,1,2,4,61],[0,1,44,1,2,5,110],[0,1,44,1,2,6,7],[0,1,44,1,3,4,12],[0,1,44,1,3,5,12],[0,1,45,1,1,1,12],[0,1,45,1,1,2,23],[0,1,45,1,1,3,33],[0,1,45,1,1,5,49],[0,1,45,1,1,6,31],[0,1,45,1,2,2,12],[0,1,45,1,2,3,33],[0,1,45,1,2,4,12],[0,1,45,1,3,1,12],[0,1,46,1,1,1,209],[0,1,46,1,1,2,210],[0,1,46,1,1,3,211],[0,1,46,1,1,4,212],[0,1,46,1,1,5,213],[0,1,46,1,1,6,214],[0,1,46,1,2,1,48],[0,1,46,1,2,2,215],[0,1,46,1,2,3,24],[0,1,46,1,2,4,25],[0,1,46,1,2,5,82],[0,1,46,1,2,6,20],[0,1,46,1,3,1,49],[0,1,46,1,3,2,23],[0,1,46,1,3,3,32],[0,1,46,1,3,4,62],[0,1,46,1,3,5,62],[0,1,46,1,3,6,58],[0,1,47,1,1,1,216],[0,1,47,1,1,2,217],[0,1,47,1,1,3,218],[0,1,47,1,1,4,219],[0,1,47,1,1,5,56],[0,1,47,1,1,6,220],[0,1,47,1,2,1,221],[0,1,47,1,2,2,130],[0,1,47,1,2,3,34],[0,1,47,1,2,4,34],[0,1,47,1,2,5,106],[0,1,47,1,2,6,181],[0,1,47,1,3,1,39],[0,1,47,1,3,2,38],[0,1,47,1,3,3,107],[0,1,47,1,3,4,38],[0,1,47,1,3,5,33],[0,1,47,1,3,6,73],[0,1,48,1,1,1,222],[0,1,48,1,1,2,223],[0,1,48,1,1,3,224],[0,1,48,1,1,4,225],[0,1,48,1,1,5,226],[0,1,48,1,1,6,227],[0,1,48,1,2,1,228],[0,1,48,1,2,2,229],[0,1,48,1,2,3,230],[0,1,48,1,2,4,231],[0,1,48,1,2,5,232],[0,1,48,1,2,6,233],[0,1,48,1,3,1,11],[0,1,48,1,3,2,172],[0,1,48,1,3,3,58],[0,1,48,1,3,4,172],[0,1,48,1,3,5,73],[0,1,48,1,3,6,107],[0,1,49,1,1,1,49],[0,1,49,1,1,4,12],[0,1,49,1,1,6,12],[0,1,49,1,2,5,49],[0,1,50,1,1,1,234],[0,1,50,1,1,2,235],[0,1,50,1,1,3,236],[0,1,50,1,1,4,148],[0,1,50,1,1,5,106],[0,1,50,1,1,6,41],[0,1,50,1,2,1,130],[0,1,50,1,2,2,69],[0,1,50,1,2,3,129],[0,1,50,1,2,4,69],[0,1,50,1,2,5,110],[0,1,50,1,2,6,110],[0,1,50,1,3,1,12],[0,1,50,1,3,2,12],[0,1,50,1,3,3,33],[0,1,50,1,3,5,33],[0,1,51,1,1,1,237],[0,1,51,1,1,2,80],[0,1,51,1,1,3,161],[0,1,51,1,1,4,16],[0,1,51,1,1,5,16],[0,1,51,1,1,6,180],[0,1,51,1,2,1,74],[0,1,51,1,2,2,69],[0,1,51,1,2,3,21],[0,1,51,1,2,4,92],[0,1,51,1,2,5,110],[0,1,51,1,2,6,29],[0,1,51,1,3,2,12],[0,1,51,1,3,3,12],[0,1,51,1,3,5,33],[0,1,52,1,1,1,6],[0,1,52,1,1,2,26],[0,1,52,1,1,3,42],[0,1,52,1,1,4,42],[0,1,52,1,1,5,181],[0,1,52,1,1,6,198],[0,1,52,1,2,1,39],[0,1,52,1,2,2,62],[0,1,52,1,2,3,8],[0,1,52,1,2,4,72],[0,1,52,1,2,5,129],[0,1,52,1,2,6,70],[0,1,52,1,3,1,33],[0,1,52,1,3,2,49],[0,1,52,1,3,3,32],[0,1,52,1,3,4,33],[0,1,52,1,3,5,12],[0,1,52,1,3,6,33],[0,1,53,1,1,1,238],[0,1,53,1,1,2,239],[0,1,53,1,1,3,194],[0,1,53,1,1,4,52],[0,1,53,1,1,5,240],[0,1,53,1,1,6,241],[0,1,53,1,2,1,81],[0,1,53,1,2,2,242],[0,1,53,1,2,3,243],[0,1,53,1,2,4,82],[0,1,53,1,2,5,70],[0,1,53,1,2,6,131],[0,1,53,1,3,1,12],[0,1,53,1,3,2,12],[0,1,53,1,3,3,23],[0,1,53,1,3,4,12],[0,1,53,1,3,5,31],[0,1,53,1,3,6,23],[0,1,54,1,1,1,32],[0,1,54,1,1,2,49],[0,1,54,1,1,3,12],[0,1,54,1,1,4,31],[0,1,54,1,1,5,32],[0,1,54,1,1,6,33],[0,1,54,1,2,2,12],[0,1,54,1,2,4,12],[0,1,54,1,2,5,12],[0,1,54,1,2,6,12],[0,1,54,1,3,1,12],[0,1,55,1,1,1,244],[0,1,55,1,1,2,245],[0,1,55,1,1,3,246],[0,1,55,1,1,4,247],[0,1,55,1,1,5,248],[0,1,55,1,1,6,249],[0,1,55,1,2,1,250],[0,1,55,1,2,2,183],[0,1,55,1,2,3,18],[0,1,55,1,2,4,200],[0,1,55,1,2,5,251],[0,1,55,1,2,6,252],[0,1,55,1,3,1,49],[0,1,55,1,3,2,49],[0,1,55,1,3,3,59],[0,1,55,1,3,4,23],[0,1,55,1,3,5,59],[0,1,55,1,3,6,62],[0,1,56,1,1,1,32],[0,1,56,1,1,2,31],[0,1,56,1,1,3,59],[0,1,56,1,1,4,23],[0,1,56,1,1,5,33],[0,1,56,1,1,6,33],[0,1,56,1,2,2,12],[0,1,56,1,2,6,12],[0,1,57,1,1,1,253],[0,1,57,1,1,2,254],[0,1,57,1,1,3,255],[0,1,57,1,1,4,256],[0,1,57,1,1,5,141],[0,1,57,1,1,6,257],[0,1,57,1,2,1,258],[0,1,57,1,2,2,259],[0,1,57,1,2,3,260],[0,1,57,1,2,4,230],[0,1,57,1,2,5,150],[0,1,57,1,2,6,261],[0,1,57,1,3,1,90],[0,1,57,1,3,2,8],[0,1,57,1,3,3,11],[0,1,57,1,3,4,75],[0,1,57,1,3,5,39],[0,1,57,1,3,6,107],[0,1,58,1,1,1,25],[0,1,58,1,1,2,26],[0,1,58,1,1,3,262],[0,1,58,1,1,4,24],[0,1,58,1,1,5,85],[0,1,58,1,1,6,181],[0,1,58,1,2,1,61],[0,1,58,1,2,2,62],[0,1,58,1,2,3,61],[0,1,58,1,2,4,62],[0,1,58,1,2,5,62],[0,1,58,1,2,6,39],[0,1,58,1,3,1,49],[0,1,58,1,3,3,33],[0,1,58,1,3,4,32],[0,1,58,1,3,5,12],[0,1,58,1,3,6,33],[0,1,59,1,1,1,263],[0,1,59,1,1,2,264],[0,1,59,1,1,3,234],[0,1,59,1,1,4,208],[0,1,59,1,1,5,179],[0,1,59,1,1,6,134],[0,1,59,1,2,1,6],[0,1,59,1,2,2,262],[0,1,59,1,2,3,87],[0,1,59,1,2,4,87],[0,1,59,1,2,5,98],[0,1,59,1,2,6,27],[0,1,59,1,3,1,59],[0,1,59,1,3,2,23],[0,1,59,1,3,3,12],[0,1,59,1,3,4,49],[0,1,59,1,3,5,33],[0,1,59,1,3,6,12],[0,1,60,1,1,1,265],[0,1,60,1,1,2,266],[0,1,60,1,1,3,56],[0,1,60,1,1,4,257],[0,1,60,1,1,5,267],[0,1,60,1,1,6,268],[0,1,60,1,2,1,186],[0,1,60,1,2,2,15],[0,1,60,1,2,3,269],[0,1,60,1,2,4,186],[0,1,60,1,2,5,270],[0,1,60,1,2,6,271],[0,1,60,1,3,1,23],[0,1,60,1,3,2,33],[0,1,60,1,3,3,61],[0,1,60,1,3,4,31],[0,1,60,1,3,5,62],[0,1,60,1,3,6,32],[0,1,61,1,1,1,272],[0,1,61,1,1,2,273],[0,1,61,1,1,3,66],[0,1,61,1,1,4,266],[0,1,61,1,1,5,218],[0,1,61,1,1,6,274],[0,1,61,1,2,1,275],[0,1,61,1,2,2,276],[0,1,61,1,2,3,248],[0,1,61,1,2,4,277],[0,1,61,1,2,5,278],[0,1,61,1,2,6,279],[0,1,61,1,3,1,172],[0,1,61,1,3,2,30],[0,1,61,1,3,3,62],[0,1,61,1,3,4,61],[0,1,61,1,3,5,58],[0,1,61,1,3,6,58],[0,1,62,1,1,1,39],[0,1,62,1,1,2,30],[0,1,62,1,1,3,60],[0,1,62,1,1,4,38],[0,1,62,1,1,5,59],[0,1,62,1,1,6,58],[0,1,62,1,2,1,49],[0,1,62,1,2,2,49],[0,1,62,1,2,3,32],[0,1,62,1,2,4,12],[0,1,62,1,2,5,49],[0,1,62,1,2,6,59],[0,1,62,1,3,4,12],[0,1,63,1,1,1,41],[0,1,63,1,1,2,43],[0,1,63,1,1,3,207],[0,1,63,1,1,4,24],[0,1,63,1,1,5,45],[0,1,63,1,1,6,83],[0,1,63,1,2,1,74],[0,1,63,1,2,2,28],[0,1,63,1,2,3,38],[0,1,63,1,2,4,68],[0,1,63,1,2,5,69],[0,1,63,1,2,6,75],[0,1,63,1,3,2,12],[0,1,63,1,3,3,49],[0,1,63,1,3,4,49],[0,1,63,1,3,5,32],[0,1,63,1,3,6,12],[0,1,64,1,1,1,8],[0,1,64,1,1,2,37],[0,1,64,1,1,3,92],[0,1,64,1,1,4,92],[0,1,64,1,1,5,91],[0,1,64,1,1,6,110],[0,1,64,1,2,1,23],[0,1,64,1,2,2,33],[0,1,64,1,2,3,31],[0,1,64,1,2,4,32],[0,1,64,1,2,5,33],[0,1,64,1,2,6,49],[0,1,64,1,3,6,49],[0,1,65,1,1,1,49],[0,1,65,1,1,6,49],[0,1,66,1,1,1,136],[0,1,66,1,1,2,85],[0,1,66,1,1,3,70],[0,1,66,1,1,4,22],[0,1,66,1,1,5,109],[0,1,66,1,1,6,30],[0,1,66,1,2,1,32],[0,1,66,1,2,2,38],[0,1,66,1,2,3,60],[0,1,66,1,2,4,31],[0,1,66,1,2,5,33],[0,1,66,1,2,6,31],[0,1,66,1,3,5,12],[0,1,66,1,3,6,33],[0,1,67,1,1,1,21],[0,1,67,1,1,2,112],[0,1,67,1,1,3,30],[0,1,67,1,1,4,9],[0,1,67,1,1,5,69],[0,1,67,1,1,6,11],[0,1,67,1,2,1,74],[0,1,67,1,2,2,172],[0,1,67,1,2,3,58],[0,1,67,1,2,4,38],[0,1,67,1,2,5,38],[0,1,67,1,2,6,60],[0,1,67,1,3,2,33],[0,1,67,1,3,4,12],[0,1,67,1,3,5,31],[0,1,67,1,3,6,33],[0,1,68,1,1,1,23],[0,1,68,1,1,2,38],[0,1,68,1,1,3,31],[0,1,68,1,1,4,59],[0,1,68,1,1,5,23],[0,1,68,1,1,6,31],[0,1,68,1,2,1,32],[0,1,68,1,2,2,49],[0,1,68,1,2,3,49],[0,1,68,1,2,5,33],[0,1,68,1,2,6,33],[0,1,68,1,3,1,12],[0,1,68,1,3,2,12],[0,1,68,1,3,4,12],[0,1,69,1,1,1,164],[0,1,69,1,1,2,178],[0,1,69,1,1,3,280],[0,1,69,1,1,4,281],[0,1,69,1,1,5,186],[0,1,69,1,1,6,219],[0,1,69,1,2,1,242],[0,1,69,1,2,2,282],[0,1,69,1,2,3,48],[0,1,69,1,2,4,17],[0,1,69,1,2,5,95],[0,1,69,1,2,6,27],[0,1,69,1,3,1,62],[0,1,69,1,3,2,59],[0,1,69,1,3,3,49],[0,1,69,1,3,4,23],[0,1,69,1,3,5,60],[0,1,70,1,1,1,84],[0,1,70,1,1,2,89],[0,1,70,1,1,3,27],[0,1,70,1,1,4,86],[0,1,70,1,1,5,283],[0,1,70,1,1,6,4],[0,1,70,1,2,1,55],[0,1,70,1,2,2,266],[0,1,70,1,2,3,284],[0,1,70,1,2,4,150],[0,1,70,1,2,5,152],[0,1,70,1,2,6,285],[0,1,70,1,3,1,37],[0,1,70,1,3,2,58],[0,1,70,1,3,3,58],[0,1,70,1,3,4,172],[0,1,70,1,3,5,39],[0,1,70,1,3,6,75],[0,1,71,1,1,1,49],[0,1,71,1,1,2,12],[0,1,71,1,1,3,32],[0,1,71,1,1,4,33],[0,1,71,1,1,5,12],[0,1,71,1,1,6,49],[0,1,71,1,2,1,12],[0,1,72,1,1,1,159],[0,1,72,1,1,2,286],[0,1,72,1,1,3,76],[0,1,72,1,1,4,287],[0,1,72,1,1,5,165],[0,1,72,1,1,6,103],[0,1,72,1,2,1,251],[0,1,72,1,2,2,94],[0,1,72,1,2,3,251],[0,1,72,1,2,4,81],[0,1,72,1,2,5,288],[0,1,72,1,2,6,48],[0,1,72,1,3,1,33],[0,1,72,1,3,2,33],[0,1,72,1,3,3,31],[0,1,72,1,3,4,49],[0,1,72,1,3,5,32],[0,1,72,1,3,6,23],[0,1,73,1,1,1,221],[0,1,73,1,1,2,28],[0,1,73,1,1,3,70],[0,1,73,1,1,4,68],[0,1,73,1,1,5,92],[0,1,73,1,1,6,130],[0,1,73,1,2,1,75],[0,1,73,1,2,2,59],[0,1,73,1,2,3,108],[0,1,73,1,2,4,23],[0,1,73,1,2,5,59],[0,1,73,1,2,6,7],[0,1,73,1,3,1,33],[0,1,73,1,3,2,32],[0,1,73,1,3,3,49],[0,1,73,1,3,4,12],[0,1,73,1,3,5,49],[0,1,73,1,3,6,33],[0,1,74,1,1,1,86],[0,1,74,1,1,2,198],[0,1,74,1,1,3,89],[0,1,74,1,1,4,24],[0,1,74,1,1,5,84],[0,1,74,1,1,6,143],[0,1,74,1,2,1,74],[0,1,74,1,2,2,131],[0,1,74,1,2,3,107],[0,1,74,1,2,4,8],[0,1,74,1,2,5,172],[0,1,74,1,2,6,30],[0,1,74,1,3,1,49],[0,1,74,1,3,4,12],[0,1,74,1,3,6,12],[0,1,75,1,1,1,147],[0,1,75,1,1,2,67],[0,1,75,1,1,3,289],[0,1,75,1,1,4,285],[0,1,75,1,1,5,218],[0,1,75,1,1,6,290],[0,1,75,1,2,1,43],[0,1,75,1,2,2,44],[0,1,75,1,2,3,221],[0,1,75,1,2,4,129],[0,1,75,1,2,5,129],[0,1,75,1,2,6,28],[0,1,75,1,3,1,49],[0,1,75,1,3,2,49],[0,1,75,1,3,3,33],[0,1,75,1,3,4,60],[0,1,75,1,3,5,59],[0,1,75,1,3,6,58],[0,1,76,1,1,1,111],[0,1,76,1,1,2,1],[0,1,76,1,1,3,5],[0,1,76,1,1,4,1],[0,1,76,1,1,5,36],[0,1,76,1,1,6,291],[0,1,76,1,2,1,23],[0,1,76,1,2,2,61],[0,1,76,1,2,3,60],[0,1,76,1,2,4,59],[0,1,76,1,2,5,61],[0,1,76,1,2,6,108],[0,1,76,1,3,1,12],[0,1,76,1,3,2,12],[0,1,76,1,3,3,12],[0,1,76,1,3,5,49],[0,1,76,1,3,6,12],[0,1,77,1,1,1,69],[0,1,77,1,1,2,71],[0,1,77,1,1,3,68],[0,1,77,1,1,4,72],[0,1,77,1,1,5,28],[0,1,77,1,1,6,110],[0,1,77,1,2,1,73],[0,1,77,1,2,2,75],[0,1,77,1,2,3,9],[0,1,77,1,2,4,11],[0,1,77,1,2,5,22],[0,1,77,1,2,6,11],[0,1,77,1,3,1,12],[0,1,77,1,3,2,32],[0,1,77,1,3,3,12],[0,1,77,1,3,4,12],[0,1,77,1,3,5,33],[0,1,78,1,1,1,54],[0,1,78,1,1,2,80],[0,1,78,1,1,3,292],[0,1,78,1,1,4,96],[0,1,78,1,1,5,293],[0,1,78,1,1,6,200],[0,1,78,1,2,1,44],[0,1,78,1,2,2,182],[0,1,78,1,2,3,53],[0,1,78,1,2,4,294],[0,1,78,1,2,5,53],[0,1,78,1,2,6,17],[0,1,78,1,3,1,23],[0,1,78,1,3,2,32],[0,1,78,1,3,3,32],[0,1,78,1,3,4,23],[0,1,78,1,3,5,172],[0,1,78,1,3,6,59],[0,1,79,1,1,1,64],[0,1,79,1,1,2,55],[0,1,79,1,1,3,176],[0,1,79,1,1,4,178],[0,1,79,1,1,5,154],[0,1,79,1,1,6,168],[0,1,79,1,2,1,46],[0,1,79,1,2,2,200],[0,1,79,1,2,3,182],[0,1,79,1,2,4,18],[0,1,79,1,2,5,179],[0,1,79,1,2,6,149],[0,1,79,1,3,1,12],[0,1,79,1,3,2,12],[0,1,79,1,3,3,12],[0,1,79,1,3,4,49],[0,1,79,1,3,5,12],[0,1,79,1,3,6,12],[0,1,80,1,1,2,43],[0,1,80,1,1,3,249],[0,1,80,1,1,4,295],[0,1,80,1,1,5,171],[0,1,80,1,1,6,195],[0,1,80,1,2,2,19],[0,1,80,1,2,3,266],[0,1,80,1,2,4,296],[0,1,80,1,2,5,286],[0,1,80,1,2,6,297],[0,1,80,1,3,2,60],[0,1,80,1,3,3,39],[0,1,80,1,3,4,61],[0,1,80,1,3,5,62],[0,1,80,1,3,6,31],[0,1,81,1,1,1,55],[0,1,81,1,1,2,219],[0,1,81,1,1,3,298],[0,1,81,1,1,4,16],[0,1,81,1,1,5,186],[0,1,81,1,1,6,297],[0,1,81,1,2,1,299],[0,1,81,1,2,2,300],[0,1,81,1,2,3,301],[0,1,81,1,2,4,302],[0,1,81,1,2,5,185],[0,1,81,1,2,6,303],[0,1,81,1,3,1,37],[0,1,81,1,3,2,58],[0,1,81,1,3,3,61],[0,1,81,1,3,4,60],[0,1,81,1,3,5,61],[0,1,81,1,3,6,60],[0,1,82,1,1,1,304],[0,1,82,1,1,2,305],[0,1,82,1,1,3,306],[0,1,82,1,1,4,307],[0,1,82,1,1,5,308],[0,1,82,1,1,6,308],[0,1,82,1,2,1,274],[0,1,82,1,2,2,158],[0,1,82,1,2,3,52],[0,1,82,1,2,4,132],[0,1,82,1,2,5,54],[0,1,82,1,2,6,283],[0,1,82,1,3,1,172],[0,1,82,1,3,2,61],[0,1,82,1,3,3,58],[0,1,82,1,3,4,73],[0,1,82,1,3,5,59],[0,1,82,1,3,6,172],[0,1,83,1,1,1,221],[0,1,83,1,1,2,109],[0,1,83,1,1,3,91],[0,1,83,1,1,4,131],[0,1,83,1,1,5,11],[0,1,83,1,1,6,30],[0,1,83,1,2,1,30],[0,1,83,1,2,2,61],[0,1,83,1,2,3,37],[0,1,83,1,2,4,108],[0,1,83,1,2,5,58],[0,1,83,1,2,6,58],[0,1,83,1,3,1,12],[0,1,83,1,3,4,12],[0,1,83,1,3,5,33],[0,1,84,1,1,1,309],[0,1,84,1,1,2,105],[0,1,84,1,1,3,105],[0,1,84,1,1,4,27],[0,1,84,1,1,5,5],[0,1,84,1,1,6,173],[0,1,84,1,2,1,7],[0,1,84,1,2,2,60],[0,1,84,1,2,3,23],[0,1,84,1,2,4,60],[0,1,84,1,2,5,58],[0,1,84,1,2,6,23],[0,1,84,1,3,1,32],[0,1,84,1,3,2,33],[0,1,84,1,3,3,33],[0,1,84,1,3,4,33],[0,1,84,1,3,5,32],[0,1,84,1,3,6,33],[0,1,85,1,1,1,9],[0,1,85,1,1,2,130],[0,1,85,1,1,3,11],[0,1,85,1,1,4,75],[0,1,85,1,1,5,7],[0,1,85,1,1,6,37],[0,1,85,1,2,1,31],[0,1,85,1,2,2,49],[0,1,85,1,2,3,32],[0,1,85,1,2,4,172],[0,1,85,1,2,5,60],[0,1,85,1,2,6,31],[0,1,85,1,3,2,33],[0,1,85,1,3,3,12],[0,1,85,1,3,4,12],[0,1,85,1,3,5,32],[0,1,85,1,3,6,33],[0,1,86,1,1,1,110],[0,1,86,1,1,2,110],[0,1,86,1,1,3,7],[0,1,86,1,1,4,39],[0,1,86,1,1,5,75],[0,1,86,1,1,6,75],[0,1,86,1,2,1,172],[0,1,86,1,2,2,49],[0,1,86,1,2,3,59],[0,1,86,1,2,4,62],[0,1,86,1,2,5,60],[0,1,86,1,2,6,31],[0,1,86,1,3,5,33],[0,1,87,1,1,1,73],[0,1,87,1,1,2,68],[0,1,87,1,1,3,68],[0,1,87,1,1,4,68],[0,1,87,1,1,5,110],[0,1,87,1,1,6,107],[0,1,87,1,2,1,75],[0,1,87,1,2,2,31],[0,1,87,1,2,3,58],[0,1,87,1,2,4,60],[0,1,87,1,2,5,59],[0,1,87,1,2,6,32],[0,1,87,1,3,6,12],[0,1,88,1,1,1,298],[0,1,88,1,1,2,310],[0,1,88,1,1,3,311],[0,1,88,1,1,4,159],[0,1,88,1,1,5,232],[0,1,88,1,1,6,284],[0,1,88,1,2,1,111],[0,1,88,1,2,2,6],[0,1,88,1,2,3,111],[0,1,88,1,2,4,2],[0,1,88,1,2,5,5],[0,1,88,1,2,6,29],[0,1,88,1,3,1,32],[0,1,88,1,3,2,59],[0,1,88,1,3,3,32],[0,1,88,1,3,4,32],[0,1,88,1,3,5,58],[0,1,88,1,3,6,32],[0,1,89,1,1,1,99],[0,1,89,1,1,2,87],[0,1,89,1,1,3,173],[0,1,89,1,1,4,24],[0,1,89,1,1,5,83],[0,1,89,1,1,6,3],[0,1,89,1,2,1,1],[0,1,89,1,2,2,221],[0,1,89,1,2,3,90],[0,1,89,1,2,4,112],[0,1,89,1,2,5,70],[0,1,89,1,2,6,2],[0,1,89,1,3,1,49],[0,1,89,1,3,3,12],[0,1,89,1,3,4,12],[0,1,89,1,3,5,33],[0,1,89,1,3,6,12],[0,1,90,1,1,3,33],[0,1,90,1,1,5,12],[0,1,90,1,2,3,12],[0,1,91,1,1,1,111],[0,1,91,1,1,2,136],[0,1,91,1,1,3,131],[0,1,91,1,1,4,20],[0,1,91,1,1,5,19],[0,1,91,1,1,6,173],[0,1,91,1,2,1,39],[0,1,91,1,2,2,61],[0,1,91,1,2,3,61],[0,1,91,1,2,4,172],[0,1,91,1,2,5,61],[0,1,91,1,2,6,172],[0,1,91,1,3,1,49],[0,1,91,1,3,3,33],[0,1,91,1,3,4,49],[0,1,91,1,3,5,49],[0,1,91,1,3,6,12],[0,1,92,1,1,1,189],[0,1,92,1,1,2,277],[0,1,92,1,1,3,312],[0,1,92,1,1,4,146],[0,1,92,1,1,5,313],[0,1,92,1,1,6,299],[0,1,92,1,2,1,307],[0,1,92,1,2,2,314],[0,1,92,1,2,3,163],[0,1,92,1,2,4,194],[0,1,92,1,2,5,76],[0,1,92,1,2,6,315],[0,1,92,1,3,1,23],[0,1,92,1,3,2,31],[0,1,92,1,3,3,33],[0,1,92,1,3,4,58],[0,1,92,1,3,5,39],[0,1,92,1,3,6,62],[0,1,93,1,1,1,38],[0,1,93,1,1,2,39],[0,1,93,1,1,3,58],[0,1,93,1,1,4,23],[0,1,93,1,1,5,49],[0,1,93,1,1,6,37],[0,1,93,1,2,1,12],[0,1,93,1,2,2,61],[0,1,93,1,2,3,32],[0,1,93,1,2,4,23],[0,1,93,1,2,5,59],[0,1,93,1,2,6,60],[0,1,93,1,3,1,12],[0,1,93,1,3,3,33],[0,1,93,1,3,6,12],[0,1,94,1,1,1,266],[0,1,94,1,1,2,316],[0,1,94,1,1,3,302],[0,1,94,1,1,4,170],[0,1,94,1,1,5,317],[0,1,94,1,1,6,195],[0,1,94,1,2,1,318],[0,1,94,1,2,2,264],[0,1,94,1,2,3,77],[0,1,94,1,2,4,53],[0,1,94,1,2,5,199],[0,1,94,1,2,6,17],[0,1,94,1,3,1,33],[0,1,94,1,3,2,32],[0,1,94,1,3,3,33],[0,1,94,1,3,4,62],[0,1,94,1,3,5,49],[0,1,94,1,3,6,23],[0,1,95,1,1,1,22],[0,1,95,1,1,2,75],[0,1,95,1,1,3,110],[0,1,95,1,1,4,68],[0,1,95,1,1,5,92],[0,1,95,1,1,6,28],[0,1,95,1,2,1,31],[0,1,95,1,2,2,32],[0,1,95,1,2,3,59],[0,1,95,1,2,4,12],[0,1,95,1,2,5,61],[0,1,95,1,2,6,59],[0,1,96,1,1,1,72],[0,1,96,1,1,2,35],[0,1,96,1,1,3,111],[0,1,96,1,1,4,69],[0,1,96,1,1,5,109],[0,1,96,1,1,6,36],[0,1,96,1,2,1,8],[0,1,96,1,2,2,92],[0,1,96,1,2,3,19],[0,1,96,1,2,4,92],[0,1,96,1,2,5,69],[0,1,96,1,2,6,129],[0,1,96,1,3,1,33],[0,1,96,1,3,2,49],[0,1,96,1,3,4,23],[0,1,96,1,3,5,49],[0,1,96,1,3,6,49],[0,1,97,1,1,1,60],[0,1,97,1,1,2,59],[0,1,97,1,1,3,32],[0,1,97,1,1,4,32],[0,1,97,1,1,5,31],[0,1,97,1,1,6,62],[0,1,97,1,2,1,33],[0,1,97,1,2,2,12],[0,1,97,1,2,3,33],[0,1,97,1,2,4,12],[0,1,97,1,2,5,12],[0,1,97,1,2,6,12],[0,1,97,1,3,4,12],[0,1,98,1,1,1,41],[0,1,98,1,1,2,35],[0,1,98,1,1,3,143],[0,1,98,1,1,4,98],[0,1,98,1,1,5,35],[0,1,98,1,1,6,291],[0,1,98,1,2,1,98],[0,1,98,1,2,2,131],[0,1,98,1,2,3,112],[0,1,98,1,2,4,173],[0,1,98,1,2,5,83],[0,1,98,1,2,6,1],[0,1,98,1,3,2,12],[0,1,98,1,3,3,12],[0,1,98,1,3,4,49],[0,1,98,1,3,5,31],[0,1,98,1,3,6,32],[0,1,99,1,1,1,106],[0,1,99,1,1,2,87],[0,1,99,1,1,3,88],[0,1,99,1,1,4,27],[0,1,99,1,1,5,97],[0,1,99,1,1,6,2],[0,1,99,1,2,1,74],[0,1,99,1,2,2,75],[0,1,99,1,2,3,60],[0,1,99,1,2,4,59],[0,1,99,1,2,5,62],[0,1,99,1,2,6,59],[0,1,99,1,3,3,33],[0,1,99,1,3,4,33],[0,1,99,1,3,5,33],[0,1,99,1,3,6,33],[0,1,100,1,1,1,161],[0,1,100,1,1,2,317],[0,1,100,1,1,3,315],[0,1,100,1,1,4,132],[0,1,100,1,1,5,134],[0,1,100,1,1,6,77],[0,1,100,1,2,1,143],[0,1,100,1,2,2,319],[0,1,100,1,2,3,81],[0,1,100,1,2,4,46],[0,1,100,1,2,5,293],[0,1,100,1,2,6,262],[0,1,100,1,3,1,58],[0,1,100,1,3,2,32],[0,1,100,1,3,3,12],[0,1,100,1,3,4,49],[0,1,100,1,3,5,33],[0,1,101,1,1,2,39],[0,1,101,1,1,3,108],[0,1,101,1,1,4,75],[0,1,101,1,1,5,28],[0,1,101,1,1,6,110],[0,1,101,1,2,2,31],[0,1,101,1,2,3,23],[0,1,101,1,2,4,33],[0,1,101,1,2,5,59],[0,1,101,1,2,6,33],[0,1,101,1,3,2,12],[0,1,101,1,3,5,31],[0,1,101,1,3,6,49],[0,1,102,1,1,1,320],[0,1,102,1,1,2,321],[0,1,102,1,1,3,322],[0,1,102,1,1,4,167],[0,1,102,1,1,5,323],[0,1,102,1,1,6,124],[0,1,102,1,2,1,324],[0,1,102,1,2,2,102],[0,1,102,1,2,3,325],[0,1,102,1,2,4,241],[0,1,102,1,2,5,326],[0,1,102,1,2,6,148],[0,1,102,1,3,1,38],[0,1,102,1,3,2,61],[0,1,102,1,3,3,33],[0,1,102,1,3,4,59],[0,1,102,1,3,5,58],[0,1,102,1,3,6,38],[0,1,103,1,1,1,327],[0,1,103,1,1,2,328],[0,1,103,1,1,3,329],[0,1,103,1,1,4,330],[0,1,103,1,1,5,331],[0,1,103,1,1,6,321],[0,1,103,1,2,1,332],[0,1,103,1,2,2,333],[0,1,103,1,2,3,122],[0,1,103,1,2,4,249],[0,1,103,1,2,5,334],[0,1,103,1,2,6,335],[0,1,103,1,3,1,172],[0,1,103,1,3,2,172],[0,1,103,1,3,3,73],[0,1,103,1,3,4,73],[0,1,103,1,3,5,60],[0,1,103,1,3,6,61],[0,1,104,1,1,1,194],[0,1,104,1,1,2,103],[0,1,104,1,1,3,76],[0,1,104,1,1,4,187],[0,1,104,1,1,5,336],[0,1,104,1,1,6,196],[0,1,104,1,2,1,24],[0,1,104,1,2,2,99],[0,1,104,1,2,3,6],[0,1,104,1,2,4,5],[0,1,104,1,2,5,87],[0,1,104,1,2,6,86],[0,1,104,1,3,1,39],[0,1,104,1,3,2,31],[0,1,104,1,3,3,61],[0,1,104,1,3,4,59],[0,1,104,1,3,5,59],[0,1,104,1,3,6,60],[0,1,105,1,1,1,43],[0,1,105,1,1,2,181],[0,1,105,1,1,3,4],[0,1,105,1,1,4,1],[0,1,105,1,1,5,85],[0,1,105,1,1,6,82],[0,1,105,1,2,1,172],[0,1,105,1,2,2,7],[0,1,105,1,2,3,62],[0,1,105,1,2,4,58],[0,1,105,1,2,5,62],[0,1,105,1,2,6,73],[0,1,105,1,3,1,49],[0,1,105,1,3,2,33],[0,1,105,1,3,4,33],[0,1,105,1,3,6,12],[0,1,106,1,1,1,337],[0,1,106,1,1,2,146],[0,1,106,1,1,3,270],[0,1,106,1,1,4,338],[0,1,106,1,1,5,205],[0,1,106,1,1,6,299],[0,1,106,1,2,1,93],[0,1,106,1,2,2,5],[0,1,106,1,2,3,173],[0,1,106,1,2,4,143],[0,1,106,1,2,5,6],[0,1,106,1,2,6,45],[0,1,106,1,3,1,32],[0,1,106,1,3,2,62],[0,1,106,1,3,3,49],[0,1,106,1,3,4,59],[0,1,106,1,3,5,23],[0,1,106,1,3,6,60],[0,1,107,1,1,1,38],[0,1,107,1,1,2,131],[0,1,107,1,1,3,28],[0,1,107,1,1,4,69],[0,1,107,1,1,5,74],[0,1,107,1,1,6,129],[0,1,107,1,2,1,172],[0,1,107,1,2,2,61],[0,1,107,1,2,3,31],[0,1,107,1,2,4,32],[0,1,107,1,2,5,59],[0,1,107,1,2,6,60],[0,1,107,1,3,1,12],[0,1,107,1,3,2,12],[0,1,107,1,3,3,12],[0,1,107,1,3,5,12],[0,1,108,1,1,1,339],[0,1,108,1,1,2,340],[0,1,108,1,1,3,341],[0,1,108,1,1,4,342],[0,1,108,1,1,5,189],[0,1,108,1,1,6,191],[0,1,108,1,2,1,269],[0,1,108,1,2,2,152],[0,1,108,1,2,3,17],[0,1,108,1,2,4,243],[0,1,108,1,2,5,87],[0,1,108,1,2,6,3],[0,1,108,1,3,1,49],[0,1,108,1,3,2,32],[0,1,108,1,3,3,49],[0,1,108,1,3,4,108],[0,1,108,1,3,5,60],[0,1,108,1,3,6,61],[0,1,109,1,1,1,131],[0,1,109,1,1,2,72],[0,1,109,1,1,3,92],[0,1,109,1,1,4,19],[0,1,109,1,1,5,28],[0,1,109,1,1,6,28],[0,1,109,1,2,1,32],[0,1,109,1,2,2,31],[0,1,109,1,2,3,31],[0,1,109,1,2,4,61],[0,1,109,1,2,5,59],[0,1,109,1,2,6,62],[0,1,109,1,3,1,12],[0,1,109,1,3,3,12],[0,1,109,1,3,4,33],[0,1,109,1,3,5,49],[0,1,109,1,3,6,49],[0,1,110,1,1,1,282],[0,1,110,1,1,2,40],[0,1,110,1,1,3,48],[0,1,110,1,1,4,101],[0,1,110,1,1,5,17],[0,1,110,1,1,6,126],[0,1,110,1,2,1,69],[0,1,110,1,2,2,21],[0,1,110,1,2,3,110],[0,1,110,1,2,4,30],[0,1,110,1,2,5,91],[0,1,110,1,2,6,22],[0,1,110,1,3,1,49],[0,1,110,1,3,2,49],[0,1,110,1,3,4,33],[0,1,110,1,3,5,12],[0,1,110,1,3,6,12],[0,1,111,1,1,2,343],[0,1,111,1,1,3,325],[0,1,111,1,1,4,344],[0,1,111,1,1,5,157],[0,1,111,1,1,6,160],[0,1,111,1,2,2,41],[0,1,111,1,2,3,319],[0,1,111,1,2,4,287],[0,1,111,1,2,5,271],[0,1,111,1,2,6,135],[0,1,111,1,3,2,49],[0,1,111,1,3,3,49],[0,1,111,1,3,4,32],[0,1,111,1,3,5,12],[0,1,111,1,3,6,49],[0,1,112,1,1,1,236],[0,1,112,1,1,2,283],[0,1,112,1,1,3,86],[0,1,112,1,1,4,215],[0,1,112,1,1,5,251],[0,1,112,1,1,6,148],[0,1,112,1,2,1,9],[0,1,112,1,2,2,69],[0,1,112,1,2,3,107],[0,1,112,1,2,4,108],[0,1,112,1,2,5,75],[0,1,112,1,2,6,172],[0,1,112,1,3,1,33],[0,1,112,1,3,2,12],[0,1,112,1,3,3,49],[0,1,112,1,3,4,59],[0,1,112,1,3,5,49],[0,1,112,1,3,6,32],[0,1,113,1,1,1,141],[0,1,113,1,1,2,56],[0,1,113,1,1,3,268],[0,1,113,1,1,4,267],[0,1,113,1,1,5,102],[0,1,113,1,1,6,231],[0,1,113,1,2,1,91],[0,1,113,1,2,2,22],[0,1,113,1,2,3,9],[0,1,113,1,2,4,11],[0,1,113,1,2,5,75],[0,1,113,1,2,6,72],[0,1,113,1,3,2,12],[0,1,113,1,3,4,12],[0,1,113,1,3,5,12],[0,1,113,1,3,6,23],[0,1,114,1,1,1,201],[0,1,114,1,1,2,215],[0,1,114,1,1,3,208],[0,1,114,1,1,4,85],[0,1,114,1,1,5,43],[0,1,114,1,1,6,36],[0,1,114,1,2,1,87],[0,1,114,1,2,2,1],[0,1,114,1,2,3,43],[0,1,114,1,2,4,221],[0,1,114,1,2,5,90],[0,1,114,1,2,6,131],[0,1,114,1,3,1,33],[0,1,114,1,3,2,49],[0,1,114,1,3,3,33],[0,1,114,1,3,4,33],[0,1,114,1,3,5,12],[0,1,114,1,3,6,23],[0,1,115,1,1,1,301],[0,1,115,1,1,2,281],[0,1,115,1,1,3,132],[0,1,115,1,1,4,14],[0,1,115,1,1,5,345],[0,1,115,1,1,6,216],[0,1,115,1,2,1,24],[0,1,115,1,2,2,215],[0,1,115,1,2,3,346],[0,1,115,1,2,4,36],[0,1,115,1,2,5,87],[0,1,115,1,2,6,6],[0,1,115,1,3,1,49],[0,1,115,1,3,2,33],[0,1,115,1,3,3,60],[0,1,115,1,3,4,33],[0,1,115,1,3,5,32],[0,1,115,1,3,6,59],[0,1,116,1,1,1,32],[0,1,116,1,1,2,33],[0,1,116,1,1,3,12],[0,1,116,1,1,4,33],[0,1,116,1,1,5,12],[0,1,116,1,1,6,12],[0,1,116,1,2,5,12],[0,1,116,1,3,2,33],[0,1,117,1,1,1,347],[0,1,117,1,1,2,348],[0,1,117,1,1,3,349],[0,1,117,1,1,4,350],[0,1,117,1,1,5,351],[0,1,117,1,1,6,352],[0,1,117,1,2,1,145],[0,1,117,1,2,2,64],[0,1,117,1,2,3,245],[0,1,117,1,2,4,224],[0,1,117,1,2,5,353],[0,1,117,1,2,6,189],[0,1,117,1,3,1,39],[0,1,117,1,3,2,58],[0,1,117,1,3,3,38],[0,1,117,1,3,4,37],[0,1,117,1,3,5,107],[0,1,117,1,3,6,39],[0,1,118,1,1,1,354],[0,1,118,1,1,2,263],[0,1,118,1,1,3,252],[0,1,118,1,1,4,95],[0,1,118,1,1,5,319],[0,1,118,1,1,6,201],[0,1,118,1,2,1,35],[0,1,118,1,2,2,6],[0,1,118,1,2,3,87],[0,1,118,1,2,4,98],[0,1,118,1,2,5,34],[0,1,118,1,2,6,10],[0,1,118,1,3,1,49],[0,1,118,1,3,2,12],[0,1,118,1,3,3,32],[0,1,118,1,3,4,59],[0,1,118,1,3,5,33],[0,1,118,1,3,6,33],[0,1,119,1,1,1,16],[0,1,119,1,1,2,50],[0,1,119,1,1,3,103],[0,1,119,1,1,4,53],[0,1,119,1,1,5,319],[0,1,119,1,1,6,198],[0,1,119,1,2,1,9],[0,1,119,1,2,2,75],[0,1,119,1,2,3,61],[0,1,119,1,2,4,58],[0,1,119,1,2,5,7],[0,1,119,1,2,6,62],[0,1,119,1,3,1,172],[0,1,119,1,3,2,49],[0,1,119,1,3,3,12],[0,1,119,1,3,4,12],[0,1,119,1,3,5,32],[0,1,119,1,3,6,12],[0,1,120,1,1,1,316],[0,1,120,1,1,2,313],[0,1,120,1,1,3,169],[0,1,120,1,1,4,315],[0,1,120,1,1,5,194],[0,1,120,1,1,6,13],[0,1,120,1,2,1,27],[0,1,120,1,2,2,85],[0,1,120,1,2,3,3],[0,1,120,1,2,4,201],[0,1,120,1,2,5,86],[0,1,120,1,2,6,262],[0,1,120,1,3,1,49],[0,1,120,1,3,2,31],[0,1,120,1,3,3,33],[0,1,120,1,3,4,31],[0,1,120,1,3,5,49],[0,1,120,1,3,6,31],[0,1,121,1,1,1,133],[0,1,121,1,1,2,241],[0,1,121,1,1,3,149],[0,1,121,1,1,4,200],[0,1,121,1,1,5,182],[0,1,121,1,1,6,283],[0,1,121,1,2,1,31],[0,1,121,1,2,2,8],[0,1,121,1,2,3,73],[0,1,121,1,2,4,38],[0,1,121,1,2,5,60],[0,1,121,1,2,6,58],[0,1,121,1,3,1,12],[0,1,121,1,3,3,33],[0,1,121,1,3,4,12],[0,1,121,1,3,5,33],[0,1,122,1,1,1,68],[0,1,122,1,1,2,131],[0,1,122,1,1,3,68],[0,1,122,1,1,4,69],[0,1,122,1,1,5,92],[0,1,122,1,1,6,28],[0,1,122,1,2,1,49],[0,1,122,1,2,2,59],[0,1,122,1,2,3,32],[0,1,122,1,2,4,31],[0,1,122,1,2,5,32],[0,1,122,1,2,6,60],[0,1,122,1,3,4,12],[0,1,122,1,3,6,33],[0,1,123,1,1,1,355],[0,1,123,1,1,2,123],[0,1,123,1,1,3,356],[0,1,123,1,1,4,122],[0,1,123,1,1,5,357],[0,1,123,1,1,6,295],[0,1,123,1,2,1,300],[0,1,123,1,2,2,358],[0,1,123,1,2,3,218],[0,1,123,1,2,4,174],[0,1,123,1,2,5,197],[0,1,123,1,2,6,241],[0,1,123,1,3,1,172],[0,1,123,1,3,2,38],[0,1,123,1,3,3,38],[0,1,123,1,3,4,172],[0,1,123,1,3,5,60],[0,1,123,1,3,6,59],[0,1,124,1,1,1,195],[0,1,124,1,1,2,185],[0,1,124,1,1,3,359],[0,1,124,1,1,4,154],[0,1,124,1,1,5,281],[0,1,124,1,1,6,360],[0,1,124,1,2,1,282],[0,1,124,1,2,2,84],[0,1,124,1,2,3,243],[0,1,124,1,2,4,207],[0,1,124,1,2,5,44],[0,1,124,1,2,6,41],[0,1,124,1,3,1,49],[0,1,124,1,3,2,23],[0,1,124,1,3,3,12],[0,1,124,1,3,4,31],[0,1,124,1,3,5,32],[0,1,124,1,3,6,23],[0,1,125,1,1,1,281],[0,1,125,1,1,2,165],[0,1,125,1,1,3,361],[0,1,125,1,1,4,241],[0,1,125,1,1,5,158],[0,1,125,1,1,6,232],[0,1,125,1,2,1,83],[0,1,125,1,2,2,25],[0,1,125,1,2,3,5],[0,1,125,1,2,4,1],[0,1,125,1,2,5,221],[0,1,125,1,2,6,111],[0,1,125,1,3,1,59],[0,1,125,1,3,2,31],[0,1,125,1,3,3,172],[0,1,125,1,3,4,61],[0,1,125,1,3,5,61],[0,1,125,1,3,6,32],[0,1,126,1,1,1,279],[0,1,126,1,1,2,362],[0,1,126,1,1,3,363],[0,1,126,1,1,4,190],[0,1,126,1,1,5,364],[0,1,126,1,1,6,365],[0,1,126,1,2,1,16],[0,1,126,1,2,2,78],[0,1,126,1,2,3,237],[0,1,126,1,2,4,76],[0,1,126,1,2,5,263],[0,1,126,1,2,6,264],[0,1,126,1,3,1,32],[0,1,126,1,3,2,39],[0,1,126,1,3,3,62],[0,1,126,1,3,4,107],[0,1,126,1,3,5,172],[0,1,126,1,3,6,108],[0,1,127,1,1,1,4],[0,1,127,1,1,2,4],[0,1,127,1,1,3,89],[0,1,127,1,1,4,27],[0,1,127,1,1,5,221],[0,1,127,1,1,6,97],[0,1,127,1,2,1,314],[0,1,127,1,2,2,139],[0,1,127,1,2,3,366],[0,1,127,1,2,4,153],[0,1,127,1,2,5,324],[0,1,127,1,2,6,257],[0,1,127,1,3,1,108],[0,1,127,1,3,2,172],[0,1,127,1,3,3,108],[0,1,127,1,3,4,32],[0,1,127,1,3,5,62],[0,1,127,1,3,6,58],[0,1,128,1,1,1,28],[0,1,128,1,1,2,110],[0,1,128,1,1,3,30],[0,1,128,1,1,4,92],[0,1,128,1,1,5,9],[0,1,128,1,1,6,69],[0,1,128,1,2,1,31],[0,1,128,1,2,2,31],[0,1,128,1,2,3,60],[0,1,128,1,2,4,49],[0,1,128,1,2,5,62],[0,1,128,1,2,6,59],[0,1,129,1,1,1,107],[0,1,129,1,1,2,110],[0,1,129,1,1,3,7],[0,1,129,1,1,4,39],[0,1,129,1,1,5,75],[0,1,129,1,1,6,37],[0,1,129,1,2,1,61],[0,1,129,1,2,2,58],[0,1,129,1,2,3,32],[0,1,129,1,2,4,49],[0,1,129,1,2,5,31],[0,1,129,1,2,6,12],[0,1,129,1,3,3,12],[0,1,129,1,3,4,33],[0,1,129,1,3,5,32],[0,1,130,1,1,1,315],[0,1,130,1,1,2,303],[0,1,130,1,1,3,216],[0,1,130,1,1,4,135],[0,1,130,1,1,5,132],[0,1,130,1,1,6,157],[0,1,130,1,2,1,2],[0,1,130,1,2,2,97],[0,1,130,1,2,3,30],[0,1,130,1,2,4,92],[0,1,130,1,2,5,28],[0,1,130,1,2,6,309],[0,1,130,1,3,1,12],[0,1,130,1,3,2,12],[0,1,130,1,3,3,33],[0,1,130,1,3,4,12],[0,1,130,1,3,5,33],[0,1,130,1,3,6,31],[0,1,131,1,1,1,52],[0,1,131,1,1,2,160],[0,1,131,1,1,3,303],[0,1,131,1,1,4,15],[0,1,131,1,1,5,158],[0,1,131,1,1,6,133],[0,1,131,1,2,1,133],[0,1,131,1,2,2,95],[0,1,131,1,2,3,82],[0,1,131,1,2,4,143],[0,1,131,1,2,5,5],[0,1,131,1,2,6,105],[0,1,131,1,3,1,12],[0,1,131,1,3,2,60],[0,1,131,1,3,4,12],[0,1,131,1,3,5,49],[0,1,131,1,3,6,31],[0,1,132,1,1,1,367],[0,1,132,1,1,2,79],[0,1,132,1,1,3,121],[0,1,132,1,1,4,368],[0,1,132,1,1,5,369],[0,1,132,1,1,6,370],[0,1,132,1,2,1,371],[0,1,132,1,2,2,372],[0,1,132,1,2,3,308],[0,1,132,1,2,4,147],[0,1,132,1,2,5,270],[0,1,132,1,2,6,373],[0,1,132,1,3,1,61],[0,1,132,1,3,2,49],[0,1,132,1,3,3,108],[0,1,132,1,3,4,38],[0,1,132,1,3,5,59],[0,1,132,1,3,6,58],[0,1,133,1,1,1,105],[0,1,133,1,1,2,1],[0,1,133,1,1,3,112],[0,1,133,1,1,4,90],[0,1,133,1,1,5,131],[0,1,133,1,1,6,70],[0,1,133,1,2,1,39],[0,1,133,1,2,2,22],[0,1,133,1,2,3,110],[0,1,133,1,2,4,61],[0,1,133,1,2,5,32],[0,1,133,1,2,6,23],[0,1,133,1,3,3,12],[0,1,133,1,3,4,12],[0,1,133,1,3,6,12],[0,1,134,1,1,1,54],[0,1,134,1,1,2,217],[0,1,134,1,1,3,374],[0,1,134,1,1,4,17],[0,1,134,1,1,5,93],[0,1,134,1,1,6,199],[0,1,134,1,2,1,1],[0,1,134,1,2,2,87],[0,1,134,1,2,3,201],[0,1,134,1,2,4,221],[0,1,134,1,2,5,130],[0,1,134,1,2,6,9],[0,1,134,1,3,1,33],[0,1,134,1,3,2,23],[0,1,134,1,3,3,49],[0,1,134,1,3,4,33],[0,1,134,1,3,5,32],[0,1,134,1,3,6,60],[0,1,135,1,1,1,336],[0,1,135,1,1,2,303],[0,1,135,1,1,3,52],[0,1,135,1,1,4,297],[0,1,135,1,1,5,76],[0,1,135,1,1,6,149],[0,1,135,1,2,1,71],[0,1,135,1,2,2,74],[0,1,135,1,2,3,172],[0,1,135,1,2,4,60],[0,1,135,1,2,5,11],[0,1,135,1,2,6,38],[0,1,135,1,3,1,33],[0,1,135,1,3,2,12],[0,1,135,1,3,3,49],[0,1,135,1,3,4,33],[0,1,135,1,3,5,60],[0,1,135,1,3,6,12],[0,1,136,1,1,1,375],[0,1,136,1,1,2,280],[0,1,136,1,1,3,186],[0,1,136,1,1,4,217],[0,1,136,1,1,5,287],[0,1,136,1,1,6,186],[0,1,136,1,2,1,69],[0,1,136,1,2,2,69],[0,1,136,1,2,3,221],[0,1,136,1,2,4,291],[0,1,136,1,2,5,26],[0,1,136,1,2,6,97],[0,1,136,1,3,1,12],[0,1,136,1,3,2,59],[0,1,136,1,3,3,49],[0,1,136,1,3,4,59],[0,1,136,1,3,5,61],[0,1,136,1,3,6,60],[0,1,137,1,1,1,376],[0,1,137,1,1,2,377],[0,1,137,1,1,3,378],[0,1,137,1,1,4,379],[0,1,137,1,1,5,380],[0,1,137,1,1,6,381],[0,1,137,1,2,1,382],[0,1,137,1,2,2,383],[0,1,137,1,2,3,384],[0,1,137,1,2,4,385],[0,1,137,1,2,5,386],[0,1,137,1,2,6,387],[0,1,137,1,3,1,58],[0,1,137,1,3,2,37],[0,1,137,1,3,3,31],[0,1,137,1,3,4,58],[0,1,137,1,3,5,49],[0,1,137,1,3,6,59],[0,1,138,1,1,1,54],[0,1,138,1,1,2,388],[0,1,138,1,1,3,133],[0,1,138,1,1,4,198],[0,1,138,1,1,5,240],[0,1,138,1,1,6,318],[0,1,138,1,2,1,18],[0,1,138,1,2,2,333],[0,1,138,1,2,3,24],[0,1,138,1,2,4,235],[0,1,138,1,2,5,148],[0,1,138,1,2,6,198],[0,1,138,1,3,1,32],[0,1,138,1,3,2,61],[0,1,138,1,3,3,33],[0,1,138,1,3,4,59],[0,1,138,1,3,5,73],[0,1,138,1,3,6,23],[0,1,139,1,1,1,206],[0,1,139,1,1,2,346],[0,1,139,1,1,3,289],[0,1,139,1,1,4,196],[0,1,139,1,1,5,152],[0,1,139,1,1,6,169],[0,1,139,1,2,1,106],[0,1,139,1,2,2,47],[0,1,139,1,2,3,309],[0,1,139,1,2,4,91],[0,1,139,1,2,5,10],[0,1,139,1,2,6,221],[0,1,139,1,3,2,12],[0,1,139,1,3,3,33],[0,1,139,1,3,4,33],[0,1,139,1,3,6,32],[0,1,140,1,1,1,185],[0,1,140,1,1,2,310],[0,1,140,1,1,3,178],[0,1,140,1,1,4,184],[0,1,140,1,1,5,289],[0,1,140,1,1,6,298],[0,1,140,1,2,1,105],[0,1,140,1,2,2,69],[0,1,140,1,2,3,69],[0,1,140,1,2,4,309],[0,1,140,1,2,5,2],[0,1,140,1,2,6,43],[0,1,140,1,3,1,23],[0,1,140,1,3,2,31],[0,1,140,1,3,3,33],[0,1,140,1,3,4,62],[0,1,140,1,3,5,61],[0,1,140,1,3,6,38],[0,1,141,1,1,1,383],[0,1,141,1,1,2,362],[0,1,141,1,1,3,389],[0,1,141,1,1,4,277],[0,1,141,1,1,5,390],[0,1,141,1,1,6,124],[0,1,141,1,2,1,161],[0,1,141,1,2,2,297],[0,1,141,1,2,3,43],[0,1,141,1,2,4,82],[0,1,141,1,2,5,42],[0,1,141,1,2,6,4],[0,1,141,1,3,2,12],[0,1,141,1,3,3,32],[0,1,141,1,3,5,12],[0,1,141,1,3,6,33],[0,1,142,1,1,1,391],[0,1,142,1,1,2,295],[0,1,142,1,1,3,205],[0,1,142,1,1,4,279],[0,1,142,1,1,5,230],[0,1,142,1,1,6,353],[0,1,142,1,2,1,252],[0,1,142,1,2,2,127],[0,1,142,1,2,3,94],[0,1,142,1,2,4,242],[0,1,142,1,2,5,235],[0,1,142,1,2,6,199],[0,1,142,1,3,1,59],[0,1,142,1,3,2,31],[0,1,142,1,3,3,12],[0,1,142,1,3,4,12],[0,1,142,1,3,5,49],[0,1,142,1,3,6,60],[0,1,143,1,1,1,221],[0,1,143,1,1,2,173],[0,1,143,1,1,3,136],[0,1,143,1,1,4,19],[0,1,143,1,1,5,70],[0,1,143,1,1,6,22],[0,1,143,1,2,1,31],[0,1,143,1,2,2,49],[0,1,143,1,2,3,23],[0,1,143,1,2,4,172],[0,1,143,1,2,5,49],[0,1,143,1,2,6,62],[0,1,143,1,3,2,12],[0,1,143,1,3,5,12],[0,1,144,1,1,1,198],[0,1,144,1,1,2,81],[0,1,144,1,1,3,95],[0,1,144,1,1,4,180],[0,1,144,1,1,5,95],[0,1,144,1,1,6,374],[0,1,144,1,2,1,58],[0,1,144,1,2,2,73],[0,1,144,1,2,3,59],[0,1,144,1,2,4,75],[0,1,144,1,2,5,172],[0,1,144,1,2,6,73],[0,1,144,1,3,1,31],[0,1,144,1,3,2,32],[0,1,144,1,3,3,49],[0,1,144,1,3,4,59],[0,1,144,1,3,5,49],[0,1,144,1,3,6,31],[0,1,145,1,1,1,235],[0,1,145,1,1,2,208],[0,1,145,1,1,3,18],[0,1,145,1,1,4,24],[0,1,145,1,1,5,4],[0,1,145,1,1,6,183],[0,1,145,1,2,1,29],[0,1,145,1,2,2,91],[0,1,145,1,2,3,91],[0,1,145,1,2,4,21],[0,1,145,1,2,5,98],[0,1,145,1,2,6,112],[0,1,145,1,3,2,33],[0,1,145,1,3,3,49],[0,1,145,1,3,4,49],[0,1,145,1,3,5,12],[0,1,146,1,1,1,2],[0,1,146,1,1,2,30],[0,1,146,1,1,3,112],[0,1,146,1,1,4,8],[0,1,146,1,1,5,107],[0,1,146,1,1,6,28],[0,1,146,1,2,1,72],[0,1,146,1,2,2,61],[0,1,146,1,2,3,61],[0,1,146,1,2,4,108],[0,1,146,1,2,5,59],[0,1,146,1,2,6,110],[0,1,146,1,3,1,49],[0,1,146,1,3,2,12],[0,1,146,1,3,3,12],[0,1,147,1,1,1,130],[0,1,147,1,1,2,221],[0,1,147,1,1,3,92],[0,1,147,1,1,4,71],[0,1,147,1,1,5,136],[0,1,147,1,1,6,90],[0,1,147,1,2,1,71],[0,1,147,1,2,2,8],[0,1,147,1,2,3,7],[0,1,147,1,2,4,110],[0,1,147,1,2,5,22],[0,1,147,1,2,6,7],[0,1,147,1,3,1,12],[0,1,147,1,3,2,33],[0,1,147,1,3,4,12],[0,1,148,1,1,1,127],[0,1,148,1,1,2,96],[0,1,148,1,1,3,128],[0,1,148,1,1,4,181],[0,1,148,1,1,5,94],[0,1,148,1,1,6,133],[0,1,148,1,2,1,72],[0,1,148,1,2,2,60],[0,1,148,1,2,3,59],[0,1,148,1,2,4,38],[0,1,148,1,2,5,58],[0,1,148,1,2,6,62],[0,1,148,1,3,3,32],[0,1,148,1,3,4,32],[0,1,148,1,3,5,32],[0,1,148,1,3,6,49],[0,1,149,1,1,1,36],[0,1,149,1,1,2,112],[0,1,149,1,1,3,82],[0,1,149,1,1,4,5],[0,1,149,1,1,5,221],[0,1,149,1,1,6,291],[0,1,149,1,2,1,59],[0,1,149,1,2,2,31],[0,1,149,1,2,3,60],[0,1,149,1,2,4,32],[0,1,149,1,2,5,31],[0,1,149,1,2,6,60],[0,1,149,1,3,1,49],[0,1,149,1,3,2,32],[0,1,149,1,3,3,12],[0,1,149,1,3,4,23],[0,1,149,1,3,5,32],[0,1,149,1,3,6,32],[0,1,150,1,1,1,173],[0,1,150,1,1,2,88],[0,1,150,1,1,3,6],[0,1,150,1,1,4,221],[0,1,150,1,1,5,112],[0,1,150,1,1,6,90],[0,1,150,1,2,1,82],[0,1,150,1,2,2,136],[0,1,150,1,2,3,99],[0,1,150,1,2,4,34],[0,1,150,1,2,5,83],[0,1,150,1,2,6,291],[0,1,150,1,3,1,23],[0,1,150,1,3,2,49],[0,1,150,1,3,3,31],[0,1,150,1,3,4,33],[0,1,150,1,3,5,33],[0,1,150,1,3,6,32],[0,1,151,1,1,1,52],[0,1,151,1,1,2,219],[0,1,151,1,1,3,392],[0,1,151,1,1,4,280],[0,1,151,1,1,5,326],[0,1,151,1,1,6,158],[0,1,151,1,2,1,207],[0,1,151,1,2,2,45],[0,1,151,1,2,3,45],[0,1,151,1,2,4,131],[0,1,151,1,2,5,69],[0,1,151,1,2,6,291],[0,1,151,1,3,1,32],[0,1,151,1,3,2,31],[0,1,151,1,3,3,61],[0,1,151,1,3,4,23],[0,1,151,1,3,5,32],[0,1,151,1,3,6,23],[0,1,152,1,1,1,207],[0,1,152,1,1,2,106],[0,1,152,1,1,3,44],[0,1,152,1,1,4,173],[0,1,152,1,1,5,201],[0,1,152,1,1,6,27],[0,1,152,1,2,1,73],[0,1,152,1,2,2,108],[0,1,152,1,2,3,58],[0,1,152,1,2,4,59],[0,1,152,1,2,5,59],[0,1,152,1,2,6,60],[0,1,152,1,3,2,12],[0,1,152,1,3,4,33],[0,1,152,1,3,6,33],[0,1,153,1,1,1,164],[0,1,153,1,1,2,16],[0,1,153,1,1,3,48],[0,1,153,1,1,4,393],[0,1,153,1,1,5,263],[0,1,153,1,1,6,294],[0,1,153,1,2,1,234],[0,1,153,1,2,2,85],[0,1,153,1,2,3,36],[0,1,153,1,2,4,10],[0,1,153,1,2,5,221],[0,1,153,1,2,6,87],[0,1,153,1,3,1,59],[0,1,153,1,3,2,23],[0,1,153,1,3,3,62],[0,1,153,1,3,4,23],[0,1,153,1,3,5,59],[0,1,153,1,3,6,49],[0,1,154,1,1,1,392],[0,1,154,1,1,2,360],[0,1,154,1,1,3,78],[0,1,154,1,1,4,187],[0,1,154,1,1,5,274],[0,1,154,1,1,6,290],[0,1,154,1,2,1,143],[0,1,154,1,2,2,5],[0,1,154,1,2,3,6],[0,1,154,1,2,4,130],[0,1,154,1,2,5,130],[0,1,154,1,2,6,221],[0,1,154,1,3,1,33],[0,1,154,1,3,2,33],[0,1,154,1,3,3,33],[0,1,154,1,3,4,59],[0,1,154,1,3,5,60],[0,1,154,1,3,6,32],[0,1,155,1,1,1,62],[0,1,155,1,1,2,38],[0,1,155,1,1,3,32],[0,1,155,1,1,4,32],[0,1,155,1,1,5,58],[0,1,155,1,1,6,60],[0,1,155,1,2,1,33],[0,1,155,1,2,2,33],[0,1,155,1,2,4,12],[0,1,155,1,2,5,12],[0,1,155,1,2,6,12],[0,1,155,1,3,4,12],[0,1,156,1,1,1,61],[0,1,156,1,1,2,38],[0,1,156,1,1,3,32],[0,1,156,1,1,4,23],[0,1,156,1,1,5,59],[0,1,156,1,1,6,32],[0,1,156,1,2,1,33],[0,1,156,1,2,2,60],[0,1,156,1,2,3,23],[0,1,156,1,2,4,49],[0,1,156,1,2,5,32],[0,1,156,1,2,6,32],[0,1,156,1,3,3,12],[0,1,157,1,1,1,23],[0,1,157,1,1,2,58],[0,1,157,1,1,3,31],[0,1,157,1,1,4,31],[0,1,157,1,1,5,59],[0,1,157,1,1,6,172],[0,1,157,1,2,1,59],[0,1,157,1,2,2,61],[0,1,157,1,2,3,59],[0,1,157,1,2,4,32],[0,1,157,1,2,5,61],[0,1,157,1,2,6,32],[0,1,157,1,3,1,12],[0,1,157,1,3,3,12],[0,1,157,1,3,4,12],[0,1,157,1,3,5,12],[0,1,157,1,3,6,12],[0,1,158,1,1,1,23],[0,1,158,1,1,2,49],[0,1,158,1,1,3,59],[0,1,158,1,1,4,23],[0,1,158,1,1,5,32],[0,1,158,1,1,6,60],[0,1,158,1,2,4,49],[0,1,158,1,2,5,12],[0,1,158,1,2,6,49],[0,1,159,1,1,3,354],[0,1,159,1,1,4,146],[0,1,159,1,1,5,56],[0,1,159,1,1,6,394],[0,1,159,1,2,3,20],[0,1,159,1,2,4,41],[0,1,159,1,2,5,82],[0,1,159,1,2,6,106],[0,1,159,1,3,3,49],[0,1,159,1,3,4,62],[0,1,159,1,3,5,60],[0,1,159,1,3,6,32],[0,1,160,1,1,1,31],[0,1,160,1,1,2,49],[0,1,160,1,1,3,23],[0,1,160,1,1,4,32],[0,1,160,1,1,5,49],[0,1,160,1,1,6,39],[0,1,160,1,2,1,31],[0,1,160,1,2,2,33],[0,1,160,1,2,4,32],[0,1,160,1,2,5,33],[0,1,160,1,2,6,32],[0,1,160,1,3,1,12],[0,1,160,1,3,2,12],[0,1,161,1,1,1,172],[0,1,161,1,1,2,172],[0,1,161,1,1,3,58],[0,1,161,1,1,4,38],[0,1,161,1,1,5,38],[0,1,161,1,1,6,60],[0,1,161,1,2,1,33],[0,1,161,1,2,2,49],[0,1,161,1,2,3,31],[0,1,161,1,2,4,31],[0,1,161,1,2,5,32],[0,1,161,1,2,6,23],[0,1,161,1,3,5,12],[0,1,161,1,3,6,12],[0,1,162,1,1,1,21],[0,1,162,1,1,2,291],[0,1,162,1,1,3,91],[0,1,162,1,1,4,69],[0,1,162,1,1,5,28],[0,1,162,1,1,6,112],[0,1,162,1,2,1,38],[0,1,162,1,2,2,38],[0,1,162,1,2,3,58],[0,1,162,1,2,4,23],[0,1,162,1,2,5,60],[0,1,162,1,2,6,23],[0,1,162,1,3,1,12],[0,1,162,1,3,2,33],[0,1,162,1,3,3,12],[0,1,162,1,3,4,12],[0,1,162,1,3,6,12],[0,1,163,1,1,1,318],[0,1,163,1,1,2,149],[0,1,163,1,1,3,40],[0,1,163,1,1,4,183],[0,1,163,1,1,5,395],[0,1,163,1,1,6,179],[0,1,163,1,2,1,148],[0,1,163,1,2,2,148],[0,1,163,1,2,3,17],[0,1,163,1,2,4,346],[0,1,163,1,2,5,182],[0,1,163,1,2,6,93],[0,1,163,1,3,1,12],[0,1,163,1,3,2,49],[0,1,163,1,3,3,23],[0,1,163,1,3,4,23],[0,1,163,1,3,5,32],[0,1,163,1,3,6,31],[0,1,164,1,1,1,309],[0,1,164,1,1,2,97],[0,1,164,1,1,3,129],[0,1,164,1,1,4,21],[0,1,164,1,1,5,1],[0,1,164,1,1,6,35],[0,1,164,1,2,1,110],[0,1,164,1,2,2,11],[0,1,164,1,2,3,30],[0,1,164,1,2,4,75],[0,1,164,1,2,5,11],[0,1,164,1,2,6,129],[0,1,164,1,3,1,33],[0,1,164,1,3,2,12],[0,1,164,1,3,5,33],[0,1,164,1,3,6,49],[0,1,165,1,1,1,396],[0,1,165,1,1,2,176],[0,1,165,1,1,3,205],[0,1,165,1,1,4,397],[0,1,165,1,1,5,188],[0,1,165,1,1,6,398],[0,1,165,1,2,1,46],[0,1,165,1,2,2,18],[0,1,165,1,2,3,319],[0,1,165,1,2,4,79],[0,1,165,1,2,5,48],[0,1,165,1,2,6,297],[0,1,165,1,3,1,75],[0,1,165,1,3,2,75],[0,1,165,1,3,3,172],[0,1,165,1,3,4,73],[0,1,165,1,3,5,38],[0,1,165,1,3,6,39],[0,1,166,1,1,1,30],[0,1,166,1,1,2,91],[0,1,166,1,1,3,112],[0,1,166,1,1,4,97],[0,1,166,1,1,5,27],[0,1,166,1,1,6,309],[0,1,166,1,2,1,62],[0,1,166,1,2,2,31],[0,1,166,1,2,3,37],[0,1,166,1,2,4,75],[0,1,166,1,2,5,172],[0,1,166,1,2,6,62],[0,1,166,1,3,1,33],[0,1,166,1,3,2,12],[0,1,166,1,3,4,33],[0,1,166,1,3,5,33],[0,1,166,1,3,6,12],[0,1,167,1,1,1,134],[0,1,167,1,1,2,128],[0,1,167,1,1,3,86],[0,1,167,1,1,4,89],[0,1,167,1,1,5,27],[0,1,167,1,1,6,34],[0,1,167,1,2,1,107],[0,1,167,1,2,2,39],[0,1,167,1,2,3,23],[0,1,167,1,2,4,39],[0,1,167,1,2,5,59],[0,1,167,1,2,6,33],[0,1,167,1,3,1,12],[0,1,167,1,3,2,49],[0,1,167,1,3,3,12],[0,1,167,1,3,4,49],[0,1,167,1,3,5,33],[0,1,167,1,3,6,12],[0,1,168,1,1,1,27],[0,1,168,1,1,2,143],[0,1,168,1,1,3,24],[0,1,168,1,1,4,26],[0,1,168,1,1,5,43],[0,1,168,1,1,6,1],[0,1,168,1,2,1,30],[0,1,168,1,2,2,75],[0,1,168,1,2,3,72],[0,1,168,1,2,4,73],[0,1,168,1,2,5,107],[0,1,168,1,2,6,68],[0,1,168,1,3,1,12],[0,1,168,1,3,2,12],[0,1,168,1,3,3,12],[0,1,168,1,3,4,49],[0,1,168,1,3,5,49],[0,1,168,1,3,6,33],[0,1,169,1,1,1,91],[0,1,169,1,1,2,68],[0,1,169,1,1,3,72],[0,1,169,1,1,4,131],[0,1,169,1,1,5,68],[0,1,169,1,1,6,20],[0,1,169,1,2,1,30],[0,1,169,1,2,2,11],[0,1,169,1,2,3,39],[0,1,169,1,2,4,110],[0,1,169,1,2,5,107],[0,1,169,1,2,6,7],[0,1,169,1,3,1,49],[0,1,169,1,3,2,33],[0,1,169,1,3,3,12],[0,1,169,1,3,4,49],[0,1,169,1,3,5,33],[0,1,169,1,3,6,33],[0,1,170,1,1,1,136],[0,1,170,1,1,2,21],[0,1,170,1,1,3,136],[0,1,170,1,1,4,129],[0,1,170,1,1,5,112],[0,1,170,1,1,6,19],[0,1,170,1,2,1,7],[0,1,170,1,2,2,7],[0,1,170,1,2,3,11],[0,1,170,1,2,4,7],[0,1,170,1,2,5,7],[0,1,170,1,2,6,38],[0,1,170,1,3,1,33],[0,1,170,1,3,2,12],[0,1,170,1,3,3,49],[0,1,170,1,3,4,12],[0,1,170,1,3,5,12],[0,1,170,1,3,6,12],[0,1,171,1,1,1,188],[0,1,171,1,1,2,245],[0,1,171,1,1,3,399],[0,1,171,1,1,4,65],[0,1,171,1,1,5,186],[0,1,171,1,1,6,297],[0,1,171,1,2,1,207],[0,1,171,1,2,2,43],[0,1,171,1,2,3,19],[0,1,171,1,2,4,291],[0,1,171,1,2,5,47],[0,1,171,1,2,6,97],[0,1,171,1,3,1,23],[0,1,171,1,3,2,62],[0,1,171,1,3,3,49],[0,1,171,1,3,4,32],[0,1,171,1,3,5,33],[0,1,171,1,3,6,59],[0,1,172,1,1,1,87],[0,1,172,1,1,2,309],[0,1,172,1,1,3,111],[0,1,172,1,1,4,85],[0,1,172,1,1,5,201],[0,1,172,1,1,6,88],[0,1,172,1,2,1,7],[0,1,172,1,2,2,75],[0,1,172,1,2,3,74],[0,1,172,1,2,4,7],[0,1,172,1,2,5,11],[0,1,172,1,2,6,108],[0,1,172,1,3,2,49],[0,1,172,1,3,3,33],[0,1,172,1,3,4,23],[0,1,172,1,3,5,33],[0,1,172,1,3,6,12],[0,1,173,1,1,1,54],[0,1,173,1,1,2,54],[0,1,173,1,1,3,133],[0,1,173,1,1,4,128],[0,1,173,1,1,5,199],[0,1,173,1,1,6,215],[0,1,173,1,2,1,50],[0,1,173,1,2,2,132],[0,1,173,1,2,3,16],[0,1,173,1,2,4,237],[0,1,173,1,2,5,236],[0,1,173,1,2,6,96],[0,1,173,1,3,1,62],[0,1,173,1,3,2,23],[0,1,173,1,3,3,31],[0,1,173,1,3,4,49],[0,1,173,1,3,5,33],[0,1,173,1,3,6,23],[0,1,174,1,1,1,107],[0,1,174,1,1,2,38],[0,1,174,1,1,3,38],[0,1,174,1,1,4,75],[0,1,174,1,1,5,62],[0,1,174,1,1,6,172],[0,1,174,1,2,2,12],[0,1,174,1,2,3,33],[0,1,174,1,2,4,31],[0,1,174,1,2,5,12],[0,1,174,1,2,6,33],[0,1,174,1,3,5,12],[0,1,175,1,1,1,251],[0,1,175,1,1,2,199],[0,1,175,1,1,3,198],[0,1,175,1,1,4,293],[0,1,175,1,1,5,86],[0,1,175,1,1,6,235],[0,1,175,1,2,1,173],[0,1,175,1,2,2,291],[0,1,175,1,2,3,98],[0,1,175,1,2,4,92],[0,1,175,1,2,5,72],[0,1,175,1,2,6,109],[0,1,175,1,3,1,33],[0,1,175,1,3,3,32],[0,1,175,1,3,4,49],[0,1,175,1,3,5,32],[0,1,175,1,3,6,31],[0,1,176,1,1,1,112],[0,1,176,1,1,2,21],[0,1,176,1,1,3,70],[0,1,176,1,1,4,72],[0,1,176,1,1,5,92],[0,1,176,1,1,6,29],[0,1,176,1,2,1,108],[0,1,176,1,2,2,38],[0,1,176,1,2,3,7],[0,1,176,1,2,4,7],[0,1,176,1,2,5,9],[0,1,176,1,2,6,108],[0,1,176,1,3,2,49],[0,1,176,1,3,3,12],[0,1,176,1,3,4,32],[0,1,176,1,3,5,49],[0,1,176,1,3,6,31],[0,1,177,1,1,1,1],[0,1,177,1,1,2,112],[0,1,177,1,1,3,109],[0,1,177,1,1,4,136],[0,1,177,1,1,5,173],[0,1,177,1,1,6,70],[0,1,177,1,2,1,62],[0,1,177,1,2,2,23],[0,1,177,1,2,3,33],[0,1,177,1,2,4,33],[0,1,177,1,2,5,61],[0,1,177,1,2,6,61],[0,1,177,1,3,2,12],[0,1,177,1,3,5,12],[0,1,177,1,3,6,12],[0,1,178,1,1,1,33],[0,1,178,1,1,2,12],[0,1,178,1,1,3,49],[0,1,178,1,1,4,12],[0,1,178,1,1,6,33],[0,1,178,1,2,1,12],[0,1,178,1,2,2,49],[0,1,178,1,2,3,12],[0,1,178,1,2,4,12],[0,1,179,1,1,1,91],[0,1,179,1,1,2,109],[0,1,179,1,1,3,97],[0,1,179,1,1,4,111],[0,1,179,1,1,5,28],[0,1,179,1,1,6,71],[0,1,179,1,2,1,71],[0,1,179,1,2,2,39],[0,1,179,1,2,3,38],[0,1,179,1,2,4,29],[0,1,179,1,2,5,11],[0,1,179,1,2,6,72],[0,1,179,1,3,1,12],[0,1,179,1,3,2,12],[0,1,179,1,3,3,12],[0,1,179,1,3,4,33],[0,1,179,1,3,5,12],[0,1,180,1,1,1,74],[0,1,180,1,1,2,92],[0,1,180,1,1,3,91],[0,1,180,1,1,4,109],[0,1,180,1,1,5,69],[0,1,180,1,1,6,129],[0,1,180,1,2,1,49],[0,1,180,1,2,2,49],[0,1,180,1,2,3,32],[0,1,180,1,2,4,60],[0,1,180,1,2,5,60],[0,1,180,1,2,6,58],[0,1,180,1,3,1,12],[0,1,180,1,3,4,12],[0,1,181,1,1,1,280],[0,1,181,1,1,2,16],[0,1,181,1,1,3,252],[0,1,181,1,1,4,240],[0,1,181,1,1,5,14],[0,1,181,1,1,6,232],[0,1,181,1,2,1,35],[0,1,181,1,2,2,92],[0,1,181,1,2,3,108],[0,1,181,1,2,4,68],[0,1,181,1,2,5,70],[0,1,181,1,2,6,109],[0,1,181,1,3,2,49],[0,1,181,1,3,4,33],[0,1,181,1,3,6,32],[0,1,182,1,1,1,94],[0,1,182,1,1,2,128],[0,1,182,1,1,3,149],[0,1,182,1,1,4,293],[0,1,182,1,1,5,4],[0,1,182,1,1,6,41],[0,1,182,1,2,1,130],[0,1,182,1,2,2,72],[0,1,182,1,2,3,37],[0,1,182,1,2,4,38],[0,1,182,1,2,5,61],[0,1,182,1,2,6,73],[0,1,182,1,3,1,33],[0,1,182,1,3,2,49],[0,1,182,1,3,3,59],[0,1,182,1,3,4,33],[0,1,182,1,3,5,31],[0,1,182,1,3,6,31],[0,1,183,1,1,1,9],[0,1,183,1,1,2,136],[0,1,183,1,1,3,107],[0,1,183,1,1,4,131],[0,1,183,1,1,5,30],[0,1,183,1,1,6,74],[0,1,183,1,2,1,33],[0,1,183,1,2,2,60],[0,1,183,1,2,3,31],[0,1,183,1,2,4,49],[0,1,183,1,2,5,49],[0,1,183,1,2,6,49],[0,1,183,1,3,6,12],[0,1,184,1,1,1,32],[0,1,184,1,1,2,33],[0,1,184,1,1,3,32],[0,1,184,1,1,4,49],[0,1,184,1,1,5,49],[0,1,184,1,1,6,49],[0,1,184,1,2,1,33],[0,1,184,1,2,3,33],[0,1,184,1,2,4,49],[0,1,184,1,2,6,12],[0,1,185,1,1,1,5],[0,1,185,1,1,2,6],[0,1,185,1,1,3,309],[0,1,185,1,1,4,44],[0,1,185,1,1,5,43],[0,1,185,1,1,6,207],[0,1,185,1,2,1,172],[0,1,185,1,2,2,75],[0,1,185,1,2,3,73],[0,1,185,1,2,4,8],[0,1,185,1,2,5,58],[0,1,185,1,2,6,7],[0,1,185,1,3,1,12],[0,1,185,1,3,3,33],[0,1,185,1,3,4,32],[0,1,185,1,3,5,31],[0,1,185,1,3,6,33],[0,1,186,1,1,1,143],[0,1,186,1,1,2,24],[0,1,186,1,1,3,45],[0,1,186,1,1,4,34],[0,1,186,1,1,5,82],[0,1,186,1,1,6,98],[0,1,186,1,2,1,270],[0,1,186,1,2,2,287],[0,1,186,1,2,3,104],[0,1,186,1,2,4,79],[0,1,186,1,2,5,264],[0,1,186,1,2,6,94],[0,1,186,1,3,1,61],[0,1,186,1,3,2,58],[0,1,186,1,3,3,62],[0,1,186,1,3,4,60],[0,1,186,1,3,5,31],[0,1,186,1,3,6,62],[0,1,187,1,1,1,45],[0,1,187,1,1,2,27],[0,1,187,1,1,3,36],[0,1,187,1,1,4,207],[0,1,187,1,1,5,262],[0,1,187,1,1,6,262],[0,1,187,1,2,1,68],[0,1,187,1,2,2,110],[0,1,187,1,2,3,108],[0,1,187,1,2,4,172],[0,1,187,1,2,5,9],[0,1,187,1,2,6,110],[0,1,187,1,3,1,33],[0,1,187,1,3,2,33],[0,1,187,1,3,3,12],[0,1,187,1,3,4,12],[0,1,187,1,3,5,12],[0,1,187,1,3,6,49],[0,1,188,1,1,1,400],[0,1,188,1,1,2,192],[0,1,188,1,1,3,140],[0,1,188,1,1,4,64],[0,1,188,1,1,5,310],[0,1,188,1,1,6,177],[0,1,188,1,2,1,84],[0,1,188,1,2,2,35],[0,1,188,1,2,3,98],[0,1,188,1,2,4,6],[0,1,188,1,2,5,87],[0,1,188,1,2,6,183],[0,1,188,1,3,1,23],[0,1,188,1,3,2,38],[0,1,188,1,3,3,58],[0,1,188,1,3,4,62],[0,1,188,1,3,5,60],[0,1,188,1,3,6,59],[0,1,189,1,1,1,337],[0,1,189,1,1,2,63],[0,1,189,1,1,3,204],[0,1,189,1,1,4,139],[0,1,189,1,1,5,316],[0,1,189,1,1,6,170],[0,1,189,1,2,1,364],[0,1,189,1,2,2,401],[0,1,189,1,2,3,402],[0,1,189,1,2,4,315],[0,1,189,1,2,5,196],[0,1,189,1,2,6,403],[0,1,189,1,3,1,30],[0,1,189,1,3,2,61],[0,1,189,1,3,3,59],[0,1,189,1,3,4,172],[0,1,189,1,3,5,58],[0,1,189,1,3,6,38],[0,1,190,1,1,1,287],[0,1,190,1,1,2,193],[0,1,190,1,1,3,290],[0,1,190,1,1,4,286],[0,1,190,1,1,5,336],[0,1,190,1,1,6,361],[0,1,190,1,2,1,99],[0,1,190,1,2,2,136],[0,1,190,1,2,3,26],[0,1,190,1,2,4,2],[0,1,190,1,2,5,1],[0,1,190,1,2,6,87],[0,1,190,1,3,1,33],[0,1,190,1,3,2,12],[0,1,190,1,3,3,49],[0,1,190,1,3,4,12],[0,1,190,1,3,5,59],[0,1,190,1,3,6,49],[0,1,191,1,1,1,105],[0,1,191,1,1,2,36],[0,1,191,1,1,3,85],[0,1,191,1,1,4,82],[0,1,191,1,1,5,143],[0,1,191,1,1,6,201],[0,1,191,1,2,1,110],[0,1,191,1,2,2,131],[0,1,191,1,2,3,130],[0,1,191,1,2,4,1],[0,1,191,1,2,5,2],[0,1,191,1,2,6,130],[0,1,191,1,3,1,32],[0,1,191,1,3,2,49],[0,1,191,1,3,3,12],[0,1,191,1,3,4,33],[0,1,191,1,3,5,49],[0,1,191,1,3,6,59],[0,1,192,1,1,1,174],[0,1,192,1,1,2,147],[0,1,192,1,1,3,386],[0,1,192,1,1,4,247],[0,1,192,1,1,5,152],[0,1,192,1,1,6,286],[0,1,192,1,2,1,111],[0,1,192,1,2,2,98],[0,1,192,1,2,3,136],[0,1,192,1,2,4,4],[0,1,192,1,2,5,85],[0,1,192,1,2,6,111],[0,1,192,1,3,1,31],[0,1,192,1,3,2,49],[0,1,192,1,3,3,49],[0,1,192,1,3,4,33],[0,1,192,1,3,5,59],[0,1,192,1,3,6,62],[0,1,193,1,1,1,12],[0,1,193,1,1,2,12],[0,1,193,1,1,3,31],[0,1,193,1,1,4,32],[0,1,193,1,1,5,31],[0,1,193,1,1,6,33],[0,1,193,1,2,1,12],[0,1,193,1,2,2,12],[0,1,193,1,2,3,33],[0,1,193,1,2,4,60],[0,1,193,1,2,6,33],[0,1,193,1,3,4,12],[0,1,193,1,3,5,12],[0,1,194,1,1,1,11],[0,1,194,1,1,2,8],[0,1,194,1,1,3,38],[0,1,194,1,1,4,7],[0,1,194,1,1,5,61],[0,1,194,1,1,6,73],[0,1,194,1,2,1,23],[0,1,194,1,2,3,23],[0,1,194,1,2,4,12],[0,1,194,1,2,6,49],[0,1,194,1,3,2,12],[0,1,194,1,3,3,12],[0,1,195,1,1,1,196],[0,1,195,1,1,2,274],[0,1,195,1,1,3,354],[0,1,195,1,1,4,250],[0,1,195,1,1,5,79],[0,1,195,1,1,6,104],[0,1,195,1,2,1,36],[0,1,195,1,2,2,87],[0,1,195,1,2,3,69],[0,1,195,1,2,4,69],[0,1,195,1,2,5,291],[0,1,195,1,2,6,19],[0,1,195,1,3,1,12],[0,1,195,1,3,2,23],[0,1,195,1,3,3,60],[0,1,195,1,3,4,23],[0,1,195,1,3,5,59],[0,1,195,1,3,6,59],[0,1,196,1,1,1,387],[0,1,196,1,1,2,364],[0,1,196,1,1,3,155],[0,1,196,1,1,4,310],[0,1,196,1,1,5,324],[0,1,196,1,1,6,164],[0,1,196,1,2,1,82],[0,1,196,1,2,2,82],[0,1,196,1,2,3,136],[0,1,196,1,2,4,129],[0,1,196,1,2,5,105],[0,1,196,1,2,6,97],[0,1,196,1,3,1,49],[0,1,196,1,3,2,12],[0,1,196,1,3,3,32],[0,1,196,1,3,4,32],[0,1,196,1,3,5,58],[0,1,196,1,3,6,60]];</script>
+var fields=[["Total"],["Province","Eastern Cape"],["Precinct","Aberdeen","Addo","Adelaide","Afsondering","Alexandria","Algoapark","Alice","Alicedale","Aliwal North","Avondale","Balfour","Barkly East","Bathurst","Baviaanskloof","Beacon Bay","Bedford","Bell","Berlin","Bethelsdorp","Bhisho","Bholo","Bholothwa","Bityi","Bluewater","Bridge Camp","Buffalo Flats","Burgersdorp","Butterworth","Cala","Cambridge","Cathcart","Cedarville","Centane","Chalumna","Chungwa","Coffee Bay","Cofimvaba","Committees","Cookhouse","Cradock","Dalasile","Despatch","Dimbaza","Dordrecht","Doringkloof","Duncan Village","Dutywa","East London","Elands Height","Elliot","Elliotdale","Ezibeleni","Flagstaff","Floukraal","Fort Beaufort","Fort Brown","Gelvandale","Glen Grey","Gonubie","Graaff-Reinet","Grahamstown","Hamburg","Hankey","Healdtown","Henderson","Hlababomvu","Hofmeyr","Hogsback","Humansdorp","Humewood","Ida","Ikamvelihle","Ilinge","Indwe","Inyibiba","Jamestown","Jansenville","Jeffreys Bay","Joubertina","Joza","Kabega Park","Kamesh","Kareedouw","Katkop","Kei Bridge","Kei Mouth","Kei Road","Keiskammahoek","Kenton On Sea","Khubusidrift","Kidds Beach","King William'S Town","Kinkelbos","Kirkwood","Kleinbulhoek","Klipplaat","Kolomane","Komga","Kwaaiman","Kwadwesi","Kwandengane","Kwanobuhle","Kwazakele","Lady Frere","Lady Grey","Libode","Lukholweni","Lusikisiki","Macleantown","Maclear","Madeira","Maletswai","Maluti","Matatiele","Mbizana","Mbizeni","Mdantsane","Middelburg(Ec)","Middledrift","Mlungisi","Molteno","Mooiplaas","Motherwell","Mount Ayliff","Mount Fletcher","Mount Frere","Mount Road","Moyeni","Mpisi","Mqanduli","Msobomvu","Mthatha","Mtontsasa","Mzamba","Ndevana","Nemato","New Brighton","Ngangelizwe","Ngcobo","Ngqamakhwe","Ngqeleni","Ntabankulu","Ntabethemba","Palmietfontein","Patensie","Paterson","Pearston","Peddie","Phumalanga","Port Alfred","Port St Johns","Punzana","Queenstown","Qumbu","Rhodes","Riebeeck East","Rietbron","Rossouw","Scenery Park","Seafield","Seven Fountains","Seymour","Somerset East","St Francis Bay","Sterkspruit","Sterkstroom","Steve Vukile Tshwete","Steynsburg","Steytlerville","Storms River","Stutterheim","Sulenkama","Swartkops","Tabase","Tamara","Tarkastad","Thina Falls","Thomas River","Thornhill","Thornhill Ciskei","Tsolo","Tsomo","Tyefu","Tylden","Ugie","Uitenhage","Venterstad","Vulindlela","Walmer","Whittlesea","Willowmore","Willowvale","Wolwefontein","Zamuxolo","Zele","Zwelitsha"],["Category","Assault"],["Crime","Assault","Common assault","Sexual assault"],["Year","2013","2014","2015","2016","2017","2018"],["Incidents","57","54","78","87","61","58","20","21","23","48","24","1","187","174","155","150","127","94","46","44","39","32","6","82","81","75","64","30","37","22","5","4","2","69","60","59","18","12","14","107","86","96","67","72","77","91","80","103","3","164","148","161","137","129","254","226","181","10","7","8","11","9","310","315","280","299","270","26","35","36","29","28","15","27","17","171","136","176","140","146","123","62","70","83","66","88","73","63","84","38","33","31","85","124","110","120","47","55","65","139","133","177","170","163","53","89","19","16","40","25","51","42","665","611","592","473","492","407","553","490","467","377","408","362","165","126","128","115","41","43","34","160","116","102","152","45","340","334","298","292","268","283","71","238","300","253","244","119","113","235","246","225","215","218","241","259","157","169","200","183","162","406","288","217","167","179","387","242","208","256","234","13","56","237","269","279","232","216","104","130","97","99","93","252","229","198","194","359","323","356","320","289","199","186","230","223","207","109","111","101","74","301","333","293","286","277","68","98","594","607","507","460","462","411","90","191","166","205","195","243","49","488","420","386","336","335","365","437","399","307","211","173","266","106","92","125","145","219","196","131","151","100","79","374","332","317","371","338","328","154","118","147","526","417","367","312","274","532","396","294","347","76","132","141","337","248","249","220","184","185","149","649","653","203","493","511","329","355","331","188","204","108","112","212","193","213","182","117","233","190","50","159","105","143","316","303","175","206","284","257","221","282","189","352","326","346","291","239","52","240","209","250","285","324","210","260","197","122","134","520","458","435","341","255","153","156","679","697","601","591","508","463","400","287","353","178","295","228","409","482","414","376","227","158","144","95","502","469","412","381","433","361","344","168","385","397","330","263","236","222","202","354","357","297","342","267","677","498","427","449","638","142","262","138","180","684","619","522","503","373","388","398","348","296","311","265","271","644","319","325","343","192","121","276","114","247","313","368","278","275","308","224","201"]];
+var records=[[0,0,0,0,0,0,0],[0,1,1,1,1,1,1],[0,1,1,1,1,2,2],[0,1,1,1,1,3,3],[0,1,1,1,1,4,4],[0,1,1,1,1,5,5],[0,1,1,1,1,6,6],[0,1,1,1,2,1,7],[0,1,1,1,2,2,8],[0,1,1,1,2,3,9],[0,1,1,1,2,4,10],[0,1,1,1,2,5,11],[0,1,1,1,2,6,11],[0,1,1,1,3,2,12],[0,1,1,1,3,3,12],[0,1,1,1,3,4,12],[0,1,1,1,3,6,12],[0,1,2,1,1,1,13],[0,1,2,1,1,2,14],[0,1,2,1,1,3,15],[0,1,2,1,1,4,16],[0,1,2,1,1,5,17],[0,1,2,1,1,6,18],[0,1,2,1,2,1,19],[0,1,2,1,2,2,10],[0,1,2,1,2,3,20],[0,1,2,1,2,4,10],[0,1,2,1,2,5,21],[0,1,2,1,2,6,22],[0,1,2,1,3,1,12],[0,1,2,1,3,2,12],[0,1,2,1,3,3,12],[0,1,2,1,3,4,12],[0,1,2,1,3,5,23],[0,1,2,1,3,6,12],[0,1,3,1,1,1,24],[0,1,3,1,1,2,25],[0,1,3,1,1,3,26],[0,1,3,1,1,4,26],[0,1,3,1,1,5,6],[0,1,3,1,1,6,27],[0,1,3,1,2,1,11],[0,1,3,1,2,2,28],[0,1,3,1,2,3,29],[0,1,3,1,2,4,30],[0,1,3,1,2,5,9],[0,1,3,1,2,6,9],[0,1,3,1,3,1,31],[0,1,3,1,3,2,32],[0,1,3,1,3,4,12],[0,1,3,1,3,5,33],[0,1,3,1,3,6,33],[0,1,4,1,1,1,34],[0,1,4,1,1,2,35],[0,1,4,1,1,3,6],[0,1,4,1,1,4,2],[0,1,4,1,1,5,2],[0,1,4,1,1,6,36],[0,1,4,1,2,1,28],[0,1,4,1,2,2,37],[0,1,4,1,2,3,37],[0,1,4,1,2,4,38],[0,1,4,1,2,5,38],[0,1,4,1,2,6,39],[0,1,4,1,3,1,12],[0,1,4,1,3,2,33],[0,1,4,1,3,6,12],[0,1,5,1,1,1,40],[0,1,5,1,1,2,41],[0,1,5,1,1,3,42],[0,1,5,1,1,4,41],[0,1,5,1,1,5,43],[0,1,5,1,1,6,44],[0,1,5,1,2,1,45],[0,1,5,1,2,2,46],[0,1,5,1,2,3,47],[0,1,5,1,2,4,25],[0,1,5,1,2,5,18],[0,1,5,1,2,6,48],[0,1,5,1,3,1,23],[0,1,5,1,3,2,49],[0,1,5,1,3,3,32],[0,1,5,1,3,4,32],[0,1,5,1,3,5,33],[0,1,5,1,3,6,49],[0,1,6,1,1,1,50],[0,1,6,1,1,2,51],[0,1,6,1,1,3,52],[0,1,6,1,1,4,53],[0,1,6,1,1,5,54],[0,1,6,1,1,6,48],[0,1,6,1,2,1,55],[0,1,6,1,2,2,56],[0,1,6,1,2,3,57],[0,1,6,1,2,4,14],[0,1,6,1,2,5,51],[0,1,6,1,2,6,14],[0,1,6,1,3,1,58],[0,1,6,1,3,2,59],[0,1,6,1,3,3,60],[0,1,6,1,3,4,61],[0,1,6,1,3,5,62],[0,1,6,1,3,6,39],[0,1,7,1,1,1,63],[0,1,7,1,1,2,64],[0,1,7,1,1,3,65],[0,1,7,1,1,4,66],[0,1,7,1,1,5,65],[0,1,7,1,1,6,67],[0,1,7,1,2,1,21],[0,1,7,1,2,2,21],[0,1,7,1,2,3,68],[0,1,7,1,2,4,69],[0,1,7,1,2,5,70],[0,1,7,1,2,6,30],[0,1,7,1,3,1,49],[0,1,7,1,3,2,49],[0,1,7,1,3,4,33],[0,1,7,1,3,5,12],[0,1,7,1,3,6,58],[0,1,8,1,1,1,9],[0,1,8,1,1,2,71],[0,1,8,1,1,3,39],[0,1,8,1,1,4,72],[0,1,8,1,1,5,30],[0,1,8,1,1,6,73],[0,1,8,1,2,1,69],[0,1,8,1,2,2,74],[0,1,8,1,2,3,9],[0,1,8,1,2,4,20],[0,1,8,1,2,5,74],[0,1,8,1,2,6,75],[0,1,8,1,3,4,12],[0,1,9,1,1,1,76],[0,1,9,1,1,2,77],[0,1,9,1,1,3,78],[0,1,9,1,1,4,79],[0,1,9,1,1,5,80],[0,1,9,1,1,6,81],[0,1,9,1,2,1,82],[0,1,9,1,2,2,83],[0,1,9,1,2,3,84],[0,1,9,1,2,4,83],[0,1,9,1,2,5,85],[0,1,9,1,2,6,86],[0,1,9,1,3,1,59],[0,1,9,1,3,2,49],[0,1,9,1,3,3,49],[0,1,9,1,3,4,12],[0,1,9,1,3,5,32],[0,1,9,1,3,6,32],[0,1,10,1,1,1,87],[0,1,10,1,1,2,88],[0,1,10,1,1,3,86],[0,1,10,1,1,4,4],[0,1,10,1,1,5,83],[0,1,10,1,1,6,89],[0,1,10,1,2,1,60],[0,1,10,1,2,2,59],[0,1,10,1,2,3,31],[0,1,10,1,2,4,31],[0,1,10,1,2,5,59],[0,1,10,1,2,6,31],[0,1,10,1,3,2,33],[0,1,10,1,3,4,33],[0,1,10,1,3,5,33],[0,1,10,1,3,6,12],[0,1,11,1,1,1,19],[0,1,11,1,1,2,90],[0,1,11,1,1,3,91],[0,1,11,1,1,4,29],[0,1,11,1,1,5,92],[0,1,11,1,1,6,28],[0,1,11,1,2,1,23],[0,1,11,1,2,2,23],[0,1,11,1,2,3,23],[0,1,11,1,2,4,59],[0,1,11,1,2,5,59],[0,1,11,1,2,6,59],[0,1,11,1,3,1,12],[0,1,11,1,3,3,12],[0,1,11,1,3,6,33],[0,1,12,1,1,1,93],[0,1,12,1,1,2,25],[0,1,12,1,1,3,46],[0,1,12,1,1,4,94],[0,1,12,1,1,5,95],[0,1,12,1,1,6,96],[0,1,12,1,2,1,23],[0,1,12,1,2,2,23],[0,1,12,1,2,3,39],[0,1,12,1,2,4,59],[0,1,12,1,2,5,58],[0,1,12,1,2,6,75],[0,1,12,1,3,1,49],[0,1,12,1,3,2,12],[0,1,12,1,3,3,12],[0,1,12,1,3,4,12],[0,1,12,1,3,5,33],[0,1,12,1,3,6,49],[0,1,13,1,1,1,27],[0,1,13,1,1,2,44],[0,1,13,1,1,3,97],[0,1,13,1,1,4,98],[0,1,13,1,1,5,99],[0,1,13,1,1,6,36],[0,1,13,1,2,1,8],[0,1,13,1,2,2,30],[0,1,13,1,2,3,38],[0,1,13,1,2,4,72],[0,1,13,1,2,5,75],[0,1,13,1,2,6,21],[0,1,13,1,3,1,12],[0,1,13,1,3,2,49],[0,1,13,1,3,3,32],[0,1,13,1,3,4,33],[0,1,13,1,3,5,49],[0,1,13,1,3,6,23],[0,1,14,1,1,1,33],[0,1,14,1,1,2,31],[0,1,14,1,1,3,49],[0,1,14,1,1,4,12],[0,1,14,1,1,5,12],[0,1,14,1,1,6,49],[0,1,14,1,2,1,12],[0,1,14,1,2,2,49],[0,1,14,1,2,3,33],[0,1,14,1,2,4,49],[0,1,14,1,2,5,33],[0,1,14,1,2,6,59],[0,1,14,1,3,4,12],[0,1,15,1,1,1,100],[0,1,15,1,1,2,101],[0,1,15,1,1,3,102],[0,1,15,1,1,4,103],[0,1,15,1,1,5,79],[0,1,15,1,1,6,104],[0,1,15,1,2,1,84],[0,1,15,1,2,2,82],[0,1,15,1,2,3,43],[0,1,15,1,2,4,105],[0,1,15,1,2,5,2],[0,1,15,1,2,6,90],[0,1,15,1,3,1,23],[0,1,15,1,3,2,32],[0,1,15,1,3,3,12],[0,1,15,1,3,4,33],[0,1,15,1,3,5,60],[0,1,15,1,3,6,32],[0,1,16,1,1,1,26],[0,1,16,1,1,2,35],[0,1,16,1,1,3,106],[0,1,16,1,1,4,84],[0,1,16,1,1,5,36],[0,1,16,1,1,6,99],[0,1,16,1,2,1,22],[0,1,16,1,2,2,107],[0,1,16,1,2,3,22],[0,1,16,1,2,4,8],[0,1,16,1,2,5,108],[0,1,16,1,2,6,74],[0,1,16,1,3,1,31],[0,1,16,1,3,2,32],[0,1,16,1,3,3,23],[0,1,16,1,3,4,32],[0,1,16,1,3,6,12],[0,1,17,1,1,1,109],[0,1,17,1,1,2,71],[0,1,17,1,1,3,74],[0,1,17,1,1,4,7],[0,1,17,1,1,5,108],[0,1,17,1,1,6,110],[0,1,17,1,2,1,31],[0,1,17,1,2,2,60],[0,1,17,1,2,3,31],[0,1,17,1,2,4,33],[0,1,17,1,2,5,60],[0,1,17,1,2,6,58],[0,1,17,1,3,3,12],[0,1,17,1,3,4,33],[0,1,17,1,3,6,12],[0,1,18,1,1,1,111],[0,1,18,1,1,2,112],[0,1,18,1,1,3,20],[0,1,18,1,1,4,29],[0,1,18,1,1,5,70],[0,1,18,1,1,6,72],[0,1,18,1,2,1,58],[0,1,18,1,2,2,62],[0,1,18,1,2,3,60],[0,1,18,1,2,4,61],[0,1,18,1,2,5,59],[0,1,18,1,2,6,58],[0,1,18,1,3,1,33],[0,1,18,1,3,2,12],[0,1,18,1,3,3,12],[0,1,18,1,3,4,33],[0,1,18,1,3,5,33],[0,1,18,1,3,6,33],[0,1,19,1,1,1,113],[0,1,19,1,1,2,114],[0,1,19,1,1,3,115],[0,1,19,1,1,4,116],[0,1,19,1,1,5,117],[0,1,19,1,1,6,118],[0,1,19,1,2,1,119],[0,1,19,1,2,2,120],[0,1,19,1,2,3,121],[0,1,19,1,2,4,122],[0,1,19,1,2,5,123],[0,1,19,1,2,6,124],[0,1,19,1,3,1,90],[0,1,19,1,3,2,7],[0,1,19,1,3,3,73],[0,1,19,1,3,4,9],[0,1,19,1,3,5,38],[0,1,19,1,3,6,72],[0,1,20,1,1,1,125],[0,1,20,1,1,2,125],[0,1,20,1,1,3,94],[0,1,20,1,1,4,126],[0,1,20,1,1,5,127],[0,1,20,1,1,6,128],[0,1,20,1,2,1,19],[0,1,20,1,2,2,129],[0,1,20,1,2,3,70],[0,1,20,1,2,4,92],[0,1,20,1,2,5,11],[0,1,20,1,2,6,108],[0,1,20,1,3,1,32],[0,1,20,1,3,2,32],[0,1,20,1,3,3,49],[0,1,20,1,3,4,32],[0,1,20,1,3,5,49],[0,1,20,1,3,6,31],[0,1,21,1,1,1,28],[0,1,21,1,1,2,7],[0,1,21,1,1,3,39],[0,1,21,1,1,4,75],[0,1,21,1,1,5,108],[0,1,21,1,1,6,107],[0,1,21,1,2,1,49],[0,1,21,1,2,2,31],[0,1,21,1,2,3,59],[0,1,21,1,2,4,33],[0,1,21,1,2,5,32],[0,1,21,1,3,4,12],[0,1,22,1,1,1,97],[0,1,22,1,1,2,130],[0,1,22,1,1,3,131],[0,1,22,1,1,4,69],[0,1,22,1,1,5,112],[0,1,22,1,1,6,22],[0,1,22,1,2,1,39],[0,1,22,1,2,2,61],[0,1,22,1,2,3,62],[0,1,22,1,2,4,31],[0,1,22,1,2,5,32],[0,1,22,1,2,6,31],[0,1,22,1,3,2,49],[0,1,22,1,3,3,49],[0,1,22,1,3,6,33],[0,1,23,1,1,1,132],[0,1,23,1,1,2,17],[0,1,23,1,1,3,133],[0,1,23,1,1,4,134],[0,1,23,1,1,5,135],[0,1,23,1,1,6,54],[0,1,23,1,2,1,70],[0,1,23,1,2,2,69],[0,1,23,1,2,3,75],[0,1,23,1,2,4,72],[0,1,23,1,2,5,74],[0,1,23,1,2,6,37],[0,1,23,1,3,1,23],[0,1,23,1,3,2,33],[0,1,23,1,3,3,23],[0,1,23,1,3,4,59],[0,1,23,1,3,5,31],[0,1,23,1,3,6,62],[0,1,24,1,1,1,9],[0,1,24,1,1,2,91],[0,1,24,1,1,3,136],[0,1,24,1,1,4,29],[0,1,24,1,1,5,130],[0,1,24,1,1,6,90],[0,1,24,1,2,1,12],[0,1,24,1,2,2,33],[0,1,24,1,2,3,33],[0,1,24,1,2,5,31],[0,1,24,1,2,6,23],[0,1,24,1,3,4,12],[0,1,24,1,3,5,12],[0,1,25,1,1,1,85],[0,1,25,1,1,2,5],[0,1,25,1,1,3,130],[0,1,25,1,1,4,29],[0,1,25,1,1,5,129],[0,1,25,1,1,6,2],[0,1,25,1,2,1,37],[0,1,25,1,2,2,61],[0,1,25,1,2,3,33],[0,1,25,1,2,6,62],[0,1,26,1,1,1,137],[0,1,26,1,1,2,138],[0,1,26,1,1,3,139],[0,1,26,1,1,4,140],[0,1,26,1,1,5,141],[0,1,26,1,1,6,142],[0,1,26,1,2,1,106],[0,1,26,1,2,2,34],[0,1,26,1,2,3,2],[0,1,26,1,2,4,6],[0,1,26,1,2,5,143],[0,1,26,1,2,6,36],[0,1,26,1,3,1,39],[0,1,26,1,3,2,58],[0,1,26,1,3,3,32],[0,1,26,1,3,4,59],[0,1,26,1,3,5,38],[0,1,26,1,3,6,61],[0,1,27,1,1,1,144],[0,1,27,1,1,2,145],[0,1,27,1,1,3,55],[0,1,27,1,1,4,146],[0,1,27,1,1,5,147],[0,1,27,1,1,6,14],[0,1,27,1,2,1,148],[0,1,27,1,2,2,127],[0,1,27,1,2,3,149],[0,1,27,1,2,4,41],[0,1,27,1,2,5,133],[0,1,27,1,2,6,134],[0,1,27,1,3,1,60],[0,1,27,1,3,2,59],[0,1,27,1,3,3,62],[0,1,27,1,3,4,23],[0,1,27,1,3,5,23],[0,1,27,1,3,6,60],[0,1,28,1,1,1,150],[0,1,28,1,1,2,151],[0,1,28,1,1,3,152],[0,1,28,1,1,4,153],[0,1,28,1,1,5,154],[0,1,28,1,1,6,103],[0,1,28,1,2,1,155],[0,1,28,1,2,2,156],[0,1,28,1,2,3,57],[0,1,28,1,2,4,157],[0,1,28,1,2,5,158],[0,1,28,1,2,6,135],[0,1,28,1,3,1,59],[0,1,28,1,3,2,32],[0,1,28,1,3,3,31],[0,1,28,1,3,4,49],[0,1,28,1,3,5,49],[0,1,28,1,3,6,23],[0,1,29,1,1,1,159],[0,1,29,1,1,2,56],[0,1,29,1,1,3,78],[0,1,29,1,1,4,160],[0,1,29,1,1,5,161],[0,1,29,1,1,6,160],[0,1,29,1,2,1,19],[0,1,29,1,2,2,82],[0,1,29,1,2,3,36],[0,1,29,1,2,4,131],[0,1,29,1,2,5,90],[0,1,29,1,2,6,21],[0,1,29,1,3,2,12],[0,1,29,1,3,3,12],[0,1,29,1,3,4,32],[0,1,29,1,3,5,33],[0,1,29,1,3,6,32],[0,1,30,1,1,1,162],[0,1,30,1,1,2,163],[0,1,30,1,1,3,164],[0,1,30,1,1,4,165],[0,1,30,1,1,5,161],[0,1,30,1,1,6,166],[0,1,30,1,2,1,167],[0,1,30,1,2,2,145],[0,1,30,1,2,3,168],[0,1,30,1,2,4,169],[0,1,30,1,2,5,170],[0,1,30,1,2,6,171],[0,1,30,1,3,1,75],[0,1,30,1,3,2,62],[0,1,30,1,3,3,60],[0,1,30,1,3,4,172],[0,1,30,1,3,5,75],[0,1,30,1,3,6,75],[0,1,31,1,1,1,36],[0,1,31,1,1,2,173],[0,1,31,1,1,3,82],[0,1,31,1,1,4,3],[0,1,31,1,1,5,44],[0,1,31,1,1,6,98],[0,1,31,1,2,1,90],[0,1,31,1,2,2,110],[0,1,31,1,2,3,75],[0,1,31,1,2,4,39],[0,1,31,1,2,5,7],[0,1,31,1,2,6,21],[0,1,31,1,3,1,33],[0,1,31,1,3,2,31],[0,1,31,1,3,4,33],[0,1,31,1,3,5,32],[0,1,31,1,3,6,32],[0,1,32,1,1,1,7],[0,1,32,1,1,2,68],[0,1,32,1,1,3,7],[0,1,32,1,1,4,90],[0,1,32,1,1,5,129],[0,1,32,1,1,6,10],[0,1,32,1,2,1,39],[0,1,32,1,2,2,38],[0,1,32,1,2,3,39],[0,1,32,1,2,4,7],[0,1,32,1,2,5,75],[0,1,32,1,2,6,58],[0,1,32,1,3,1,12],[0,1,32,1,3,2,49],[0,1,32,1,3,3,33],[0,1,32,1,3,4,33],[0,1,32,1,3,6,49],[0,1,33,1,1,1,174],[0,1,33,1,1,2,175],[0,1,33,1,1,3,176],[0,1,33,1,1,4,156],[0,1,33,1,1,5,177],[0,1,33,1,1,6,178],[0,1,33,1,2,1,179],[0,1,33,1,2,2,101],[0,1,33,1,2,3,134],[0,1,33,1,2,4,180],[0,1,33,1,2,5,181],[0,1,33,1,2,6,126],[0,1,33,1,3,1,62],[0,1,33,1,3,2,58],[0,1,33,1,3,3,59],[0,1,33,1,3,4,61],[0,1,33,1,3,5,23],[0,1,33,1,3,6,62],[0,1,34,1,1,1,69],[0,1,34,1,1,2,2],[0,1,34,1,1,3,90],[0,1,34,1,1,4,90],[0,1,34,1,1,5,92],[0,1,34,1,1,6,173],[0,1,34,1,2,1,58],[0,1,34,1,2,2,61],[0,1,34,1,2,3,23],[0,1,34,1,2,4,33],[0,1,34,1,2,5,23],[0,1,34,1,2,6,33],[0,1,34,1,3,1,33],[0,1,34,1,3,2,33],[0,1,34,1,3,3,12],[0,1,34,1,3,4,12],[0,1,34,1,3,5,31],[0,1,34,1,3,6,12],[0,1,35,1,1,1,44],[0,1,35,1,1,2,179],[0,1,35,1,1,3,182],[0,1,35,1,1,4,106],[0,1,35,1,1,5,183],[0,1,35,1,1,6,183],[0,1,35,1,2,1,62],[0,1,35,1,2,2,61],[0,1,35,1,2,3,39],[0,1,35,1,2,4,61],[0,1,35,1,2,5,62],[0,1,35,1,2,6,60],[0,1,35,1,3,1,33],[0,1,35,1,3,2,31],[0,1,35,1,3,3,33],[0,1,35,1,3,4,32],[0,1,35,1,3,5,49],[0,1,35,1,3,6,33],[0,1,36,1,1,1,82],[0,1,36,1,1,2,44],[0,1,36,1,1,3,99],[0,1,36,1,1,4,20],[0,1,36,1,1,5,35],[0,1,36,1,1,6,10],[0,1,36,1,2,1,21],[0,1,36,1,2,2,69],[0,1,36,1,2,3,72],[0,1,36,1,2,4,31],[0,1,36,1,2,5,59],[0,1,36,1,2,6,31],[0,1,36,1,3,3,12],[0,1,36,1,3,6,12],[0,1,37,1,1,1,184],[0,1,37,1,1,2,185],[0,1,37,1,1,3,186],[0,1,37,1,1,4,178],[0,1,37,1,1,5,187],[0,1,37,1,1,6,185],[0,1,37,1,2,1,143],[0,1,37,1,2,2,71],[0,1,37,1,2,3,107],[0,1,37,1,2,4,75],[0,1,37,1,2,5,109],[0,1,37,1,2,6,97],[0,1,37,1,3,1,33],[0,1,37,1,3,2,31],[0,1,37,1,3,3,33],[0,1,37,1,3,5,33],[0,1,37,1,3,6,31],[0,1,38,1,1,1,12],[0,1,38,1,1,2,33],[0,1,38,1,1,3,12],[0,1,38,1,1,4,12],[0,1,38,1,1,5,49],[0,1,38,1,2,2,12],[0,1,38,1,2,5,12],[0,1,39,1,1,1,98],[0,1,39,1,1,2,89],[0,1,39,1,1,3,82],[0,1,39,1,1,4,24],[0,1,39,1,1,5,21],[0,1,39,1,1,6,6],[0,1,39,1,2,1,22],[0,1,39,1,2,2,27],[0,1,39,1,2,3,97],[0,1,39,1,2,4,130],[0,1,39,1,2,5,111],[0,1,39,1,2,6,6],[0,1,39,1,3,1,12],[0,1,39,1,3,2,23],[0,1,39,1,3,3,60],[0,1,39,1,3,4,33],[0,1,39,1,3,5,33],[0,1,39,1,3,6,49],[0,1,40,1,1,1,188],[0,1,40,1,1,2,189],[0,1,40,1,1,3,137],[0,1,40,1,1,4,190],[0,1,40,1,1,5,191],[0,1,40,1,1,6,192],[0,1,40,1,2,1,166],[0,1,40,1,2,2,193],[0,1,40,1,2,3,194],[0,1,40,1,2,4,195],[0,1,40,1,2,5,196],[0,1,40,1,2,6,197],[0,1,40,1,3,1,58],[0,1,40,1,3,2,38],[0,1,40,1,3,3,108],[0,1,40,1,3,4,58],[0,1,40,1,3,5,59],[0,1,40,1,3,6,60],[0,1,41,1,1,1,47],[0,1,41,1,1,2,88],[0,1,41,1,1,3,43],[0,1,41,1,1,4,99],[0,1,41,1,1,5,3],[0,1,41,1,1,6,34],[0,1,41,1,2,1,58],[0,1,41,1,2,2,61],[0,1,41,1,2,3,58],[0,1,41,1,2,4,62],[0,1,41,1,2,5,30],[0,1,41,1,2,6,107],[0,1,41,1,3,1,32],[0,1,41,1,3,2,33],[0,1,41,1,3,3,32],[0,1,41,1,3,4,23],[0,1,41,1,3,5,31],[0,1,42,1,1,1,133],[0,1,42,1,1,2,198],[0,1,42,1,1,3,18],[0,1,42,1,1,4,89],[0,1,42,1,1,5,43],[0,1,42,1,1,6,45],[0,1,42,1,2,1,179],[0,1,42,1,2,2,199],[0,1,42,1,2,3,200],[0,1,42,1,2,4,47],[0,1,42,1,2,5,201],[0,1,42,1,2,6,47],[0,1,42,1,3,1,31],[0,1,42,1,3,2,38],[0,1,42,1,3,3,32],[0,1,42,1,3,4,32],[0,1,42,1,3,5,58],[0,1,42,1,3,6,60],[0,1,43,1,1,1,202],[0,1,43,1,1,2,203],[0,1,43,1,1,3,204],[0,1,43,1,1,4,139],[0,1,43,1,1,5,205],[0,1,43,1,1,6,206],[0,1,43,1,2,1,82],[0,1,43,1,2,2,27],[0,1,43,1,2,3,85],[0,1,43,1,2,4,207],[0,1,43,1,2,5,34],[0,1,43,1,2,6,3],[0,1,43,1,3,1,49],[0,1,43,1,3,2,32],[0,1,43,1,3,3,32],[0,1,43,1,3,4,49],[0,1,43,1,3,5,108],[0,1,43,1,3,6,23],[0,1,44,1,1,1,148],[0,1,44,1,1,2,128],[0,1,44,1,1,3,86],[0,1,44,1,1,4,106],[0,1,44,1,1,5,41],[0,1,44,1,1,6,208],[0,1,44,1,2,1,112],[0,1,44,1,2,2,68],[0,1,44,1,2,3,7],[0,1,44,1,2,4,61],[0,1,44,1,2,5,110],[0,1,44,1,2,6,7],[0,1,44,1,3,4,12],[0,1,44,1,3,5,12],[0,1,45,1,1,1,12],[0,1,45,1,1,2,23],[0,1,45,1,1,3,33],[0,1,45,1,1,5,49],[0,1,45,1,1,6,31],[0,1,45,1,2,2,12],[0,1,45,1,2,3,33],[0,1,45,1,2,4,12],[0,1,45,1,3,1,12],[0,1,46,1,1,1,209],[0,1,46,1,1,2,210],[0,1,46,1,1,3,211],[0,1,46,1,1,4,212],[0,1,46,1,1,5,213],[0,1,46,1,1,6,214],[0,1,46,1,2,1,48],[0,1,46,1,2,2,215],[0,1,46,1,2,3,24],[0,1,46,1,2,4,25],[0,1,46,1,2,5,82],[0,1,46,1,2,6,20],[0,1,46,1,3,1,49],[0,1,46,1,3,2,23],[0,1,46,1,3,3,32],[0,1,46,1,3,4,62],[0,1,46,1,3,5,62],[0,1,46,1,3,6,58],[0,1,47,1,1,1,216],[0,1,47,1,1,2,217],[0,1,47,1,1,3,218],[0,1,47,1,1,4,219],[0,1,47,1,1,5,56],[0,1,47,1,1,6,220],[0,1,47,1,2,1,221],[0,1,47,1,2,2,130],[0,1,47,1,2,3,34],[0,1,47,1,2,4,34],[0,1,47,1,2,5,106],[0,1,47,1,2,6,181],[0,1,47,1,3,1,39],[0,1,47,1,3,2,38],[0,1,47,1,3,3,107],[0,1,47,1,3,4,38],[0,1,47,1,3,5,33],[0,1,47,1,3,6,73],[0,1,48,1,1,1,222],[0,1,48,1,1,2,223],[0,1,48,1,1,3,224],[0,1,48,1,1,4,225],[0,1,48,1,1,5,226],[0,1,48,1,1,6,227],[0,1,48,1,2,1,228],[0,1,48,1,2,2,229],[0,1,48,1,2,3,230],[0,1,48,1,2,4,231],[0,1,48,1,2,5,232],[0,1,48,1,2,6,233],[0,1,48,1,3,1,11],[0,1,48,1,3,2,172],[0,1,48,1,3,3,58],[0,1,48,1,3,4,172],[0,1,48,1,3,5,73],[0,1,48,1,3,6,107],[0,1,49,1,1,1,49],[0,1,49,1,1,4,12],[0,1,49,1,1,6,12],[0,1,49,1,2,5,49],[0,1,50,1,1,1,234],[0,1,50,1,1,2,235],[0,1,50,1,1,3,236],[0,1,50,1,1,4,148],[0,1,50,1,1,5,106],[0,1,50,1,1,6,41],[0,1,50,1,2,1,130],[0,1,50,1,2,2,69],[0,1,50,1,2,3,129],[0,1,50,1,2,4,69],[0,1,50,1,2,5,110],[0,1,50,1,2,6,110],[0,1,50,1,3,1,12],[0,1,50,1,3,2,12],[0,1,50,1,3,3,33],[0,1,50,1,3,5,33],[0,1,51,1,1,1,237],[0,1,51,1,1,2,80],[0,1,51,1,1,3,161],[0,1,51,1,1,4,16],[0,1,51,1,1,5,16],[0,1,51,1,1,6,180],[0,1,51,1,2,1,74],[0,1,51,1,2,2,69],[0,1,51,1,2,3,21],[0,1,51,1,2,4,92],[0,1,51,1,2,5,110],[0,1,51,1,2,6,29],[0,1,51,1,3,2,12],[0,1,51,1,3,3,12],[0,1,51,1,3,5,33],[0,1,52,1,1,1,6],[0,1,52,1,1,2,26],[0,1,52,1,1,3,42],[0,1,52,1,1,4,42],[0,1,52,1,1,5,181],[0,1,52,1,1,6,198],[0,1,52,1,2,1,39],[0,1,52,1,2,2,62],[0,1,52,1,2,3,8],[0,1,52,1,2,4,72],[0,1,52,1,2,5,129],[0,1,52,1,2,6,70],[0,1,52,1,3,1,33],[0,1,52,1,3,2,49],[0,1,52,1,3,3,32],[0,1,52,1,3,4,33],[0,1,52,1,3,5,12],[0,1,52,1,3,6,33],[0,1,53,1,1,1,238],[0,1,53,1,1,2,239],[0,1,53,1,1,3,194],[0,1,53,1,1,4,52],[0,1,53,1,1,5,240],[0,1,53,1,1,6,241],[0,1,53,1,2,1,81],[0,1,53,1,2,2,242],[0,1,53,1,2,3,243],[0,1,53,1,2,4,82],[0,1,53,1,2,5,70],[0,1,53,1,2,6,131],[0,1,53,1,3,1,12],[0,1,53,1,3,2,12],[0,1,53,1,3,3,23],[0,1,53,1,3,4,12],[0,1,53,1,3,5,31],[0,1,53,1,3,6,23],[0,1,54,1,1,1,32],[0,1,54,1,1,2,49],[0,1,54,1,1,3,12],[0,1,54,1,1,4,31],[0,1,54,1,1,5,32],[0,1,54,1,1,6,33],[0,1,54,1,2,2,12],[0,1,54,1,2,4,12],[0,1,54,1,2,5,12],[0,1,54,1,2,6,12],[0,1,54,1,3,1,12],[0,1,55,1,1,1,244],[0,1,55,1,1,2,245],[0,1,55,1,1,3,246],[0,1,55,1,1,4,247],[0,1,55,1,1,5,248],[0,1,55,1,1,6,249],[0,1,55,1,2,1,250],[0,1,55,1,2,2,183],[0,1,55,1,2,3,18],[0,1,55,1,2,4,200],[0,1,55,1,2,5,251],[0,1,55,1,2,6,252],[0,1,55,1,3,1,49],[0,1,55,1,3,2,49],[0,1,55,1,3,3,59],[0,1,55,1,3,4,23],[0,1,55,1,3,5,59],[0,1,55,1,3,6,62],[0,1,56,1,1,1,32],[0,1,56,1,1,2,31],[0,1,56,1,1,3,59],[0,1,56,1,1,4,23],[0,1,56,1,1,5,33],[0,1,56,1,1,6,33],[0,1,56,1,2,2,12],[0,1,56,1,2,6,12],[0,1,57,1,1,1,253],[0,1,57,1,1,2,254],[0,1,57,1,1,3,255],[0,1,57,1,1,4,256],[0,1,57,1,1,5,141],[0,1,57,1,1,6,257],[0,1,57,1,2,1,258],[0,1,57,1,2,2,259],[0,1,57,1,2,3,260],[0,1,57,1,2,4,230],[0,1,57,1,2,5,150],[0,1,57,1,2,6,261],[0,1,57,1,3,1,90],[0,1,57,1,3,2,8],[0,1,57,1,3,3,11],[0,1,57,1,3,4,75],[0,1,57,1,3,5,39],[0,1,57,1,3,6,107],[0,1,58,1,1,1,25],[0,1,58,1,1,2,26],[0,1,58,1,1,3,262],[0,1,58,1,1,4,24],[0,1,58,1,1,5,85],[0,1,58,1,1,6,181],[0,1,58,1,2,1,61],[0,1,58,1,2,2,62],[0,1,58,1,2,3,61],[0,1,58,1,2,4,62],[0,1,58,1,2,5,62],[0,1,58,1,2,6,39],[0,1,58,1,3,1,49],[0,1,58,1,3,3,33],[0,1,58,1,3,4,32],[0,1,58,1,3,5,12],[0,1,58,1,3,6,33],[0,1,59,1,1,1,263],[0,1,59,1,1,2,264],[0,1,59,1,1,3,234],[0,1,59,1,1,4,208],[0,1,59,1,1,5,179],[0,1,59,1,1,6,134],[0,1,59,1,2,1,6],[0,1,59,1,2,2,262],[0,1,59,1,2,3,87],[0,1,59,1,2,4,87],[0,1,59,1,2,5,98],[0,1,59,1,2,6,27],[0,1,59,1,3,1,59],[0,1,59,1,3,2,23],[0,1,59,1,3,3,12],[0,1,59,1,3,4,49],[0,1,59,1,3,5,33],[0,1,59,1,3,6,12],[0,1,60,1,1,1,265],[0,1,60,1,1,2,266],[0,1,60,1,1,3,56],[0,1,60,1,1,4,257],[0,1,60,1,1,5,267],[0,1,60,1,1,6,268],[0,1,60,1,2,1,186],[0,1,60,1,2,2,15],[0,1,60,1,2,3,269],[0,1,60,1,2,4,186],[0,1,60,1,2,5,270],[0,1,60,1,2,6,271],[0,1,60,1,3,1,23],[0,1,60,1,3,2,33],[0,1,60,1,3,3,61],[0,1,60,1,3,4,31],[0,1,60,1,3,5,62],[0,1,60,1,3,6,32],[0,1,61,1,1,1,272],[0,1,61,1,1,2,273],[0,1,61,1,1,3,66],[0,1,61,1,1,4,266],[0,1,61,1,1,5,218],[0,1,61,1,1,6,274],[0,1,61,1,2,1,275],[0,1,61,1,2,2,276],[0,1,61,1,2,3,248],[0,1,61,1,2,4,277],[0,1,61,1,2,5,278],[0,1,61,1,2,6,279],[0,1,61,1,3,1,172],[0,1,61,1,3,2,30],[0,1,61,1,3,3,62],[0,1,61,1,3,4,61],[0,1,61,1,3,5,58],[0,1,61,1,3,6,58],[0,1,62,1,1,1,39],[0,1,62,1,1,2,30],[0,1,62,1,1,3,60],[0,1,62,1,1,4,38],[0,1,62,1,1,5,59],[0,1,62,1,1,6,58],[0,1,62,1,2,1,49],[0,1,62,1,2,2,49],[0,1,62,1,2,3,32],[0,1,62,1,2,4,12],[0,1,62,1,2,5,49],[0,1,62,1,2,6,59],[0,1,62,1,3,4,12],[0,1,63,1,1,1,41],[0,1,63,1,1,2,43],[0,1,63,1,1,3,207],[0,1,63,1,1,4,24],[0,1,63,1,1,5,45],[0,1,63,1,1,6,83],[0,1,63,1,2,1,74],[0,1,63,1,2,2,28],[0,1,63,1,2,3,38],[0,1,63,1,2,4,68],[0,1,63,1,2,5,69],[0,1,63,1,2,6,75],[0,1,63,1,3,2,12],[0,1,63,1,3,3,49],[0,1,63,1,3,4,49],[0,1,63,1,3,5,32],[0,1,63,1,3,6,12],[0,1,64,1,1,1,8],[0,1,64,1,1,2,37],[0,1,64,1,1,3,92],[0,1,64,1,1,4,92],[0,1,64,1,1,5,91],[0,1,64,1,1,6,110],[0,1,64,1,2,1,23],[0,1,64,1,2,2,33],[0,1,64,1,2,3,31],[0,1,64,1,2,4,32],[0,1,64,1,2,5,33],[0,1,64,1,2,6,49],[0,1,64,1,3,6,49],[0,1,65,1,1,1,49],[0,1,65,1,1,6,49],[0,1,66,1,1,1,136],[0,1,66,1,1,2,85],[0,1,66,1,1,3,70],[0,1,66,1,1,4,22],[0,1,66,1,1,5,109],[0,1,66,1,1,6,30],[0,1,66,1,2,1,32],[0,1,66,1,2,2,38],[0,1,66,1,2,3,60],[0,1,66,1,2,4,31],[0,1,66,1,2,5,33],[0,1,66,1,2,6,31],[0,1,66,1,3,5,12],[0,1,66,1,3,6,33],[0,1,67,1,1,1,21],[0,1,67,1,1,2,112],[0,1,67,1,1,3,30],[0,1,67,1,1,4,9],[0,1,67,1,1,5,69],[0,1,67,1,1,6,11],[0,1,67,1,2,1,74],[0,1,67,1,2,2,172],[0,1,67,1,2,3,58],[0,1,67,1,2,4,38],[0,1,67,1,2,5,38],[0,1,67,1,2,6,60],[0,1,67,1,3,2,33],[0,1,67,1,3,4,12],[0,1,67,1,3,5,31],[0,1,67,1,3,6,33],[0,1,68,1,1,1,23],[0,1,68,1,1,2,38],[0,1,68,1,1,3,31],[0,1,68,1,1,4,59],[0,1,68,1,1,5,23],[0,1,68,1,1,6,31],[0,1,68,1,2,1,32],[0,1,68,1,2,2,49],[0,1,68,1,2,3,49],[0,1,68,1,2,5,33],[0,1,68,1,2,6,33],[0,1,68,1,3,1,12],[0,1,68,1,3,2,12],[0,1,68,1,3,4,12],[0,1,69,1,1,1,164],[0,1,69,1,1,2,178],[0,1,69,1,1,3,280],[0,1,69,1,1,4,281],[0,1,69,1,1,5,186],[0,1,69,1,1,6,219],[0,1,69,1,2,1,242],[0,1,69,1,2,2,282],[0,1,69,1,2,3,48],[0,1,69,1,2,4,17],[0,1,69,1,2,5,95],[0,1,69,1,2,6,27],[0,1,69,1,3,1,62],[0,1,69,1,3,2,59],[0,1,69,1,3,3,49],[0,1,69,1,3,4,23],[0,1,69,1,3,5,60],[0,1,70,1,1,1,84],[0,1,70,1,1,2,89],[0,1,70,1,1,3,27],[0,1,70,1,1,4,86],[0,1,70,1,1,5,283],[0,1,70,1,1,6,4],[0,1,70,1,2,1,55],[0,1,70,1,2,2,266],[0,1,70,1,2,3,284],[0,1,70,1,2,4,150],[0,1,70,1,2,5,152],[0,1,70,1,2,6,285],[0,1,70,1,3,1,37],[0,1,70,1,3,2,58],[0,1,70,1,3,3,58],[0,1,70,1,3,4,172],[0,1,70,1,3,5,39],[0,1,70,1,3,6,75],[0,1,71,1,1,1,49],[0,1,71,1,1,2,12],[0,1,71,1,1,3,32],[0,1,71,1,1,4,33],[0,1,71,1,1,5,12],[0,1,71,1,1,6,49],[0,1,71,1,2,1,12],[0,1,72,1,1,1,159],[0,1,72,1,1,2,286],[0,1,72,1,1,3,76],[0,1,72,1,1,4,287],[0,1,72,1,1,5,165],[0,1,72,1,1,6,103],[0,1,72,1,2,1,251],[0,1,72,1,2,2,94],[0,1,72,1,2,3,251],[0,1,72,1,2,4,81],[0,1,72,1,2,5,288],[0,1,72,1,2,6,48],[0,1,72,1,3,1,33],[0,1,72,1,3,2,33],[0,1,72,1,3,3,31],[0,1,72,1,3,4,49],[0,1,72,1,3,5,32],[0,1,72,1,3,6,23],[0,1,73,1,1,1,221],[0,1,73,1,1,2,28],[0,1,73,1,1,3,70],[0,1,73,1,1,4,68],[0,1,73,1,1,5,92],[0,1,73,1,1,6,130],[0,1,73,1,2,1,75],[0,1,73,1,2,2,59],[0,1,73,1,2,3,108],[0,1,73,1,2,4,23],[0,1,73,1,2,5,59],[0,1,73,1,2,6,7],[0,1,73,1,3,1,33],[0,1,73,1,3,2,32],[0,1,73,1,3,3,49],[0,1,73,1,3,4,12],[0,1,73,1,3,5,49],[0,1,73,1,3,6,33],[0,1,74,1,1,1,86],[0,1,74,1,1,2,198],[0,1,74,1,1,3,89],[0,1,74,1,1,4,24],[0,1,74,1,1,5,84],[0,1,74,1,1,6,143],[0,1,74,1,2,1,74],[0,1,74,1,2,2,131],[0,1,74,1,2,3,107],[0,1,74,1,2,4,8],[0,1,74,1,2,5,172],[0,1,74,1,2,6,30],[0,1,74,1,3,1,49],[0,1,74,1,3,4,12],[0,1,74,1,3,6,12],[0,1,75,1,1,1,147],[0,1,75,1,1,2,67],[0,1,75,1,1,3,289],[0,1,75,1,1,4,285],[0,1,75,1,1,5,218],[0,1,75,1,1,6,290],[0,1,75,1,2,1,43],[0,1,75,1,2,2,44],[0,1,75,1,2,3,221],[0,1,75,1,2,4,129],[0,1,75,1,2,5,129],[0,1,75,1,2,6,28],[0,1,75,1,3,1,49],[0,1,75,1,3,2,49],[0,1,75,1,3,3,33],[0,1,75,1,3,4,60],[0,1,75,1,3,5,59],[0,1,75,1,3,6,58],[0,1,76,1,1,1,111],[0,1,76,1,1,2,1],[0,1,76,1,1,3,5],[0,1,76,1,1,4,1],[0,1,76,1,1,5,36],[0,1,76,1,1,6,291],[0,1,76,1,2,1,23],[0,1,76,1,2,2,61],[0,1,76,1,2,3,60],[0,1,76,1,2,4,59],[0,1,76,1,2,5,61],[0,1,76,1,2,6,108],[0,1,76,1,3,1,12],[0,1,76,1,3,2,12],[0,1,76,1,3,3,12],[0,1,76,1,3,5,49],[0,1,76,1,3,6,12],[0,1,77,1,1,1,69],[0,1,77,1,1,2,71],[0,1,77,1,1,3,68],[0,1,77,1,1,4,72],[0,1,77,1,1,5,28],[0,1,77,1,1,6,110],[0,1,77,1,2,1,73],[0,1,77,1,2,2,75],[0,1,77,1,2,3,9],[0,1,77,1,2,4,11],[0,1,77,1,2,5,22],[0,1,77,1,2,6,11],[0,1,77,1,3,1,12],[0,1,77,1,3,2,32],[0,1,77,1,3,3,12],[0,1,77,1,3,4,12],[0,1,77,1,3,5,33],[0,1,78,1,1,1,54],[0,1,78,1,1,2,80],[0,1,78,1,1,3,292],[0,1,78,1,1,4,96],[0,1,78,1,1,5,293],[0,1,78,1,1,6,200],[0,1,78,1,2,1,44],[0,1,78,1,2,2,182],[0,1,78,1,2,3,53],[0,1,78,1,2,4,294],[0,1,78,1,2,5,53],[0,1,78,1,2,6,17],[0,1,78,1,3,1,23],[0,1,78,1,3,2,32],[0,1,78,1,3,3,32],[0,1,78,1,3,4,23],[0,1,78,1,3,5,172],[0,1,78,1,3,6,59],[0,1,79,1,1,1,64],[0,1,79,1,1,2,55],[0,1,79,1,1,3,176],[0,1,79,1,1,4,178],[0,1,79,1,1,5,154],[0,1,79,1,1,6,168],[0,1,79,1,2,1,46],[0,1,79,1,2,2,200],[0,1,79,1,2,3,182],[0,1,79,1,2,4,18],[0,1,79,1,2,5,179],[0,1,79,1,2,6,149],[0,1,79,1,3,1,12],[0,1,79,1,3,2,12],[0,1,79,1,3,3,12],[0,1,79,1,3,4,49],[0,1,79,1,3,5,12],[0,1,79,1,3,6,12],[0,1,80,1,1,2,43],[0,1,80,1,1,3,249],[0,1,80,1,1,4,295],[0,1,80,1,1,5,171],[0,1,80,1,1,6,195],[0,1,80,1,2,2,19],[0,1,80,1,2,3,266],[0,1,80,1,2,4,296],[0,1,80,1,2,5,286],[0,1,80,1,2,6,297],[0,1,80,1,3,2,60],[0,1,80,1,3,3,39],[0,1,80,1,3,4,61],[0,1,80,1,3,5,62],[0,1,80,1,3,6,31],[0,1,81,1,1,1,55],[0,1,81,1,1,2,219],[0,1,81,1,1,3,298],[0,1,81,1,1,4,16],[0,1,81,1,1,5,186],[0,1,81,1,1,6,297],[0,1,81,1,2,1,299],[0,1,81,1,2,2,300],[0,1,81,1,2,3,301],[0,1,81,1,2,4,302],[0,1,81,1,2,5,185],[0,1,81,1,2,6,303],[0,1,81,1,3,1,37],[0,1,81,1,3,2,58],[0,1,81,1,3,3,61],[0,1,81,1,3,4,60],[0,1,81,1,3,5,61],[0,1,81,1,3,6,60],[0,1,82,1,1,1,304],[0,1,82,1,1,2,305],[0,1,82,1,1,3,306],[0,1,82,1,1,4,307],[0,1,82,1,1,5,308],[0,1,82,1,1,6,308],[0,1,82,1,2,1,274],[0,1,82,1,2,2,158],[0,1,82,1,2,3,52],[0,1,82,1,2,4,132],[0,1,82,1,2,5,54],[0,1,82,1,2,6,283],[0,1,82,1,3,1,172],[0,1,82,1,3,2,61],[0,1,82,1,3,3,58],[0,1,82,1,3,4,73],[0,1,82,1,3,5,59],[0,1,82,1,3,6,172],[0,1,83,1,1,1,221],[0,1,83,1,1,2,109],[0,1,83,1,1,3,91],[0,1,83,1,1,4,131],[0,1,83,1,1,5,11],[0,1,83,1,1,6,30],[0,1,83,1,2,1,30],[0,1,83,1,2,2,61],[0,1,83,1,2,3,37],[0,1,83,1,2,4,108],[0,1,83,1,2,5,58],[0,1,83,1,2,6,58],[0,1,83,1,3,1,12],[0,1,83,1,3,4,12],[0,1,83,1,3,5,33],[0,1,84,1,1,1,309],[0,1,84,1,1,2,105],[0,1,84,1,1,3,105],[0,1,84,1,1,4,27],[0,1,84,1,1,5,5],[0,1,84,1,1,6,173],[0,1,84,1,2,1,7],[0,1,84,1,2,2,60],[0,1,84,1,2,3,23],[0,1,84,1,2,4,60],[0,1,84,1,2,5,58],[0,1,84,1,2,6,23],[0,1,84,1,3,1,32],[0,1,84,1,3,2,33],[0,1,84,1,3,3,33],[0,1,84,1,3,4,33],[0,1,84,1,3,5,32],[0,1,84,1,3,6,33],[0,1,85,1,1,1,9],[0,1,85,1,1,2,130],[0,1,85,1,1,3,11],[0,1,85,1,1,4,75],[0,1,85,1,1,5,7],[0,1,85,1,1,6,37],[0,1,85,1,2,1,31],[0,1,85,1,2,2,49],[0,1,85,1,2,3,32],[0,1,85,1,2,4,172],[0,1,85,1,2,5,60],[0,1,85,1,2,6,31],[0,1,85,1,3,2,33],[0,1,85,1,3,3,12],[0,1,85,1,3,4,12],[0,1,85,1,3,5,32],[0,1,85,1,3,6,33],[0,1,86,1,1,1,110],[0,1,86,1,1,2,110],[0,1,86,1,1,3,7],[0,1,86,1,1,4,39],[0,1,86,1,1,5,75],[0,1,86,1,1,6,75],[0,1,86,1,2,1,172],[0,1,86,1,2,2,49],[0,1,86,1,2,3,59],[0,1,86,1,2,4,62],[0,1,86,1,2,5,60],[0,1,86,1,2,6,31],[0,1,86,1,3,5,33],[0,1,87,1,1,1,73],[0,1,87,1,1,2,68],[0,1,87,1,1,3,68],[0,1,87,1,1,4,68],[0,1,87,1,1,5,110],[0,1,87,1,1,6,107],[0,1,87,1,2,1,75],[0,1,87,1,2,2,31],[0,1,87,1,2,3,58],[0,1,87,1,2,4,60],[0,1,87,1,2,5,59],[0,1,87,1,2,6,32],[0,1,87,1,3,6,12],[0,1,88,1,1,1,298],[0,1,88,1,1,2,310],[0,1,88,1,1,3,311],[0,1,88,1,1,4,159],[0,1,88,1,1,5,232],[0,1,88,1,1,6,284],[0,1,88,1,2,1,111],[0,1,88,1,2,2,6],[0,1,88,1,2,3,111],[0,1,88,1,2,4,2],[0,1,88,1,2,5,5],[0,1,88,1,2,6,29],[0,1,88,1,3,1,32],[0,1,88,1,3,2,59],[0,1,88,1,3,3,32],[0,1,88,1,3,4,32],[0,1,88,1,3,5,58],[0,1,88,1,3,6,32],[0,1,89,1,1,1,99],[0,1,89,1,1,2,87],[0,1,89,1,1,3,173],[0,1,89,1,1,4,24],[0,1,89,1,1,5,83],[0,1,89,1,1,6,3],[0,1,89,1,2,1,1],[0,1,89,1,2,2,221],[0,1,89,1,2,3,90],[0,1,89,1,2,4,112],[0,1,89,1,2,5,70],[0,1,89,1,2,6,2],[0,1,89,1,3,1,49],[0,1,89,1,3,3,12],[0,1,89,1,3,4,12],[0,1,89,1,3,5,33],[0,1,89,1,3,6,12],[0,1,90,1,1,3,33],[0,1,90,1,1,5,12],[0,1,90,1,2,3,12],[0,1,91,1,1,1,111],[0,1,91,1,1,2,136],[0,1,91,1,1,3,131],[0,1,91,1,1,4,20],[0,1,91,1,1,5,19],[0,1,91,1,1,6,173],[0,1,91,1,2,1,39],[0,1,91,1,2,2,61],[0,1,91,1,2,3,61],[0,1,91,1,2,4,172],[0,1,91,1,2,5,61],[0,1,91,1,2,6,172],[0,1,91,1,3,1,49],[0,1,91,1,3,3,33],[0,1,91,1,3,4,49],[0,1,91,1,3,5,49],[0,1,91,1,3,6,12],[0,1,92,1,1,1,189],[0,1,92,1,1,2,277],[0,1,92,1,1,3,312],[0,1,92,1,1,4,146],[0,1,92,1,1,5,313],[0,1,92,1,1,6,299],[0,1,92,1,2,1,307],[0,1,92,1,2,2,314],[0,1,92,1,2,3,163],[0,1,92,1,2,4,194],[0,1,92,1,2,5,76],[0,1,92,1,2,6,315],[0,1,92,1,3,1,23],[0,1,92,1,3,2,31],[0,1,92,1,3,3,33],[0,1,92,1,3,4,58],[0,1,92,1,3,5,39],[0,1,92,1,3,6,62],[0,1,93,1,1,1,38],[0,1,93,1,1,2,39],[0,1,93,1,1,3,58],[0,1,93,1,1,4,23],[0,1,93,1,1,5,49],[0,1,93,1,1,6,37],[0,1,93,1,2,1,12],[0,1,93,1,2,2,61],[0,1,93,1,2,3,32],[0,1,93,1,2,4,23],[0,1,93,1,2,5,59],[0,1,93,1,2,6,60],[0,1,93,1,3,1,12],[0,1,93,1,3,3,33],[0,1,93,1,3,6,12],[0,1,94,1,1,1,266],[0,1,94,1,1,2,316],[0,1,94,1,1,3,302],[0,1,94,1,1,4,170],[0,1,94,1,1,5,317],[0,1,94,1,1,6,195],[0,1,94,1,2,1,318],[0,1,94,1,2,2,264],[0,1,94,1,2,3,77],[0,1,94,1,2,4,53],[0,1,94,1,2,5,199],[0,1,94,1,2,6,17],[0,1,94,1,3,1,33],[0,1,94,1,3,2,32],[0,1,94,1,3,3,33],[0,1,94,1,3,4,62],[0,1,94,1,3,5,49],[0,1,94,1,3,6,23],[0,1,95,1,1,1,22],[0,1,95,1,1,2,75],[0,1,95,1,1,3,110],[0,1,95,1,1,4,68],[0,1,95,1,1,5,92],[0,1,95,1,1,6,28],[0,1,95,1,2,1,31],[0,1,95,1,2,2,32],[0,1,95,1,2,3,59],[0,1,95,1,2,4,12],[0,1,95,1,2,5,61],[0,1,95,1,2,6,59],[0,1,96,1,1,1,72],[0,1,96,1,1,2,35],[0,1,96,1,1,3,111],[0,1,96,1,1,4,69],[0,1,96,1,1,5,109],[0,1,96,1,1,6,36],[0,1,96,1,2,1,8],[0,1,96,1,2,2,92],[0,1,96,1,2,3,19],[0,1,96,1,2,4,92],[0,1,96,1,2,5,69],[0,1,96,1,2,6,129],[0,1,96,1,3,1,33],[0,1,96,1,3,2,49],[0,1,96,1,3,4,23],[0,1,96,1,3,5,49],[0,1,96,1,3,6,49],[0,1,97,1,1,1,60],[0,1,97,1,1,2,59],[0,1,97,1,1,3,32],[0,1,97,1,1,4,32],[0,1,97,1,1,5,31],[0,1,97,1,1,6,62],[0,1,97,1,2,1,33],[0,1,97,1,2,2,12],[0,1,97,1,2,3,33],[0,1,97,1,2,4,12],[0,1,97,1,2,5,12],[0,1,97,1,2,6,12],[0,1,97,1,3,4,12],[0,1,98,1,1,1,41],[0,1,98,1,1,2,35],[0,1,98,1,1,3,143],[0,1,98,1,1,4,98],[0,1,98,1,1,5,35],[0,1,98,1,1,6,291],[0,1,98,1,2,1,98],[0,1,98,1,2,2,131],[0,1,98,1,2,3,112],[0,1,98,1,2,4,173],[0,1,98,1,2,5,83],[0,1,98,1,2,6,1],[0,1,98,1,3,2,12],[0,1,98,1,3,3,12],[0,1,98,1,3,4,49],[0,1,98,1,3,5,31],[0,1,98,1,3,6,32],[0,1,99,1,1,1,106],[0,1,99,1,1,2,87],[0,1,99,1,1,3,88],[0,1,99,1,1,4,27],[0,1,99,1,1,5,97],[0,1,99,1,1,6,2],[0,1,99,1,2,1,74],[0,1,99,1,2,2,75],[0,1,99,1,2,3,60],[0,1,99,1,2,4,59],[0,1,99,1,2,5,62],[0,1,99,1,2,6,59],[0,1,99,1,3,3,33],[0,1,99,1,3,4,33],[0,1,99,1,3,5,33],[0,1,99,1,3,6,33],[0,1,100,1,1,1,161],[0,1,100,1,1,2,317],[0,1,100,1,1,3,315],[0,1,100,1,1,4,132],[0,1,100,1,1,5,134],[0,1,100,1,1,6,77],[0,1,100,1,2,1,143],[0,1,100,1,2,2,319],[0,1,100,1,2,3,81],[0,1,100,1,2,4,46],[0,1,100,1,2,5,293],[0,1,100,1,2,6,262],[0,1,100,1,3,1,58],[0,1,100,1,3,2,32],[0,1,100,1,3,3,12],[0,1,100,1,3,4,49],[0,1,100,1,3,5,33],[0,1,101,1,1,2,39],[0,1,101,1,1,3,108],[0,1,101,1,1,4,75],[0,1,101,1,1,5,28],[0,1,101,1,1,6,110],[0,1,101,1,2,2,31],[0,1,101,1,2,3,23],[0,1,101,1,2,4,33],[0,1,101,1,2,5,59],[0,1,101,1,2,6,33],[0,1,101,1,3,2,12],[0,1,101,1,3,5,31],[0,1,101,1,3,6,49],[0,1,102,1,1,1,320],[0,1,102,1,1,2,321],[0,1,102,1,1,3,322],[0,1,102,1,1,4,167],[0,1,102,1,1,5,323],[0,1,102,1,1,6,124],[0,1,102,1,2,1,324],[0,1,102,1,2,2,102],[0,1,102,1,2,3,325],[0,1,102,1,2,4,241],[0,1,102,1,2,5,326],[0,1,102,1,2,6,148],[0,1,102,1,3,1,38],[0,1,102,1,3,2,61],[0,1,102,1,3,3,33],[0,1,102,1,3,4,59],[0,1,102,1,3,5,58],[0,1,102,1,3,6,38],[0,1,103,1,1,1,327],[0,1,103,1,1,2,328],[0,1,103,1,1,3,329],[0,1,103,1,1,4,330],[0,1,103,1,1,5,331],[0,1,103,1,1,6,321],[0,1,103,1,2,1,332],[0,1,103,1,2,2,333],[0,1,103,1,2,3,122],[0,1,103,1,2,4,249],[0,1,103,1,2,5,334],[0,1,103,1,2,6,335],[0,1,103,1,3,1,172],[0,1,103,1,3,2,172],[0,1,103,1,3,3,73],[0,1,103,1,3,4,73],[0,1,103,1,3,5,60],[0,1,103,1,3,6,61],[0,1,104,1,1,1,194],[0,1,104,1,1,2,103],[0,1,104,1,1,3,76],[0,1,104,1,1,4,187],[0,1,104,1,1,5,336],[0,1,104,1,1,6,196],[0,1,104,1,2,1,24],[0,1,104,1,2,2,99],[0,1,104,1,2,3,6],[0,1,104,1,2,4,5],[0,1,104,1,2,5,87],[0,1,104,1,2,6,86],[0,1,104,1,3,1,39],[0,1,104,1,3,2,31],[0,1,104,1,3,3,61],[0,1,104,1,3,4,59],[0,1,104,1,3,5,59],[0,1,104,1,3,6,60],[0,1,105,1,1,1,43],[0,1,105,1,1,2,181],[0,1,105,1,1,3,4],[0,1,105,1,1,4,1],[0,1,105,1,1,5,85],[0,1,105,1,1,6,82],[0,1,105,1,2,1,172],[0,1,105,1,2,2,7],[0,1,105,1,2,3,62],[0,1,105,1,2,4,58],[0,1,105,1,2,5,62],[0,1,105,1,2,6,73],[0,1,105,1,3,1,49],[0,1,105,1,3,2,33],[0,1,105,1,3,4,33],[0,1,105,1,3,6,12],[0,1,106,1,1,1,337],[0,1,106,1,1,2,146],[0,1,106,1,1,3,270],[0,1,106,1,1,4,338],[0,1,106,1,1,5,205],[0,1,106,1,1,6,299],[0,1,106,1,2,1,93],[0,1,106,1,2,2,5],[0,1,106,1,2,3,173],[0,1,106,1,2,4,143],[0,1,106,1,2,5,6],[0,1,106,1,2,6,45],[0,1,106,1,3,1,32],[0,1,106,1,3,2,62],[0,1,106,1,3,3,49],[0,1,106,1,3,4,59],[0,1,106,1,3,5,23],[0,1,106,1,3,6,60],[0,1,107,1,1,1,38],[0,1,107,1,1,2,131],[0,1,107,1,1,3,28],[0,1,107,1,1,4,69],[0,1,107,1,1,5,74],[0,1,107,1,1,6,129],[0,1,107,1,2,1,172],[0,1,107,1,2,2,61],[0,1,107,1,2,3,31],[0,1,107,1,2,4,32],[0,1,107,1,2,5,59],[0,1,107,1,2,6,60],[0,1,107,1,3,1,12],[0,1,107,1,3,2,12],[0,1,107,1,3,3,12],[0,1,107,1,3,5,12],[0,1,108,1,1,1,339],[0,1,108,1,1,2,340],[0,1,108,1,1,3,341],[0,1,108,1,1,4,342],[0,1,108,1,1,5,189],[0,1,108,1,1,6,191],[0,1,108,1,2,1,269],[0,1,108,1,2,2,152],[0,1,108,1,2,3,17],[0,1,108,1,2,4,243],[0,1,108,1,2,5,87],[0,1,108,1,2,6,3],[0,1,108,1,3,1,49],[0,1,108,1,3,2,32],[0,1,108,1,3,3,49],[0,1,108,1,3,4,108],[0,1,108,1,3,5,60],[0,1,108,1,3,6,61],[0,1,109,1,1,1,131],[0,1,109,1,1,2,72],[0,1,109,1,1,3,92],[0,1,109,1,1,4,19],[0,1,109,1,1,5,28],[0,1,109,1,1,6,28],[0,1,109,1,2,1,32],[0,1,109,1,2,2,31],[0,1,109,1,2,3,31],[0,1,109,1,2,4,61],[0,1,109,1,2,5,59],[0,1,109,1,2,6,62],[0,1,109,1,3,1,12],[0,1,109,1,3,3,12],[0,1,109,1,3,4,33],[0,1,109,1,3,5,49],[0,1,109,1,3,6,49],[0,1,110,1,1,1,282],[0,1,110,1,1,2,40],[0,1,110,1,1,3,48],[0,1,110,1,1,4,101],[0,1,110,1,1,5,17],[0,1,110,1,1,6,126],[0,1,110,1,2,1,69],[0,1,110,1,2,2,21],[0,1,110,1,2,3,110],[0,1,110,1,2,4,30],[0,1,110,1,2,5,91],[0,1,110,1,2,6,22],[0,1,110,1,3,1,49],[0,1,110,1,3,2,49],[0,1,110,1,3,4,33],[0,1,110,1,3,5,12],[0,1,110,1,3,6,12],[0,1,111,1,1,2,343],[0,1,111,1,1,3,325],[0,1,111,1,1,4,344],[0,1,111,1,1,5,157],[0,1,111,1,1,6,160],[0,1,111,1,2,2,41],[0,1,111,1,2,3,319],[0,1,111,1,2,4,287],[0,1,111,1,2,5,271],[0,1,111,1,2,6,135],[0,1,111,1,3,2,49],[0,1,111,1,3,3,49],[0,1,111,1,3,4,32],[0,1,111,1,3,5,12],[0,1,111,1,3,6,49],[0,1,112,1,1,1,236],[0,1,112,1,1,2,283],[0,1,112,1,1,3,86],[0,1,112,1,1,4,215],[0,1,112,1,1,5,251],[0,1,112,1,1,6,148],[0,1,112,1,2,1,9],[0,1,112,1,2,2,69],[0,1,112,1,2,3,107],[0,1,112,1,2,4,108],[0,1,112,1,2,5,75],[0,1,112,1,2,6,172],[0,1,112,1,3,1,33],[0,1,112,1,3,2,12],[0,1,112,1,3,3,49],[0,1,112,1,3,4,59],[0,1,112,1,3,5,49],[0,1,112,1,3,6,32],[0,1,113,1,1,1,141],[0,1,113,1,1,2,56],[0,1,113,1,1,3,268],[0,1,113,1,1,4,267],[0,1,113,1,1,5,102],[0,1,113,1,1,6,231],[0,1,113,1,2,1,91],[0,1,113,1,2,2,22],[0,1,113,1,2,3,9],[0,1,113,1,2,4,11],[0,1,113,1,2,5,75],[0,1,113,1,2,6,72],[0,1,113,1,3,2,12],[0,1,113,1,3,4,12],[0,1,113,1,3,5,12],[0,1,113,1,3,6,23],[0,1,114,1,1,1,201],[0,1,114,1,1,2,215],[0,1,114,1,1,3,208],[0,1,114,1,1,4,85],[0,1,114,1,1,5,43],[0,1,114,1,1,6,36],[0,1,114,1,2,1,87],[0,1,114,1,2,2,1],[0,1,114,1,2,3,43],[0,1,114,1,2,4,221],[0,1,114,1,2,5,90],[0,1,114,1,2,6,131],[0,1,114,1,3,1,33],[0,1,114,1,3,2,49],[0,1,114,1,3,3,33],[0,1,114,1,3,4,33],[0,1,114,1,3,5,12],[0,1,114,1,3,6,23],[0,1,115,1,1,1,301],[0,1,115,1,1,2,281],[0,1,115,1,1,3,132],[0,1,115,1,1,4,14],[0,1,115,1,1,5,345],[0,1,115,1,1,6,216],[0,1,115,1,2,1,24],[0,1,115,1,2,2,215],[0,1,115,1,2,3,346],[0,1,115,1,2,4,36],[0,1,115,1,2,5,87],[0,1,115,1,2,6,6],[0,1,115,1,3,1,49],[0,1,115,1,3,2,33],[0,1,115,1,3,3,60],[0,1,115,1,3,4,33],[0,1,115,1,3,5,32],[0,1,115,1,3,6,59],[0,1,116,1,1,1,32],[0,1,116,1,1,2,33],[0,1,116,1,1,3,12],[0,1,116,1,1,4,33],[0,1,116,1,1,5,12],[0,1,116,1,1,6,12],[0,1,116,1,2,5,12],[0,1,116,1,3,2,33],[0,1,117,1,1,1,347],[0,1,117,1,1,2,348],[0,1,117,1,1,3,349],[0,1,117,1,1,4,350],[0,1,117,1,1,5,351],[0,1,117,1,1,6,352],[0,1,117,1,2,1,145],[0,1,117,1,2,2,64],[0,1,117,1,2,3,245],[0,1,117,1,2,4,224],[0,1,117,1,2,5,353],[0,1,117,1,2,6,189],[0,1,117,1,3,1,39],[0,1,117,1,3,2,58],[0,1,117,1,3,3,38],[0,1,117,1,3,4,37],[0,1,117,1,3,5,107],[0,1,117,1,3,6,39],[0,1,118,1,1,1,354],[0,1,118,1,1,2,263],[0,1,118,1,1,3,252],[0,1,118,1,1,4,95],[0,1,118,1,1,5,319],[0,1,118,1,1,6,201],[0,1,118,1,2,1,35],[0,1,118,1,2,2,6],[0,1,118,1,2,3,87],[0,1,118,1,2,4,98],[0,1,118,1,2,5,34],[0,1,118,1,2,6,10],[0,1,118,1,3,1,49],[0,1,118,1,3,2,12],[0,1,118,1,3,3,32],[0,1,118,1,3,4,59],[0,1,118,1,3,5,33],[0,1,118,1,3,6,33],[0,1,119,1,1,1,16],[0,1,119,1,1,2,50],[0,1,119,1,1,3,103],[0,1,119,1,1,4,53],[0,1,119,1,1,5,319],[0,1,119,1,1,6,198],[0,1,119,1,2,1,9],[0,1,119,1,2,2,75],[0,1,119,1,2,3,61],[0,1,119,1,2,4,58],[0,1,119,1,2,5,7],[0,1,119,1,2,6,62],[0,1,119,1,3,1,172],[0,1,119,1,3,2,49],[0,1,119,1,3,3,12],[0,1,119,1,3,4,12],[0,1,119,1,3,5,32],[0,1,119,1,3,6,12],[0,1,120,1,1,1,316],[0,1,120,1,1,2,313],[0,1,120,1,1,3,169],[0,1,120,1,1,4,315],[0,1,120,1,1,5,194],[0,1,120,1,1,6,13],[0,1,120,1,2,1,27],[0,1,120,1,2,2,85],[0,1,120,1,2,3,3],[0,1,120,1,2,4,201],[0,1,120,1,2,5,86],[0,1,120,1,2,6,262],[0,1,120,1,3,1,49],[0,1,120,1,3,2,31],[0,1,120,1,3,3,33],[0,1,120,1,3,4,31],[0,1,120,1,3,5,49],[0,1,120,1,3,6,31],[0,1,121,1,1,1,133],[0,1,121,1,1,2,241],[0,1,121,1,1,3,149],[0,1,121,1,1,4,200],[0,1,121,1,1,5,182],[0,1,121,1,1,6,283],[0,1,121,1,2,1,31],[0,1,121,1,2,2,8],[0,1,121,1,2,3,73],[0,1,121,1,2,4,38],[0,1,121,1,2,5,60],[0,1,121,1,2,6,58],[0,1,121,1,3,1,12],[0,1,121,1,3,3,33],[0,1,121,1,3,4,12],[0,1,121,1,3,5,33],[0,1,122,1,1,1,68],[0,1,122,1,1,2,131],[0,1,122,1,1,3,68],[0,1,122,1,1,4,69],[0,1,122,1,1,5,92],[0,1,122,1,1,6,28],[0,1,122,1,2,1,49],[0,1,122,1,2,2,59],[0,1,122,1,2,3,32],[0,1,122,1,2,4,31],[0,1,122,1,2,5,32],[0,1,122,1,2,6,60],[0,1,122,1,3,4,12],[0,1,122,1,3,6,33],[0,1,123,1,1,1,355],[0,1,123,1,1,2,123],[0,1,123,1,1,3,356],[0,1,123,1,1,4,122],[0,1,123,1,1,5,357],[0,1,123,1,1,6,295],[0,1,123,1,2,1,300],[0,1,123,1,2,2,358],[0,1,123,1,2,3,218],[0,1,123,1,2,4,174],[0,1,123,1,2,5,197],[0,1,123,1,2,6,241],[0,1,123,1,3,1,172],[0,1,123,1,3,2,38],[0,1,123,1,3,3,38],[0,1,123,1,3,4,172],[0,1,123,1,3,5,60],[0,1,123,1,3,6,59],[0,1,124,1,1,1,195],[0,1,124,1,1,2,185],[0,1,124,1,1,3,359],[0,1,124,1,1,4,154],[0,1,124,1,1,5,281],[0,1,124,1,1,6,360],[0,1,124,1,2,1,282],[0,1,124,1,2,2,84],[0,1,124,1,2,3,243],[0,1,124,1,2,4,207],[0,1,124,1,2,5,44],[0,1,124,1,2,6,41],[0,1,124,1,3,1,49],[0,1,124,1,3,2,23],[0,1,124,1,3,3,12],[0,1,124,1,3,4,31],[0,1,124,1,3,5,32],[0,1,124,1,3,6,23],[0,1,125,1,1,1,281],[0,1,125,1,1,2,165],[0,1,125,1,1,3,361],[0,1,125,1,1,4,241],[0,1,125,1,1,5,158],[0,1,125,1,1,6,232],[0,1,125,1,2,1,83],[0,1,125,1,2,2,25],[0,1,125,1,2,3,5],[0,1,125,1,2,4,1],[0,1,125,1,2,5,221],[0,1,125,1,2,6,111],[0,1,125,1,3,1,59],[0,1,125,1,3,2,31],[0,1,125,1,3,3,172],[0,1,125,1,3,4,61],[0,1,125,1,3,5,61],[0,1,125,1,3,6,32],[0,1,126,1,1,1,279],[0,1,126,1,1,2,362],[0,1,126,1,1,3,363],[0,1,126,1,1,4,190],[0,1,126,1,1,5,364],[0,1,126,1,1,6,365],[0,1,126,1,2,1,16],[0,1,126,1,2,2,78],[0,1,126,1,2,3,237],[0,1,126,1,2,4,76],[0,1,126,1,2,5,263],[0,1,126,1,2,6,264],[0,1,126,1,3,1,32],[0,1,126,1,3,2,39],[0,1,126,1,3,3,62],[0,1,126,1,3,4,107],[0,1,126,1,3,5,172],[0,1,126,1,3,6,108],[0,1,127,1,1,1,4],[0,1,127,1,1,2,4],[0,1,127,1,1,3,89],[0,1,127,1,1,4,27],[0,1,127,1,1,5,221],[0,1,127,1,1,6,97],[0,1,127,1,2,1,314],[0,1,127,1,2,2,139],[0,1,127,1,2,3,366],[0,1,127,1,2,4,153],[0,1,127,1,2,5,324],[0,1,127,1,2,6,257],[0,1,127,1,3,1,108],[0,1,127,1,3,2,172],[0,1,127,1,3,3,108],[0,1,127,1,3,4,32],[0,1,127,1,3,5,62],[0,1,127,1,3,6,58],[0,1,128,1,1,1,28],[0,1,128,1,1,2,110],[0,1,128,1,1,3,30],[0,1,128,1,1,4,92],[0,1,128,1,1,5,9],[0,1,128,1,1,6,69],[0,1,128,1,2,1,31],[0,1,128,1,2,2,31],[0,1,128,1,2,3,60],[0,1,128,1,2,4,49],[0,1,128,1,2,5,62],[0,1,128,1,2,6,59],[0,1,129,1,1,1,107],[0,1,129,1,1,2,110],[0,1,129,1,1,3,7],[0,1,129,1,1,4,39],[0,1,129,1,1,5,75],[0,1,129,1,1,6,37],[0,1,129,1,2,1,61],[0,1,129,1,2,2,58],[0,1,129,1,2,3,32],[0,1,129,1,2,4,49],[0,1,129,1,2,5,31],[0,1,129,1,2,6,12],[0,1,129,1,3,3,12],[0,1,129,1,3,4,33],[0,1,129,1,3,5,32],[0,1,130,1,1,1,315],[0,1,130,1,1,2,303],[0,1,130,1,1,3,216],[0,1,130,1,1,4,135],[0,1,130,1,1,5,132],[0,1,130,1,1,6,157],[0,1,130,1,2,1,2],[0,1,130,1,2,2,97],[0,1,130,1,2,3,30],[0,1,130,1,2,4,92],[0,1,130,1,2,5,28],[0,1,130,1,2,6,309],[0,1,130,1,3,1,12],[0,1,130,1,3,2,12],[0,1,130,1,3,3,33],[0,1,130,1,3,4,12],[0,1,130,1,3,5,33],[0,1,130,1,3,6,31],[0,1,131,1,1,1,52],[0,1,131,1,1,2,160],[0,1,131,1,1,3,303],[0,1,131,1,1,4,15],[0,1,131,1,1,5,158],[0,1,131,1,1,6,133],[0,1,131,1,2,1,133],[0,1,131,1,2,2,95],[0,1,131,1,2,3,82],[0,1,131,1,2,4,143],[0,1,131,1,2,5,5],[0,1,131,1,2,6,105],[0,1,131,1,3,1,12],[0,1,131,1,3,2,60],[0,1,131,1,3,4,12],[0,1,131,1,3,5,49],[0,1,131,1,3,6,31],[0,1,132,1,1,1,367],[0,1,132,1,1,2,79],[0,1,132,1,1,3,121],[0,1,132,1,1,4,368],[0,1,132,1,1,5,369],[0,1,132,1,1,6,370],[0,1,132,1,2,1,371],[0,1,132,1,2,2,372],[0,1,132,1,2,3,308],[0,1,132,1,2,4,147],[0,1,132,1,2,5,270],[0,1,132,1,2,6,373],[0,1,132,1,3,1,61],[0,1,132,1,3,2,49],[0,1,132,1,3,3,108],[0,1,132,1,3,4,38],[0,1,132,1,3,5,59],[0,1,132,1,3,6,58],[0,1,133,1,1,1,105],[0,1,133,1,1,2,1],[0,1,133,1,1,3,112],[0,1,133,1,1,4,90],[0,1,133,1,1,5,131],[0,1,133,1,1,6,70],[0,1,133,1,2,1,39],[0,1,133,1,2,2,22],[0,1,133,1,2,3,110],[0,1,133,1,2,4,61],[0,1,133,1,2,5,32],[0,1,133,1,2,6,23],[0,1,133,1,3,3,12],[0,1,133,1,3,4,12],[0,1,133,1,3,6,12],[0,1,134,1,1,1,54],[0,1,134,1,1,2,217],[0,1,134,1,1,3,374],[0,1,134,1,1,4,17],[0,1,134,1,1,5,93],[0,1,134,1,1,6,199],[0,1,134,1,2,1,1],[0,1,134,1,2,2,87],[0,1,134,1,2,3,201],[0,1,134,1,2,4,221],[0,1,134,1,2,5,130],[0,1,134,1,2,6,9],[0,1,134,1,3,1,33],[0,1,134,1,3,2,23],[0,1,134,1,3,3,49],[0,1,134,1,3,4,33],[0,1,134,1,3,5,32],[0,1,134,1,3,6,60],[0,1,135,1,1,1,336],[0,1,135,1,1,2,303],[0,1,135,1,1,3,52],[0,1,135,1,1,4,297],[0,1,135,1,1,5,76],[0,1,135,1,1,6,149],[0,1,135,1,2,1,71],[0,1,135,1,2,2,74],[0,1,135,1,2,3,172],[0,1,135,1,2,4,60],[0,1,135,1,2,5,11],[0,1,135,1,2,6,38],[0,1,135,1,3,1,33],[0,1,135,1,3,2,12],[0,1,135,1,3,3,49],[0,1,135,1,3,4,33],[0,1,135,1,3,5,60],[0,1,135,1,3,6,12],[0,1,136,1,1,1,375],[0,1,136,1,1,2,280],[0,1,136,1,1,3,186],[0,1,136,1,1,4,217],[0,1,136,1,1,5,287],[0,1,136,1,1,6,186],[0,1,136,1,2,1,69],[0,1,136,1,2,2,69],[0,1,136,1,2,3,221],[0,1,136,1,2,4,291],[0,1,136,1,2,5,26],[0,1,136,1,2,6,97],[0,1,136,1,3,1,12],[0,1,136,1,3,2,59],[0,1,136,1,3,3,49],[0,1,136,1,3,4,59],[0,1,136,1,3,5,61],[0,1,136,1,3,6,60],[0,1,137,1,1,1,376],[0,1,137,1,1,2,377],[0,1,137,1,1,3,378],[0,1,137,1,1,4,379],[0,1,137,1,1,5,380],[0,1,137,1,1,6,381],[0,1,137,1,2,1,382],[0,1,137,1,2,2,383],[0,1,137,1,2,3,384],[0,1,137,1,2,4,385],[0,1,137,1,2,5,386],[0,1,137,1,2,6,387],[0,1,137,1,3,1,58],[0,1,137,1,3,2,37],[0,1,137,1,3,3,31],[0,1,137,1,3,4,58],[0,1,137,1,3,5,49],[0,1,137,1,3,6,59],[0,1,138,1,1,1,54],[0,1,138,1,1,2,388],[0,1,138,1,1,3,133],[0,1,138,1,1,4,198],[0,1,138,1,1,5,240],[0,1,138,1,1,6,318],[0,1,138,1,2,1,18],[0,1,138,1,2,2,333],[0,1,138,1,2,3,24],[0,1,138,1,2,4,235],[0,1,138,1,2,5,148],[0,1,138,1,2,6,198],[0,1,138,1,3,1,32],[0,1,138,1,3,2,61],[0,1,138,1,3,3,33],[0,1,138,1,3,4,59],[0,1,138,1,3,5,73],[0,1,138,1,3,6,23],[0,1,139,1,1,1,206],[0,1,139,1,1,2,346],[0,1,139,1,1,3,289],[0,1,139,1,1,4,196],[0,1,139,1,1,5,152],[0,1,139,1,1,6,169],[0,1,139,1,2,1,106],[0,1,139,1,2,2,47],[0,1,139,1,2,3,309],[0,1,139,1,2,4,91],[0,1,139,1,2,5,10],[0,1,139,1,2,6,221],[0,1,139,1,3,2,12],[0,1,139,1,3,3,33],[0,1,139,1,3,4,33],[0,1,139,1,3,6,32],[0,1,140,1,1,1,185],[0,1,140,1,1,2,310],[0,1,140,1,1,3,178],[0,1,140,1,1,4,184],[0,1,140,1,1,5,289],[0,1,140,1,1,6,298],[0,1,140,1,2,1,105],[0,1,140,1,2,2,69],[0,1,140,1,2,3,69],[0,1,140,1,2,4,309],[0,1,140,1,2,5,2],[0,1,140,1,2,6,43],[0,1,140,1,3,1,23],[0,1,140,1,3,2,31],[0,1,140,1,3,3,33],[0,1,140,1,3,4,62],[0,1,140,1,3,5,61],[0,1,140,1,3,6,38],[0,1,141,1,1,1,383],[0,1,141,1,1,2,362],[0,1,141,1,1,3,389],[0,1,141,1,1,4,277],[0,1,141,1,1,5,390],[0,1,141,1,1,6,124],[0,1,141,1,2,1,161],[0,1,141,1,2,2,297],[0,1,141,1,2,3,43],[0,1,141,1,2,4,82],[0,1,141,1,2,5,42],[0,1,141,1,2,6,4],[0,1,141,1,3,2,12],[0,1,141,1,3,3,32],[0,1,141,1,3,5,12],[0,1,141,1,3,6,33],[0,1,142,1,1,1,391],[0,1,142,1,1,2,295],[0,1,142,1,1,3,205],[0,1,142,1,1,4,279],[0,1,142,1,1,5,230],[0,1,142,1,1,6,353],[0,1,142,1,2,1,252],[0,1,142,1,2,2,127],[0,1,142,1,2,3,94],[0,1,142,1,2,4,242],[0,1,142,1,2,5,235],[0,1,142,1,2,6,199],[0,1,142,1,3,1,59],[0,1,142,1,3,2,31],[0,1,142,1,3,3,12],[0,1,142,1,3,4,12],[0,1,142,1,3,5,49],[0,1,142,1,3,6,60],[0,1,143,1,1,1,221],[0,1,143,1,1,2,173],[0,1,143,1,1,3,136],[0,1,143,1,1,4,19],[0,1,143,1,1,5,70],[0,1,143,1,1,6,22],[0,1,143,1,2,1,31],[0,1,143,1,2,2,49],[0,1,143,1,2,3,23],[0,1,143,1,2,4,172],[0,1,143,1,2,5,49],[0,1,143,1,2,6,62],[0,1,143,1,3,2,12],[0,1,143,1,3,5,12],[0,1,144,1,1,1,198],[0,1,144,1,1,2,81],[0,1,144,1,1,3,95],[0,1,144,1,1,4,180],[0,1,144,1,1,5,95],[0,1,144,1,1,6,374],[0,1,144,1,2,1,58],[0,1,144,1,2,2,73],[0,1,144,1,2,3,59],[0,1,144,1,2,4,75],[0,1,144,1,2,5,172],[0,1,144,1,2,6,73],[0,1,144,1,3,1,31],[0,1,144,1,3,2,32],[0,1,144,1,3,3,49],[0,1,144,1,3,4,59],[0,1,144,1,3,5,49],[0,1,144,1,3,6,31],[0,1,145,1,1,1,235],[0,1,145,1,1,2,208],[0,1,145,1,1,3,18],[0,1,145,1,1,4,24],[0,1,145,1,1,5,4],[0,1,145,1,1,6,183],[0,1,145,1,2,1,29],[0,1,145,1,2,2,91],[0,1,145,1,2,3,91],[0,1,145,1,2,4,21],[0,1,145,1,2,5,98],[0,1,145,1,2,6,112],[0,1,145,1,3,2,33],[0,1,145,1,3,3,49],[0,1,145,1,3,4,49],[0,1,145,1,3,5,12],[0,1,146,1,1,1,2],[0,1,146,1,1,2,30],[0,1,146,1,1,3,112],[0,1,146,1,1,4,8],[0,1,146,1,1,5,107],[0,1,146,1,1,6,28],[0,1,146,1,2,1,72],[0,1,146,1,2,2,61],[0,1,146,1,2,3,61],[0,1,146,1,2,4,108],[0,1,146,1,2,5,59],[0,1,146,1,2,6,110],[0,1,146,1,3,1,49],[0,1,146,1,3,2,12],[0,1,146,1,3,3,12],[0,1,147,1,1,1,130],[0,1,147,1,1,2,221],[0,1,147,1,1,3,92],[0,1,147,1,1,4,71],[0,1,147,1,1,5,136],[0,1,147,1,1,6,90],[0,1,147,1,2,1,71],[0,1,147,1,2,2,8],[0,1,147,1,2,3,7],[0,1,147,1,2,4,110],[0,1,147,1,2,5,22],[0,1,147,1,2,6,7],[0,1,147,1,3,1,12],[0,1,147,1,3,2,33],[0,1,147,1,3,4,12],[0,1,148,1,1,1,127],[0,1,148,1,1,2,96],[0,1,148,1,1,3,128],[0,1,148,1,1,4,181],[0,1,148,1,1,5,94],[0,1,148,1,1,6,133],[0,1,148,1,2,1,72],[0,1,148,1,2,2,60],[0,1,148,1,2,3,59],[0,1,148,1,2,4,38],[0,1,148,1,2,5,58],[0,1,148,1,2,6,62],[0,1,148,1,3,3,32],[0,1,148,1,3,4,32],[0,1,148,1,3,5,32],[0,1,148,1,3,6,49],[0,1,149,1,1,1,36],[0,1,149,1,1,2,112],[0,1,149,1,1,3,82],[0,1,149,1,1,4,5],[0,1,149,1,1,5,221],[0,1,149,1,1,6,291],[0,1,149,1,2,1,59],[0,1,149,1,2,2,31],[0,1,149,1,2,3,60],[0,1,149,1,2,4,32],[0,1,149,1,2,5,31],[0,1,149,1,2,6,60],[0,1,149,1,3,1,49],[0,1,149,1,3,2,32],[0,1,149,1,3,3,12],[0,1,149,1,3,4,23],[0,1,149,1,3,5,32],[0,1,149,1,3,6,32],[0,1,150,1,1,1,173],[0,1,150,1,1,2,88],[0,1,150,1,1,3,6],[0,1,150,1,1,4,221],[0,1,150,1,1,5,112],[0,1,150,1,1,6,90],[0,1,150,1,2,1,82],[0,1,150,1,2,2,136],[0,1,150,1,2,3,99],[0,1,150,1,2,4,34],[0,1,150,1,2,5,83],[0,1,150,1,2,6,291],[0,1,150,1,3,1,23],[0,1,150,1,3,2,49],[0,1,150,1,3,3,31],[0,1,150,1,3,4,33],[0,1,150,1,3,5,33],[0,1,150,1,3,6,32],[0,1,151,1,1,1,52],[0,1,151,1,1,2,219],[0,1,151,1,1,3,392],[0,1,151,1,1,4,280],[0,1,151,1,1,5,326],[0,1,151,1,1,6,158],[0,1,151,1,2,1,207],[0,1,151,1,2,2,45],[0,1,151,1,2,3,45],[0,1,151,1,2,4,131],[0,1,151,1,2,5,69],[0,1,151,1,2,6,291],[0,1,151,1,3,1,32],[0,1,151,1,3,2,31],[0,1,151,1,3,3,61],[0,1,151,1,3,4,23],[0,1,151,1,3,5,32],[0,1,151,1,3,6,23],[0,1,152,1,1,1,207],[0,1,152,1,1,2,106],[0,1,152,1,1,3,44],[0,1,152,1,1,4,173],[0,1,152,1,1,5,201],[0,1,152,1,1,6,27],[0,1,152,1,2,1,73],[0,1,152,1,2,2,108],[0,1,152,1,2,3,58],[0,1,152,1,2,4,59],[0,1,152,1,2,5,59],[0,1,152,1,2,6,60],[0,1,152,1,3,2,12],[0,1,152,1,3,4,33],[0,1,152,1,3,6,33],[0,1,153,1,1,1,164],[0,1,153,1,1,2,16],[0,1,153,1,1,3,48],[0,1,153,1,1,4,393],[0,1,153,1,1,5,263],[0,1,153,1,1,6,294],[0,1,153,1,2,1,234],[0,1,153,1,2,2,85],[0,1,153,1,2,3,36],[0,1,153,1,2,4,10],[0,1,153,1,2,5,221],[0,1,153,1,2,6,87],[0,1,153,1,3,1,59],[0,1,153,1,3,2,23],[0,1,153,1,3,3,62],[0,1,153,1,3,4,23],[0,1,153,1,3,5,59],[0,1,153,1,3,6,49],[0,1,154,1,1,1,392],[0,1,154,1,1,2,360],[0,1,154,1,1,3,78],[0,1,154,1,1,4,187],[0,1,154,1,1,5,274],[0,1,154,1,1,6,290],[0,1,154,1,2,1,143],[0,1,154,1,2,2,5],[0,1,154,1,2,3,6],[0,1,154,1,2,4,130],[0,1,154,1,2,5,130],[0,1,154,1,2,6,221],[0,1,154,1,3,1,33],[0,1,154,1,3,2,33],[0,1,154,1,3,3,33],[0,1,154,1,3,4,59],[0,1,154,1,3,5,60],[0,1,154,1,3,6,32],[0,1,155,1,1,1,62],[0,1,155,1,1,2,38],[0,1,155,1,1,3,32],[0,1,155,1,1,4,32],[0,1,155,1,1,5,58],[0,1,155,1,1,6,60],[0,1,155,1,2,1,33],[0,1,155,1,2,2,33],[0,1,155,1,2,4,12],[0,1,155,1,2,5,12],[0,1,155,1,2,6,12],[0,1,155,1,3,4,12],[0,1,156,1,1,1,61],[0,1,156,1,1,2,38],[0,1,156,1,1,3,32],[0,1,156,1,1,4,23],[0,1,156,1,1,5,59],[0,1,156,1,1,6,32],[0,1,156,1,2,1,33],[0,1,156,1,2,2,60],[0,1,156,1,2,3,23],[0,1,156,1,2,4,49],[0,1,156,1,2,5,32],[0,1,156,1,2,6,32],[0,1,156,1,3,3,12],[0,1,157,1,1,1,23],[0,1,157,1,1,2,58],[0,1,157,1,1,3,31],[0,1,157,1,1,4,31],[0,1,157,1,1,5,59],[0,1,157,1,1,6,172],[0,1,157,1,2,1,59],[0,1,157,1,2,2,61],[0,1,157,1,2,3,59],[0,1,157,1,2,4,32],[0,1,157,1,2,5,61],[0,1,157,1,2,6,32],[0,1,157,1,3,1,12],[0,1,157,1,3,3,12],[0,1,157,1,3,4,12],[0,1,157,1,3,5,12],[0,1,157,1,3,6,12],[0,1,158,1,1,1,23],[0,1,158,1,1,2,49],[0,1,158,1,1,3,59],[0,1,158,1,1,4,23],[0,1,158,1,1,5,32],[0,1,158,1,1,6,60],[0,1,158,1,2,4,49],[0,1,158,1,2,5,12],[0,1,158,1,2,6,49],[0,1,159,1,1,3,354],[0,1,159,1,1,4,146],[0,1,159,1,1,5,56],[0,1,159,1,1,6,394],[0,1,159,1,2,3,20],[0,1,159,1,2,4,41],[0,1,159,1,2,5,82],[0,1,159,1,2,6,106],[0,1,159,1,3,3,49],[0,1,159,1,3,4,62],[0,1,159,1,3,5,60],[0,1,159,1,3,6,32],[0,1,160,1,1,1,31],[0,1,160,1,1,2,49],[0,1,160,1,1,3,23],[0,1,160,1,1,4,32],[0,1,160,1,1,5,49],[0,1,160,1,1,6,39],[0,1,160,1,2,1,31],[0,1,160,1,2,2,33],[0,1,160,1,2,4,32],[0,1,160,1,2,5,33],[0,1,160,1,2,6,32],[0,1,160,1,3,1,12],[0,1,160,1,3,2,12],[0,1,161,1,1,1,172],[0,1,161,1,1,2,172],[0,1,161,1,1,3,58],[0,1,161,1,1,4,38],[0,1,161,1,1,5,38],[0,1,161,1,1,6,60],[0,1,161,1,2,1,33],[0,1,161,1,2,2,49],[0,1,161,1,2,3,31],[0,1,161,1,2,4,31],[0,1,161,1,2,5,32],[0,1,161,1,2,6,23],[0,1,161,1,3,5,12],[0,1,161,1,3,6,12],[0,1,162,1,1,1,21],[0,1,162,1,1,2,291],[0,1,162,1,1,3,91],[0,1,162,1,1,4,69],[0,1,162,1,1,5,28],[0,1,162,1,1,6,112],[0,1,162,1,2,1,38],[0,1,162,1,2,2,38],[0,1,162,1,2,3,58],[0,1,162,1,2,4,23],[0,1,162,1,2,5,60],[0,1,162,1,2,6,23],[0,1,162,1,3,1,12],[0,1,162,1,3,2,33],[0,1,162,1,3,3,12],[0,1,162,1,3,4,12],[0,1,162,1,3,6,12],[0,1,163,1,1,1,318],[0,1,163,1,1,2,149],[0,1,163,1,1,3,40],[0,1,163,1,1,4,183],[0,1,163,1,1,5,395],[0,1,163,1,1,6,179],[0,1,163,1,2,1,148],[0,1,163,1,2,2,148],[0,1,163,1,2,3,17],[0,1,163,1,2,4,346],[0,1,163,1,2,5,182],[0,1,163,1,2,6,93],[0,1,163,1,3,1,12],[0,1,163,1,3,2,49],[0,1,163,1,3,3,23],[0,1,163,1,3,4,23],[0,1,163,1,3,5,32],[0,1,163,1,3,6,31],[0,1,164,1,1,1,309],[0,1,164,1,1,2,97],[0,1,164,1,1,3,129],[0,1,164,1,1,4,21],[0,1,164,1,1,5,1],[0,1,164,1,1,6,35],[0,1,164,1,2,1,110],[0,1,164,1,2,2,11],[0,1,164,1,2,3,30],[0,1,164,1,2,4,75],[0,1,164,1,2,5,11],[0,1,164,1,2,6,129],[0,1,164,1,3,1,33],[0,1,164,1,3,2,12],[0,1,164,1,3,5,33],[0,1,164,1,3,6,49],[0,1,165,1,1,1,396],[0,1,165,1,1,2,176],[0,1,165,1,1,3,205],[0,1,165,1,1,4,397],[0,1,165,1,1,5,188],[0,1,165,1,1,6,398],[0,1,165,1,2,1,46],[0,1,165,1,2,2,18],[0,1,165,1,2,3,319],[0,1,165,1,2,4,79],[0,1,165,1,2,5,48],[0,1,165,1,2,6,297],[0,1,165,1,3,1,75],[0,1,165,1,3,2,75],[0,1,165,1,3,3,172],[0,1,165,1,3,4,73],[0,1,165,1,3,5,38],[0,1,165,1,3,6,39],[0,1,166,1,1,1,30],[0,1,166,1,1,2,91],[0,1,166,1,1,3,112],[0,1,166,1,1,4,97],[0,1,166,1,1,5,27],[0,1,166,1,1,6,309],[0,1,166,1,2,1,62],[0,1,166,1,2,2,31],[0,1,166,1,2,3,37],[0,1,166,1,2,4,75],[0,1,166,1,2,5,172],[0,1,166,1,2,6,62],[0,1,166,1,3,1,33],[0,1,166,1,3,2,12],[0,1,166,1,3,4,33],[0,1,166,1,3,5,33],[0,1,166,1,3,6,12],[0,1,167,1,1,1,134],[0,1,167,1,1,2,128],[0,1,167,1,1,3,86],[0,1,167,1,1,4,89],[0,1,167,1,1,5,27],[0,1,167,1,1,6,34],[0,1,167,1,2,1,107],[0,1,167,1,2,2,39],[0,1,167,1,2,3,23],[0,1,167,1,2,4,39],[0,1,167,1,2,5,59],[0,1,167,1,2,6,33],[0,1,167,1,3,1,12],[0,1,167,1,3,2,49],[0,1,167,1,3,3,12],[0,1,167,1,3,4,49],[0,1,167,1,3,5,33],[0,1,167,1,3,6,12],[0,1,168,1,1,1,27],[0,1,168,1,1,2,143],[0,1,168,1,1,3,24],[0,1,168,1,1,4,26],[0,1,168,1,1,5,43],[0,1,168,1,1,6,1],[0,1,168,1,2,1,30],[0,1,168,1,2,2,75],[0,1,168,1,2,3,72],[0,1,168,1,2,4,73],[0,1,168,1,2,5,107],[0,1,168,1,2,6,68],[0,1,168,1,3,1,12],[0,1,168,1,3,2,12],[0,1,168,1,3,3,12],[0,1,168,1,3,4,49],[0,1,168,1,3,5,49],[0,1,168,1,3,6,33],[0,1,169,1,1,1,91],[0,1,169,1,1,2,68],[0,1,169,1,1,3,72],[0,1,169,1,1,4,131],[0,1,169,1,1,5,68],[0,1,169,1,1,6,20],[0,1,169,1,2,1,30],[0,1,169,1,2,2,11],[0,1,169,1,2,3,39],[0,1,169,1,2,4,110],[0,1,169,1,2,5,107],[0,1,169,1,2,6,7],[0,1,169,1,3,1,49],[0,1,169,1,3,2,33],[0,1,169,1,3,3,12],[0,1,169,1,3,4,49],[0,1,169,1,3,5,33],[0,1,169,1,3,6,33],[0,1,170,1,1,1,136],[0,1,170,1,1,2,21],[0,1,170,1,1,3,136],[0,1,170,1,1,4,129],[0,1,170,1,1,5,112],[0,1,170,1,1,6,19],[0,1,170,1,2,1,7],[0,1,170,1,2,2,7],[0,1,170,1,2,3,11],[0,1,170,1,2,4,7],[0,1,170,1,2,5,7],[0,1,170,1,2,6,38],[0,1,170,1,3,1,33],[0,1,170,1,3,2,12],[0,1,170,1,3,3,49],[0,1,170,1,3,4,12],[0,1,170,1,3,5,12],[0,1,170,1,3,6,12],[0,1,171,1,1,1,188],[0,1,171,1,1,2,245],[0,1,171,1,1,3,399],[0,1,171,1,1,4,65],[0,1,171,1,1,5,186],[0,1,171,1,1,6,297],[0,1,171,1,2,1,207],[0,1,171,1,2,2,43],[0,1,171,1,2,3,19],[0,1,171,1,2,4,291],[0,1,171,1,2,5,47],[0,1,171,1,2,6,97],[0,1,171,1,3,1,23],[0,1,171,1,3,2,62],[0,1,171,1,3,3,49],[0,1,171,1,3,4,32],[0,1,171,1,3,5,33],[0,1,171,1,3,6,59],[0,1,172,1,1,1,87],[0,1,172,1,1,2,309],[0,1,172,1,1,3,111],[0,1,172,1,1,4,85],[0,1,172,1,1,5,201],[0,1,172,1,1,6,88],[0,1,172,1,2,1,7],[0,1,172,1,2,2,75],[0,1,172,1,2,3,74],[0,1,172,1,2,4,7],[0,1,172,1,2,5,11],[0,1,172,1,2,6,108],[0,1,172,1,3,2,49],[0,1,172,1,3,3,33],[0,1,172,1,3,4,23],[0,1,172,1,3,5,33],[0,1,172,1,3,6,12],[0,1,173,1,1,1,54],[0,1,173,1,1,2,54],[0,1,173,1,1,3,133],[0,1,173,1,1,4,128],[0,1,173,1,1,5,199],[0,1,173,1,1,6,215],[0,1,173,1,2,1,50],[0,1,173,1,2,2,132],[0,1,173,1,2,3,16],[0,1,173,1,2,4,237],[0,1,173,1,2,5,236],[0,1,173,1,2,6,96],[0,1,173,1,3,1,62],[0,1,173,1,3,2,23],[0,1,173,1,3,3,31],[0,1,173,1,3,4,49],[0,1,173,1,3,5,33],[0,1,173,1,3,6,23],[0,1,174,1,1,1,107],[0,1,174,1,1,2,38],[0,1,174,1,1,3,38],[0,1,174,1,1,4,75],[0,1,174,1,1,5,62],[0,1,174,1,1,6,172],[0,1,174,1,2,2,12],[0,1,174,1,2,3,33],[0,1,174,1,2,4,31],[0,1,174,1,2,5,12],[0,1,174,1,2,6,33],[0,1,174,1,3,5,12],[0,1,175,1,1,1,251],[0,1,175,1,1,2,199],[0,1,175,1,1,3,198],[0,1,175,1,1,4,293],[0,1,175,1,1,5,86],[0,1,175,1,1,6,235],[0,1,175,1,2,1,173],[0,1,175,1,2,2,291],[0,1,175,1,2,3,98],[0,1,175,1,2,4,92],[0,1,175,1,2,5,72],[0,1,175,1,2,6,109],[0,1,175,1,3,1,33],[0,1,175,1,3,3,32],[0,1,175,1,3,4,49],[0,1,175,1,3,5,32],[0,1,175,1,3,6,31],[0,1,176,1,1,1,112],[0,1,176,1,1,2,21],[0,1,176,1,1,3,70],[0,1,176,1,1,4,72],[0,1,176,1,1,5,92],[0,1,176,1,1,6,29],[0,1,176,1,2,1,108],[0,1,176,1,2,2,38],[0,1,176,1,2,3,7],[0,1,176,1,2,4,7],[0,1,176,1,2,5,9],[0,1,176,1,2,6,108],[0,1,176,1,3,2,49],[0,1,176,1,3,3,12],[0,1,176,1,3,4,32],[0,1,176,1,3,5,49],[0,1,176,1,3,6,31],[0,1,177,1,1,1,1],[0,1,177,1,1,2,112],[0,1,177,1,1,3,109],[0,1,177,1,1,4,136],[0,1,177,1,1,5,173],[0,1,177,1,1,6,70],[0,1,177,1,2,1,62],[0,1,177,1,2,2,23],[0,1,177,1,2,3,33],[0,1,177,1,2,4,33],[0,1,177,1,2,5,61],[0,1,177,1,2,6,61],[0,1,177,1,3,2,12],[0,1,177,1,3,5,12],[0,1,177,1,3,6,12],[0,1,178,1,1,1,33],[0,1,178,1,1,2,12],[0,1,178,1,1,3,49],[0,1,178,1,1,4,12],[0,1,178,1,1,6,33],[0,1,178,1,2,1,12],[0,1,178,1,2,2,49],[0,1,178,1,2,3,12],[0,1,178,1,2,4,12],[0,1,179,1,1,1,91],[0,1,179,1,1,2,109],[0,1,179,1,1,3,97],[0,1,179,1,1,4,111],[0,1,179,1,1,5,28],[0,1,179,1,1,6,71],[0,1,179,1,2,1,71],[0,1,179,1,2,2,39],[0,1,179,1,2,3,38],[0,1,179,1,2,4,29],[0,1,179,1,2,5,11],[0,1,179,1,2,6,72],[0,1,179,1,3,1,12],[0,1,179,1,3,2,12],[0,1,179,1,3,3,12],[0,1,179,1,3,4,33],[0,1,179,1,3,5,12],[0,1,180,1,1,1,74],[0,1,180,1,1,2,92],[0,1,180,1,1,3,91],[0,1,180,1,1,4,109],[0,1,180,1,1,5,69],[0,1,180,1,1,6,129],[0,1,180,1,2,1,49],[0,1,180,1,2,2,49],[0,1,180,1,2,3,32],[0,1,180,1,2,4,60],[0,1,180,1,2,5,60],[0,1,180,1,2,6,58],[0,1,180,1,3,1,12],[0,1,180,1,3,4,12],[0,1,181,1,1,1,280],[0,1,181,1,1,2,16],[0,1,181,1,1,3,252],[0,1,181,1,1,4,240],[0,1,181,1,1,5,14],[0,1,181,1,1,6,232],[0,1,181,1,2,1,35],[0,1,181,1,2,2,92],[0,1,181,1,2,3,108],[0,1,181,1,2,4,68],[0,1,181,1,2,5,70],[0,1,181,1,2,6,109],[0,1,181,1,3,2,49],[0,1,181,1,3,4,33],[0,1,181,1,3,6,32],[0,1,182,1,1,1,94],[0,1,182,1,1,2,128],[0,1,182,1,1,3,149],[0,1,182,1,1,4,293],[0,1,182,1,1,5,4],[0,1,182,1,1,6,41],[0,1,182,1,2,1,130],[0,1,182,1,2,2,72],[0,1,182,1,2,3,37],[0,1,182,1,2,4,38],[0,1,182,1,2,5,61],[0,1,182,1,2,6,73],[0,1,182,1,3,1,33],[0,1,182,1,3,2,49],[0,1,182,1,3,3,59],[0,1,182,1,3,4,33],[0,1,182,1,3,5,31],[0,1,182,1,3,6,31],[0,1,183,1,1,1,9],[0,1,183,1,1,2,136],[0,1,183,1,1,3,107],[0,1,183,1,1,4,131],[0,1,183,1,1,5,30],[0,1,183,1,1,6,74],[0,1,183,1,2,1,33],[0,1,183,1,2,2,60],[0,1,183,1,2,3,31],[0,1,183,1,2,4,49],[0,1,183,1,2,5,49],[0,1,183,1,2,6,49],[0,1,183,1,3,6,12],[0,1,184,1,1,1,32],[0,1,184,1,1,2,33],[0,1,184,1,1,3,32],[0,1,184,1,1,4,49],[0,1,184,1,1,5,49],[0,1,184,1,1,6,49],[0,1,184,1,2,1,33],[0,1,184,1,2,3,33],[0,1,184,1,2,4,49],[0,1,184,1,2,6,12],[0,1,185,1,1,1,5],[0,1,185,1,1,2,6],[0,1,185,1,1,3,309],[0,1,185,1,1,4,44],[0,1,185,1,1,5,43],[0,1,185,1,1,6,207],[0,1,185,1,2,1,172],[0,1,185,1,2,2,75],[0,1,185,1,2,3,73],[0,1,185,1,2,4,8],[0,1,185,1,2,5,58],[0,1,185,1,2,6,7],[0,1,185,1,3,1,12],[0,1,185,1,3,3,33],[0,1,185,1,3,4,32],[0,1,185,1,3,5,31],[0,1,185,1,3,6,33],[0,1,186,1,1,1,143],[0,1,186,1,1,2,24],[0,1,186,1,1,3,45],[0,1,186,1,1,4,34],[0,1,186,1,1,5,82],[0,1,186,1,1,6,98],[0,1,186,1,2,1,270],[0,1,186,1,2,2,287],[0,1,186,1,2,3,104],[0,1,186,1,2,4,79],[0,1,186,1,2,5,264],[0,1,186,1,2,6,94],[0,1,186,1,3,1,61],[0,1,186,1,3,2,58],[0,1,186,1,3,3,62],[0,1,186,1,3,4,60],[0,1,186,1,3,5,31],[0,1,186,1,3,6,62],[0,1,187,1,1,1,45],[0,1,187,1,1,2,27],[0,1,187,1,1,3,36],[0,1,187,1,1,4,207],[0,1,187,1,1,5,262],[0,1,187,1,1,6,262],[0,1,187,1,2,1,68],[0,1,187,1,2,2,110],[0,1,187,1,2,3,108],[0,1,187,1,2,4,172],[0,1,187,1,2,5,9],[0,1,187,1,2,6,110],[0,1,187,1,3,1,33],[0,1,187,1,3,2,33],[0,1,187,1,3,3,12],[0,1,187,1,3,4,12],[0,1,187,1,3,5,12],[0,1,187,1,3,6,49],[0,1,188,1,1,1,400],[0,1,188,1,1,2,192],[0,1,188,1,1,3,140],[0,1,188,1,1,4,64],[0,1,188,1,1,5,310],[0,1,188,1,1,6,177],[0,1,188,1,2,1,84],[0,1,188,1,2,2,35],[0,1,188,1,2,3,98],[0,1,188,1,2,4,6],[0,1,188,1,2,5,87],[0,1,188,1,2,6,183],[0,1,188,1,3,1,23],[0,1,188,1,3,2,38],[0,1,188,1,3,3,58],[0,1,188,1,3,4,62],[0,1,188,1,3,5,60],[0,1,188,1,3,6,59],[0,1,189,1,1,1,337],[0,1,189,1,1,2,63],[0,1,189,1,1,3,204],[0,1,189,1,1,4,139],[0,1,189,1,1,5,316],[0,1,189,1,1,6,170],[0,1,189,1,2,1,364],[0,1,189,1,2,2,401],[0,1,189,1,2,3,402],[0,1,189,1,2,4,315],[0,1,189,1,2,5,196],[0,1,189,1,2,6,403],[0,1,189,1,3,1,30],[0,1,189,1,3,2,61],[0,1,189,1,3,3,59],[0,1,189,1,3,4,172],[0,1,189,1,3,5,58],[0,1,189,1,3,6,38],[0,1,190,1,1,1,287],[0,1,190,1,1,2,193],[0,1,190,1,1,3,290],[0,1,190,1,1,4,286],[0,1,190,1,1,5,336],[0,1,190,1,1,6,361],[0,1,190,1,2,1,99],[0,1,190,1,2,2,136],[0,1,190,1,2,3,26],[0,1,190,1,2,4,2],[0,1,190,1,2,5,1],[0,1,190,1,2,6,87],[0,1,190,1,3,1,33],[0,1,190,1,3,2,12],[0,1,190,1,3,3,49],[0,1,190,1,3,4,12],[0,1,190,1,3,5,59],[0,1,190,1,3,6,49],[0,1,191,1,1,1,105],[0,1,191,1,1,2,36],[0,1,191,1,1,3,85],[0,1,191,1,1,4,82],[0,1,191,1,1,5,143],[0,1,191,1,1,6,201],[0,1,191,1,2,1,110],[0,1,191,1,2,2,131],[0,1,191,1,2,3,130],[0,1,191,1,2,4,1],[0,1,191,1,2,5,2],[0,1,191,1,2,6,130],[0,1,191,1,3,1,32],[0,1,191,1,3,2,49],[0,1,191,1,3,3,12],[0,1,191,1,3,4,33],[0,1,191,1,3,5,49],[0,1,191,1,3,6,59],[0,1,192,1,1,1,174],[0,1,192,1,1,2,147],[0,1,192,1,1,3,386],[0,1,192,1,1,4,247],[0,1,192,1,1,5,152],[0,1,192,1,1,6,286],[0,1,192,1,2,1,111],[0,1,192,1,2,2,98],[0,1,192,1,2,3,136],[0,1,192,1,2,4,4],[0,1,192,1,2,5,85],[0,1,192,1,2,6,111],[0,1,192,1,3,1,31],[0,1,192,1,3,2,49],[0,1,192,1,3,3,49],[0,1,192,1,3,4,33],[0,1,192,1,3,5,59],[0,1,192,1,3,6,62],[0,1,193,1,1,1,12],[0,1,193,1,1,2,12],[0,1,193,1,1,3,31],[0,1,193,1,1,4,32],[0,1,193,1,1,5,31],[0,1,193,1,1,6,33],[0,1,193,1,2,1,12],[0,1,193,1,2,2,12],[0,1,193,1,2,3,33],[0,1,193,1,2,4,60],[0,1,193,1,2,6,33],[0,1,193,1,3,4,12],[0,1,193,1,3,5,12],[0,1,194,1,1,1,11],[0,1,194,1,1,2,8],[0,1,194,1,1,3,38],[0,1,194,1,1,4,7],[0,1,194,1,1,5,61],[0,1,194,1,1,6,73],[0,1,194,1,2,1,23],[0,1,194,1,2,3,23],[0,1,194,1,2,4,12],[0,1,194,1,2,6,49],[0,1,194,1,3,2,12],[0,1,194,1,3,3,12],[0,1,195,1,1,1,196],[0,1,195,1,1,2,274],[0,1,195,1,1,3,354],[0,1,195,1,1,4,250],[0,1,195,1,1,5,79],[0,1,195,1,1,6,104],[0,1,195,1,2,1,36],[0,1,195,1,2,2,87],[0,1,195,1,2,3,69],[0,1,195,1,2,4,69],[0,1,195,1,2,5,291],[0,1,195,1,2,6,19],[0,1,195,1,3,1,12],[0,1,195,1,3,2,23],[0,1,195,1,3,3,60],[0,1,195,1,3,4,23],[0,1,195,1,3,5,59],[0,1,195,1,3,6,59],[0,1,196,1,1,1,387],[0,1,196,1,1,2,364],[0,1,196,1,1,3,155],[0,1,196,1,1,4,310],[0,1,196,1,1,5,324],[0,1,196,1,1,6,164],[0,1,196,1,2,1,82],[0,1,196,1,2,2,82],[0,1,196,1,2,3,136],[0,1,196,1,2,4,129],[0,1,196,1,2,5,105],[0,1,196,1,2,6,97],[0,1,196,1,3,1,49],[0,1,196,1,3,2,12],[0,1,196,1,3,3,32],[0,1,196,1,3,4,32],[0,1,196,1,3,5,58],[0,1,196,1,3,6,60]];</script>
     <script>
 'use strict';
 
@@ -602,7 +602,7 @@ localBi.filterChart = function(filterMeasures) {
     descending: String.fromCharCode(9660)
   }
 
-  let filterChart = {  //define filterChart
+  var filterChart = {  //define filterChart
     chartTable: null,
     chartFields: null,
     chartMeasures: null,
@@ -613,12 +613,12 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId for the header.
      */
     buildFields(elementId) {
-      let filterFields = document.getElementById(elementId);  //container for all fields
-      let listButton = document.createElement('button');  //button to list and clear all filters
+      var filterFields = document.getElementById(elementId);  //container for all fields
+      var listButton = document.createElement('button');  //button to list and clear all filters
       listButton.className = 'filterList';
       listButton.onclick = function() {  //  clear all fields and flexDimension field
-        for (let fieldIndex = 0; fieldIndex < filterChart.chartFields.length; fieldIndex++) {
-          let fieldName = filterChart.chartFields[fieldIndex].field;
+        for (var fieldIndex = 0; fieldIndex < filterChart.chartFields.length; fieldIndex++) {
+          var fieldName = filterChart.chartFields[fieldIndex].field;
           filterChart.adjustSelect(fieldName,0);
         }
         filterChart.flexDimension = null;
@@ -629,7 +629,7 @@ localBi.filterChart = function(filterMeasures) {
       listButton.id = 'filterList';  //NB - this id is used by other code!
       filterFields.appendChild(listButton);
 
-      let measureSelect = document.createElement('select');  //measure list
+      var measureSelect = document.createElement('select');  //measure list
       measureSelect.className = 'filterMeasures';
       measureSelect.onchange = function() {  //
         if (measureSelect.options[measureSelect.selectedIndex].value == null) filterChart.flexMeasure = null;  //we have a non-selection option in the list
@@ -642,26 +642,26 @@ localBi.filterChart = function(filterMeasures) {
       measureSelect.id = 'measureFlex';  //NB - this id is used by other code!
       measureSelect.multiple = false;
       filterFields.appendChild(measureSelect);
-      let defaultOption = document.createElement('option');  //default option
+      var defaultOption = document.createElement('option');  //default option
       defaultOption.text = filterIcon.inactive;  //label
       defaultOption.value = null;  //calculation function
       measureSelect.add(defaultOption);
-      for (let measureIndex = 0; measureIndex < this.chartMeasures.length; measureIndex++) {  //build field navigation for all fields
-        let measureItem = this.chartMeasures[measureIndex];
-        let option = document.createElement('option');
+      for (var measureIndex = 0; measureIndex < this.chartMeasures.length; measureIndex++) {  //build field navigation for all fields
+        var measureItem = this.chartMeasures[measureIndex];
+        var option = document.createElement('option');
         option.text = measureItem.label;  //label
         option.value = JSON.stringify(measureItem);  //calculation function
         measureSelect.add(option);
       }
 
-      for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //build field navigation for all fields
-        let fieldName = this.chartFields[fieldIndex].field;
+      for (var fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //build field navigation for all fields
+        var fieldName = this.chartFields[fieldIndex].field;
 
-        let fieldDiv = document.createElement('div');  //container for all field collateral
+        var fieldDiv = document.createElement('div');  //container for all field collateral
         fieldDiv.className = 'filterField';
         filterFields.appendChild(fieldDiv);
 
-        let titleButton = document.createElement('button');  //title button, click to sort
+        var titleButton = document.createElement('button');  //title button, click to sort
         titleButton.className = 'filterTitle';
         titleButton.onclick = function() {  //sort and toggle through asc/desc
           filterChart.sortSelect(fieldName, -1);
@@ -670,7 +670,7 @@ localBi.filterChart = function(filterMeasures) {
         titleButton.id = fieldName + '.sort';  //NB - this id is used by other code!
         fieldDiv.appendChild(titleButton);
 
-        let fieldSelect = document.createElement('select');  //select list, click to refresh
+        var fieldSelect = document.createElement('select');  //select list, click to refresh
         fieldSelect.className = 'filterSelect';
         fieldSelect.onchange = function() {  //refresh the page
           filterChart.refresh();
@@ -680,11 +680,11 @@ localBi.filterChart = function(filterMeasures) {
         fieldDiv.appendChild(fieldSelect);
         this.buildSelect(fieldName);
 
-        let buttonsDiv = document.createElement('div');  //container for all field collateral
+        var buttonsDiv = document.createElement('div');  //container for all field collateral
         buttonsDiv.className = 'filterButtons';
         fieldDiv.appendChild(buttonsDiv);
         
-        let flexDimensionButton = document.createElement('button');  //button to set which field is used to flexDimension the charts
+        var flexDimensionButton = document.createElement('button');  //button to set which field is used to flexDimension the charts
         flexDimensionButton.className = 'filterAdjust';
         flexDimensionButton.onclick = function() {  //-1 = set all options to inverted
           if (filterChart.flexDimension != null && fieldName == filterChart.flexDimension.field) filterChart.flexDimension = null;  //if set to this field, unset
@@ -698,7 +698,7 @@ localBi.filterChart = function(filterMeasures) {
         flexDimensionButton.id = fieldName + '.flexDimension';  //NB - this id is used by other code!
         buttonsDiv.appendChild(flexDimensionButton);
 
-        let invertButton = document.createElement('button');  //button to invert field filter
+        var invertButton = document.createElement('button');  //button to invert field filter
         invertButton.className = 'filterAdjust';
         invertButton.onclick = function() {  //-1 = set all options to inverted
           filterChart.adjustSelect(fieldName,-1);
@@ -708,7 +708,7 @@ localBi.filterChart = function(filterMeasures) {
         invertButton.id = fieldName + '.invert';  //NB - this id is used by other code!
         buttonsDiv.appendChild(invertButton);
         
-        let clearButton = document.createElement('button');  //button to clear field filters
+        var clearButton = document.createElement('button');  //button to clear field filters
         clearButton.className = 'filterAdjust';
         clearButton.onclick = function() {  //0 = set all options to false
           filterChart.adjustSelect(fieldName,0);
@@ -725,10 +725,10 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId for the footer.
      */
     buildHeader(elementId) {
-      let filterHeader = document.getElementById(elementId);  //container for footer
+      var filterHeader = document.getElementById(elementId);  //container for footer
       filterHeader.onclick = function() {  //help text
       };
-      let span1 = document.createElement('span');  //heading
+      var span1 = document.createElement('span');  //heading
       span1.textContent = document.title;  //'Sales Report';
       filterHeader.appendChild(span1);
       return filterHeader;
@@ -738,16 +738,16 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId for the footer.
      */
     buildFooter(elementId) {
-      let filterFooter = document.getElementById(elementId);  //container for footer
-      let anchor = document.createElement('a');  //local
+      var filterFooter = document.getElementById(elementId);  //container for footer
+      var anchor = document.createElement('a');  //local
       anchor.href = "https://github.com/localbi/localbi";
       anchor.target = "_blank";
       filterFooter.appendChild(anchor);
-      let span1 = document.createElement('span');  //local
+      var span1 = document.createElement('span');  //local
       span1.textContent = 'local';
       span1.style.color = '#0000ff';
       anchor.appendChild(span1);
-      let span2 = document.createElement('span');  //BI
+      var span2 = document.createElement('span');  //BI
       span2.textContent = 'BI';
       span2.style.color = '#ffffff';
       anchor.appendChild(span2);
@@ -758,12 +758,12 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId of the select element
      */
     buildSelect(elementId) {
-      let filterField = this.chartTable.findField(elementId);  //get field from name
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      for (let valueIndex = 1; valueIndex < filterField.fieldValues.length; valueIndex++) {  //skip 0th element, which is the header
-        let fieldValue = filterField.fieldValues[valueIndex];
-        let fieldIcon = 'x'; //unassigned
-        let option = document.createElement('option');
+      var filterField = this.chartTable.findField(elementId);  //get field from name
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      for (var valueIndex = 1; valueIndex < filterField.fieldValues.length; valueIndex++) {  //skip 0th element, which is the header
+        var fieldValue = filterField.fieldValues[valueIndex];
+        var fieldIcon = 'x'; //unassigned
+        var option = document.createElement('option');
         option.text = fieldIcon + fieldValue.valueName; //prepend icon to option text
         option.value = fieldValue.valueIndex;  //references to the fieldValues can be done by this index
         select.add(option);
@@ -774,13 +774,13 @@ localBi.filterChart = function(filterMeasures) {
      * @param {string} elementId The elementId of the select element
      */
     updateSelect(elementId) {
-      let filterField = this.chartTable.findField(elementId);  //get field from name
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      let options = select.options;
-      for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
-        let option = options[optionIndex];
-        let fieldValue = filterField.fieldValues[option.value];  //this gets the value by its index
-        let fieldIcon = 'x'; //unassigned
+      var filterField = this.chartTable.findField(elementId);  //get field from name
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      var options = select.options;
+      for (var optionIndex = 0; optionIndex < options.length; optionIndex++) {
+        var option = options[optionIndex];
+        var fieldValue = filterField.fieldValues[option.value];  //this gets the value by its index
+        var fieldIcon = 'x'; //unassigned
         if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows > 0) fieldIcon = filterIcon.active;  //we're simplifying this display to only be active/dormant, as most people have trouble interpreting the 'both' state
         else if (fieldValue.valueActiveRows == 0 && fieldValue.valueDormantRows > 0) fieldIcon = filterIcon.inactive; //dormant = empty//9898//11096//9675
         else if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows == 0) fieldIcon = filterIcon.active; //active = full//9899//11044//9679
@@ -793,28 +793,28 @@ localBi.filterChart = function(filterMeasures) {
      * @returns {filterDefinition}
      */
     getSelect(elementId) {
-      let filterDefinition = [];
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      let selectedValues = [];
-      let options = select.options;
-      for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
-        let option = options[optionIndex];
+      var filterDefinition = [];
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      var selectedValues = [];
+      var options = select.options;
+      for (var optionIndex = 0; optionIndex < options.length; optionIndex++) {
+        var option = options[optionIndex];
         if (option.selected) selectedValues.push(option.text.substr(1));  //save only the selected options's value (minus icon) - can we use index here?? yes but only if we update the filterTable code which currently does not suppor this
       }
       if (selectedValues.length == 0) {  //nothing selected means everything is selected :)
-        let clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
+        var clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
         //clearButton.textContent = filterIcon.inactive;  //indicate nothing is selected
         clearButton.style.backgroundColor = null;
         clearButton.style.color = null;
         filterDefinition.push(   { field: elementId, value : '*', isActive : true	});
       }
       else {  //something is selected
-        let clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
+        var clearButton = document.getElementById(elementId + '.clear');  //NB - hardcoded reference qualifier
         //clearButton.textContent = filterIcon.active;  //indicate something is selected
         clearButton.style.backgroundColor = '#444444';
         clearButton.style.color = '#ffffff';
         filterDefinition.push(   { field: elementId, value : '*', isActive : false	});
-        for (let selectedIndex = 0; selectedIndex < selectedValues.length; selectedIndex++) {  
+        for (var selectedIndex = 0; selectedIndex < selectedValues.length; selectedIndex++) {  
           filterDefinition.push( { field: elementId, value : selectedValues[selectedIndex], isActive : true })
         }
       }
@@ -826,10 +826,10 @@ localBi.filterChart = function(filterMeasures) {
      * @param {int} action 1 = true, 0 = false, -1 = invert
      */
     adjustSelect(elementId, action) {
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      let options = select.options;
-      for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
-        let option = options[optionIndex];
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      var options = select.options;
+      for (var optionIndex = 0; optionIndex < options.length; optionIndex++) {
+        var option = options[optionIndex];
         if (action == 1) option.selected = true;
         else if (action == 0) option.selected = false;
         else if (action == -1) option.selected = !option.selected;
@@ -842,20 +842,20 @@ localBi.filterChart = function(filterMeasures) {
      * @param {int} action 1 = sort ascending, 0 = no toggle, -1 = toggle
      */
     sortSelect(elementId, action) {
-			let fieldIsFound = false;  //to check if field exists
-			let fieldIndex = 0;  //position of found field
+			var fieldIsFound = false;  //to check if field exists
+			var fieldIndex = 0;  //position of found field
 			while (fieldIsFound == false && fieldIndex < this.chartFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
 				if(elementId == this.chartFields[fieldIndex].field) fieldIsFound = true;
 				else fieldIndex++;
       }
-      let fieldSort = this.chartFields[fieldIndex].sort;  //find sort type from field name
-      let select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
-      let title = document.getElementById(elementId + '.sort');  //NB - hardcoded reference qualifier
-      let sortIcon = title.textContent.substr(0,1);  //title text is prefixed with sort icon
-      let options = select.options;
-      let unsortedOptions = [];
-      let sortedOptions = [];
-      for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {  //get unsorted options
+      var fieldSort = this.chartFields[fieldIndex].sort;  //find sort type from field name
+      var select = document.getElementById(elementId + '.select');  //NB - hardcoded reference qualifier
+      var title = document.getElementById(elementId + '.sort');  //NB - hardcoded reference qualifier
+      var sortIcon = title.textContent.substr(0,1);  //title text is prefixed with sort icon
+      var options = select.options;
+      var unsortedOptions = [];
+      var sortedOptions = [];
+      for (var optionIndex = 0; optionIndex < options.length; optionIndex++) {  //get unsorted options
         unsortedOptions.push(options[optionIndex]);
       }
       if (action == 1 || sortIcon == 'x') sortIcon = filterIcon.ascending;  //we check the unassiged char here, so we can keep all the unicode stuff in one place - default to asc first time
@@ -866,12 +866,12 @@ localBi.filterChart = function(filterMeasures) {
       title.textContent = sortIcon + title.textContent.substr(1);  //update title
       if (sortIcon == filterIcon.ascending) {  //sort options ascending
         sortedOptions = unsortedOptions.sort(function (a, b) {
-          let aIcon = a.text.substr(0,1);
-          let bIcon = b.text.substr(0,1);
-          let aValue = a.text.substr(1);
-          let bValue = b.text.substr(1);
-          let iconCompare = bIcon.localeCompare(aIcon);
-          let valueCompare = false;
+          var aIcon = a.text.substr(0,1);
+          var bIcon = b.text.substr(0,1);
+          var aValue = a.text.substr(1);
+          var bValue = b.text.substr(1);
+          var iconCompare = bIcon.localeCompare(aIcon);
+          var valueCompare = false;
           if (fieldSort == 'text' || fieldSort == 'number') valueCompare = aValue.localeCompare(bValue);  //by default do text and number the same
           else if (fieldSort.length > 0) valueCompare = fieldSort.indexOf(aValue) - fieldSort.indexOf(bValue);  //else use defined sort order
           return iconCompare || valueCompare;  //icon sort remains the same
@@ -879,18 +879,18 @@ localBi.filterChart = function(filterMeasures) {
       }
       else {  //sort options descending
         sortedOptions = unsortedOptions.sort(function (a, b) {
-          let aIcon = a.text.substr(0,1);
-          let bIcon = b.text.substr(0,1);
-          let aValue = a.text.substr(1);
-          let bValue = b.text.substr(1);
-          let iconCompare = bIcon.localeCompare(aIcon);
-          let valueCompare = false;
+          var aIcon = a.text.substr(0,1);
+          var bIcon = b.text.substr(0,1);
+          var aValue = a.text.substr(1);
+          var bValue = b.text.substr(1);
+          var iconCompare = bIcon.localeCompare(aIcon);
+          var valueCompare = false;
           if (fieldSort == 'text' || fieldSort == 'number') valueCompare = bValue.localeCompare(aValue);  //by default do text and number the same
           else if (fieldSort.length > 0) valueCompare = fieldSort.indexOf(bValue) - fieldSort.indexOf(aValue);  //else use defined sort order
           return iconCompare || valueCompare;  //icon sort remains the same
         });
       }
-      for (let optionIndex = 0; optionIndex < sortedOptions.length; optionIndex++) {  //rearrange options
+      for (var optionIndex = 0; optionIndex < sortedOptions.length; optionIndex++) {  //rearrange options
         options[optionIndex] = sortedOptions[optionIndex];
       }
     },
@@ -902,29 +902,29 @@ localBi.filterChart = function(filterMeasures) {
       "use strict";
 
       function getIndexedColorArray(alpha) {  //returns all chart colours, with an alpha
-        let kellyColors = ['#FFB300','#803E75','#FF6800','#A6BDD7','#C10020','#CEA262','#817066','#007D34','#F6768E','#00538A','#FF7A5C','#53377A','#FF8E00','#B32851','#F4C800','#7F180D','#93AA00','#593315','#F13A13','#232C16'];  //Kelly's colors of maximum contrast
-        for (let colorIndex = 0; colorIndex < kellyColors.length; colorIndex++) {
+        var kellyColors = ['#FFB300','#803E75','#FF6800','#A6BDD7','#C10020','#CEA262','#817066','#007D34','#F6768E','#00538A','#FF7A5C','#53377A','#FF8E00','#B32851','#F4C800','#7F180D','#93AA00','#593315','#F13A13','#232C16'];  //Kelly's colors of maximum contrast
+        for (var colorIndex = 0; colorIndex < kellyColors.length; colorIndex++) {
           kellyColors[colorIndex] = kellyColors[colorIndex] + alpha;  //add alpha value (hex expected)
         }
         return kellyColors;
       };
 
       function getIndexedColor(colorIndex, alpha) {  //looks up chart colour from an index
-        let kellyColors = getIndexedColorArray(alpha);  //apply alpha
-        let remainder = colorIndex%(kellyColors.length);  //if we exceed the length, start again
+        var kellyColors = getIndexedColorArray(alpha);  //apply alpha
+        var remainder = colorIndex%(kellyColors.length);  //if we exceed the length, start again
         return kellyColors[remainder];  //add alpha value (hex expected)
       };
 
       //sort by either first dimension or first measure
       function sortHierarchy(chartHierarchy, chartSpecification) {  //we can only do this once the hierarchy is fully built
         if (chartSpecification.display.sort == 'dimension') {  //sort by first dimension ascending (currently no provision is made for sorting this descending because it's uncommon and I'm feeling lazy)
-          let fieldIsFound = false;  //to check if field exists
-          let fieldIndex = 0;  //position of found field
+          var fieldIsFound = false;  //to check if field exists
+          var fieldIndex = 0;  //position of found field
           while (fieldIsFound == false && fieldIndex < filterChart.chartFields.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
             if(chartSpecification.dimensions[0].field == filterChart.chartFields[fieldIndex].field) fieldIsFound = true;
             else fieldIndex++;
           }
-          let fieldSort = filterChart.chartFields[fieldIndex].sort;  //find sort type from field name
+          var fieldSort = filterChart.chartFields[fieldIndex].sort;  //find sort type from field name
           if (fieldSort == 'text' || fieldSort == 'number') chartHierarchy = chartHierarchy.sort(function (a, b) {  //sort by first dimension
             return a.value.localeCompare(b.value);  //by default do text and number the same
           });
@@ -938,14 +938,14 @@ localBi.filterChart = function(filterMeasures) {
         return chartHierarchy;
       };
 
-      let lbiCharts = document.getElementsByName('lbiChart');  //all charts should have the name lbiChart
-      for (let chartIndex = 0; chartIndex < lbiCharts.length; chartIndex++) {  //we should get a collection of all the charts defined in the html tags
-        let lbiChart = lbiCharts[chartIndex];
-        let chartSpecification = JSON.parse(lbiChart.dataset.lbiChart);  //expect valid JSON in the tag's data-lbi-chart attribute
+      var lbiCharts = document.getElementsByName('lbiChart');  //all charts should have the name lbiChart
+      for (var chartIndex = 0; chartIndex < lbiCharts.length; chartIndex++) {  //we should get a collection of all the charts defined in the html tags
+        var lbiChart = lbiCharts[chartIndex];
+        var chartSpecification = JSON.parse(lbiChart.dataset.lbiChart);  //expect valid JSON in the tag's data-lbi-chart attribute
 
-        // let chartSpecification.dimensions = [];  //build dimensions specification
-        // for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
-        //   let dimensionSpecification = chartSpecification.dimensions[dimensionIndex];
+        // var chartSpecification.dimensions = [];  //build dimensions specification
+        // for (var dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
+        //   var dimensionSpecification = chartSpecification.dimensions[dimensionIndex];
         //   chartSpecification.dimensions[dimensionIndex] = {  //@typedef {Object} dimensionSpecification - specify a dimension by name.
         //     fieldName: dimensionSpecification.field,  //field name of dimension (required).
         //     label: dimensionSpecification.label  //label of dimension (required).
@@ -953,8 +953,8 @@ localBi.filterChart = function(filterMeasures) {
         // }
 
         if (this.flexDimension != null) {  //wait for a valid flexDimension field
-          let dimensionIsFound = false;  //only add/replace flexDimension if not already part of the spec
-          let dimensionIndex = 0;
+          var dimensionIsFound = false;  //only add/replace flexDimension if not already part of the spec
+          var dimensionIndex = 0;
           while (dimensionIsFound == false && dimensionIndex < chartSpecification.dimensions.length) {  //exit as soon as we find the flexDimension
             if (chartSpecification.dimensions[dimensionIndex].field == this.flexDimension.field) dimensionIsFound = true;
 						else dimensionIndex++;
@@ -965,9 +965,9 @@ localBi.filterChart = function(filterMeasures) {
           }
         }
 
-        // let chartSpecification.measures = [];  //build measures specification
-        // for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {
-        //   let measureSpecification = chartSpecification.measures[measureIndex];
+        // var chartSpecification.measures = [];  //build measures specification
+        // for (var measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {
+        //   var measureSpecification = chartSpecification.measures[measureIndex];
         //   chartSpecification.measures[measureIndex] = {  //@typedef {Object} measureSpecification - specify a measure by name.
         //     //fieldName: measureSpecification.field,  //fieldName - field name of measure (required).
         //     label: measureSpecification.label,  //label - label of aggregated measure (required).
@@ -976,8 +976,8 @@ localBi.filterChart = function(filterMeasures) {
         // }
 
         if (this.flexMeasure != null) {  //wait for a valid flexMeasure field
-          let measureIsFound = false;  //only add/replace flexmeasure if not already part of the spec
-          let measureIndex = 0;
+          var measureIsFound = false;  //only add/replace flexmeasure if not already part of the spec
+          var measureIndex = 0;
           while (measureIsFound == false && measureIndex < chartSpecification.measures.length) {  //exit as soon as we find the flexmeasure
             if (chartSpecification.measures[measureIndex].calculation == this.flexMeasure.calculation) measureIsFound = true;
 						else measureIndex++;
@@ -988,22 +988,22 @@ localBi.filterChart = function(filterMeasures) {
           }
         }
         
-        let chartHierarchy = this.chartTable.aggregate({  //@typedef {Object} aggregateSpecification
+        var chartHierarchy = this.chartTable.aggregate({  //@typedef {Object} aggregateSpecification
           dimensions: chartSpecification.dimensions,  //array of chartSpecification.dimensions (required).
           measures: chartSpecification.measures  //array of chartSpecification.measures (required).
         });
 
         if (chartHierarchy.length == 0) {
-          let warningDiv = document.createElement('div');
+          var warningDiv = document.createElement('div');
           warningDiv.textContent = 'No data - please clear some filters';
           lbiChart.innerHTML = '';  //remove old chart.js canvas
           lbiChart.appendChild(warningDiv);
         }
         else {
-          let chartTitle = chartSpecification.measures[0].label;  //automatically use "Measure by Dim1, Dim2" as title
-          let dimensionTitle = '';
+          var chartTitle = chartSpecification.measures[0].label;  //automatically use "Measure by Dim1, Dim2" as title
+          var dimensionTitle = '';
           if (chartSpecification.dimensions.length > 0) {
-            for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
+            for (var dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {
               if (dimensionTitle.length > 0) dimensionTitle += ', ';  //add comma separator
               dimensionTitle += chartSpecification.dimensions[dimensionIndex].field;
             }
@@ -1012,13 +1012,13 @@ localBi.filterChart = function(filterMeasures) {
 
           if (chartSpecification.display.type == 'bar') {
             sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
-            let labels = [];  //convert hierarchy to chart.js structure
-            let datasets = [];
-            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-              let chartLabel = chartHierarchy[labelIndex];
+            var labels = [];  //convert hierarchy to chart.js structure
+            var datasets = [];
+            for (var labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              var chartLabel = chartHierarchy[labelIndex];
               labels[labelIndex] = chartLabel.value;
               if (chartLabel.children.length == 0) {  //one dimension, one measure
-                let datasetIndex = 0;
+                var datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'bar',
@@ -1033,7 +1033,7 @@ localBi.filterChart = function(filterMeasures) {
                 datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
               }
               else {  //two dimensions, one measure
-                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                for (var datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     type: 'bar',
@@ -1049,12 +1049,12 @@ localBi.filterChart = function(filterMeasures) {
                 }
               }
             }
-            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            var chartCanvas = document.createElement('canvas');  //recreate the canvas each time
             chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
             chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
             lbiChart.innerHTML = '';  //remove old chart.js canvas
             lbiChart.appendChild(chartCanvas);
-            let newChart = new Chart(chartCanvas, {
+            var newChart = new Chart(chartCanvas, {
               type: 'bar',
               data: {
                 labels: labels,
@@ -1078,13 +1078,13 @@ localBi.filterChart = function(filterMeasures) {
           }
           else if (chartSpecification.display.type == 'line') {
             sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
-            let labels = [];  //convert hierarchy to chart.js structure
-            let datasets = [];
-            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-              let chartLabel = chartHierarchy[labelIndex];
+            var labels = [];  //convert hierarchy to chart.js structure
+            var datasets = [];
+            for (var labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              var chartLabel = chartHierarchy[labelIndex];
               labels[labelIndex] = chartLabel.value;
               if (chartLabel.children.length == 0) {  //one dimension, one measure
-                let datasetIndex = 0;
+                var datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'line',
@@ -1100,7 +1100,7 @@ localBi.filterChart = function(filterMeasures) {
                 datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
               }
               else {  //two dimensions, one measure
-                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                for (var datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     type: 'line',
@@ -1117,12 +1117,12 @@ localBi.filterChart = function(filterMeasures) {
                 }
               }
             }
-            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            var chartCanvas = document.createElement('canvas');  //recreate the canvas each time
             chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
             chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
             lbiChart.innerHTML = '';  //remove old chart.js canvas
             lbiChart.appendChild(chartCanvas);
-            let newChart = new Chart(chartCanvas, {
+            var newChart = new Chart(chartCanvas, {
               type: 'line',
               data: {
                 labels: labels,
@@ -1140,13 +1140,13 @@ localBi.filterChart = function(filterMeasures) {
           }
           else if (chartSpecification.display.type == 'doughnut' || chartSpecification.display.type == 'pie') {  //pie||doughnut: one dimension and one measure
             sortHierarchy(chartHierarchy, chartSpecification);  //sort by first measure asc
-            let labels = [];  //convert hierarchy to chart.js structure
-            let datasets = [];
-            for (let labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
-              let chartLabel = chartHierarchy[labelIndex];
+            var labels = [];  //convert hierarchy to chart.js structure
+            var datasets = [];
+            for (var labelIndex = 0; labelIndex < chartHierarchy.length; labelIndex++) {
+              var chartLabel = chartHierarchy[labelIndex];
               labels[labelIndex] = chartLabel.value;
               if (chartLabel.children.length == 0) {  //one dimension, one measure
-                let datasetIndex = 0;
+                var datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   backgroundColor: getIndexedColorArray('88'),
@@ -1160,7 +1160,7 @@ localBi.filterChart = function(filterMeasures) {
                 datasets[datasetIndex].data[labelIndex] = chartLabel.measures[0].value;  //use only the first measure of first dimension
               }
               else {  //two dimensions, one measure
-                for (let datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
+                for (var datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     backgroundColor: getIndexedColorArray('88'),
@@ -1175,7 +1175,7 @@ localBi.filterChart = function(filterMeasures) {
                 }
               }
             }
-            let chartCanvas = document.createElement('canvas');  //recreate the canvas each time
+            var chartCanvas = document.createElement('canvas');  //recreate the canvas each time
             chartCanvas.width = chartSpecification.display.width;  //setup canvas aspect ratio
             chartCanvas.height = chartSpecification.display.height;  //setup canvas aspect ratio
             lbiChart.innerHTML = '';  //remove old chart.js canvas
@@ -1197,19 +1197,19 @@ localBi.filterChart = function(filterMeasures) {
             });
           }
           else if (chartSpecification.display.type == 'kpi') {  //kpi: one dimension with one value, and one measure
-            let htmlTable = document.createElement('table');
+            var htmlTable = document.createElement('table');
             htmlTable.className = 'filterKpiTable';
             lbiChart.innerHTML = '';  //remove old table
             lbiChart.appendChild(htmlTable);
-            let headerRow = document.createElement('tr');  //header row for labels
+            var headerRow = document.createElement('tr');  //header row for labels
             htmlTable.appendChild(headerRow);
-            let headerCell = document.createElement('th');
+            var headerCell = document.createElement('th');
             headerCell.className = 'filterKpiHeading';
             headerCell.textContent = chartSpecification.measures[0].label;//chartHierarchy[0].measures[0].label;  //first level hierarchy's first value, and first measure label
             headerRow.appendChild(headerCell);
-            let totalRow = document.createElement('tr');  //totals row
+            var totalRow = document.createElement('tr');  //totals row
             htmlTable.appendChild(totalRow);
-            let measureCell = document.createElement('td');
+            var measureCell = document.createElement('td');
             measureCell.textContent = filterMeasures[chartSpecification.measures[0].format](chartHierarchy[0].measures[0].value);
             //measureCell.textContent = chartHierarchy[0].measures[0].value.toLocaleString();  //first level hierarchy's first value, and first measure value
             measureCell.className = 'filterKpiMeasure';
@@ -1218,48 +1218,48 @@ localBi.filterChart = function(filterMeasures) {
           else if (chartSpecification.display.type == 'pivot') {  //pivot: multiple dimensions and measures
             sortHierarchy(chartHierarchy, chartSpecification);  //sort by first dim asc
             lbiChart.innerHTML = '';  //remove old table
-            let htmlDiv = document.createElement('div');  //for some layout stuff we need the table inside a div
+            var htmlDiv = document.createElement('div');  //for some layout stuff we need the table inside a div
             htmlDiv.className = 'filterPivotDiv';
             lbiChart.appendChild(htmlDiv);
-            let htmlTable = document.createElement('table');
+            var htmlTable = document.createElement('table');
             htmlTable.className = 'filterPivotTable';
             htmlDiv.appendChild(htmlTable);
-            let headerRow = document.createElement('tr');  //header row for labels
+            var headerRow = document.createElement('tr');  //header row for labels
             htmlTable.appendChild(headerRow);
-            for (let dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {  //dimension labels
-              let headerCell = document.createElement('th');
+            for (var dimensionIndex = 0; dimensionIndex < chartSpecification.dimensions.length; dimensionIndex++) {  //dimension labels
+              var headerCell = document.createElement('th');
               headerCell.className = 'filterPivotHeading';
               headerCell.textContent = chartSpecification.dimensions[dimensionIndex].label;
               headerRow.appendChild(headerCell);
             }
             
-            for (let measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {  //measure labels
-              let headerCell = document.createElement('th');
+            for (var measureIndex = 0; measureIndex < chartSpecification.measures.length; measureIndex++) {  //measure labels
+              var headerCell = document.createElement('th');
               headerCell.className = 'filterPivotHeading';
               headerCell.textContent = chartSpecification.measures[measureIndex].label;
               headerRow.appendChild(headerCell);
             }
 
             function recurseTable(hierarchy, htmlTable) {  //build pivot table recursively
-              let nodeSpan = {
+              var nodeSpan = {
                 rows: 0,  //accumulate the total number of rows in this node, including totals
                 cols: 0  //keep track of columns to span for totals
               }
-              for (let nodeIndex = 0; nodeIndex < hierarchy.length; nodeIndex++) {
-                let hierarchyNode = hierarchy[nodeIndex];
-                let totalRow = document.createElement('tr');  //totals row
+              for (var nodeIndex = 0; nodeIndex < hierarchy.length; nodeIndex++) {
+                var hierarchyNode = hierarchy[nodeIndex];
+                var totalRow = document.createElement('tr');  //totals row
                 htmlTable.appendChild(totalRow);
-                let dimensionCell = document.createElement('td');  //dimension cell
+                var dimensionCell = document.createElement('td');  //dimension cell
                 dimensionCell.textContent = hierarchyNode.value.toLocaleString();
                 dimensionCell.className = 'filterPivotDimension';
                 totalRow.appendChild(dimensionCell);
-                let totalCell = document.createElement('td');  //totals cell
+                var totalCell = document.createElement('td');  //totals cell
                 totalCell.textContent = 'Total';
                 totalCell.className = 'filterPivotTotal';
                 if (hierarchyNode.children.length > 0) totalRow.appendChild(totalCell);  //no totals on final dimension
-                for (let measureIndex = 0; measureIndex < hierarchyNode.measures.length; measureIndex++) {  //one cell per measure
-                  let measure = hierarchyNode.measures[measureIndex];
-                  let measureCell = document.createElement('td');
+                for (var measureIndex = 0; measureIndex < hierarchyNode.measures.length; measureIndex++) {  //one cell per measure
+                  var measure = hierarchyNode.measures[measureIndex];
+                  var measureCell = document.createElement('td');
                   measureCell.textContent = filterMeasures[chartSpecification.measures[measureIndex].format](measure.value);  //measure.value.toLocaleString();
                   
                   if (hierarchyNode.children.length > 0) measureCell.className = 'filterPivotTotal';
@@ -1267,7 +1267,7 @@ localBi.filterChart = function(filterMeasures) {
                   totalRow.appendChild(measureCell);
                 }
                 if (hierarchyNode.children.length > 0) {  //drill down into hierarchy if there are children
-                  let childSpan = recurseTable(hierarchyNode.children, htmlTable);
+                  var childSpan = recurseTable(hierarchyNode.children, htmlTable);
                   nodeSpan.rows += childSpan.rows;  //keep track of rows to span, including total
                   nodeSpan.cols = childSpan.cols + 1;  //keep track of cols to span, for totals
                   dimensionCell.rowSpan = childSpan.rows;
@@ -1292,30 +1292,30 @@ localBi.filterChart = function(filterMeasures) {
      * @description Refreshes all document elements, based on filter values
      */
     refresh() {
-      let filterDefinitions = [];
-      for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //get filter definition from selects
-        let fieldName = this.chartFields[fieldIndex].field;
+      var filterDefinitions = [];
+      for (var fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //get filter definition from selects
+        var fieldName = this.chartFields[fieldIndex].field;
         filterDefinitions = filterDefinitions.concat(this.getSelect(fieldName));
       }
       this.chartTable.filter(filterDefinitions);  //implement the filter definition
 
-      let filterList = '';  //display the filter list
+      var filterList = '';  //display the filter list
       if (this.flexDimension != null) filterList += filterIcon.flex + this.flexDimension.label + '\n\n';  //show flexDimension field
-      for (let filterIndex = 0; filterIndex < filterDefinitions.length; filterIndex++) {  //list filtered items
-        let filterDefinition = filterDefinitions[filterIndex];
+      for (var filterIndex = 0; filterIndex < filterDefinitions.length; filterIndex++) {  //list filtered items
+        var filterDefinition = filterDefinitions[filterIndex];
         if (filterDefinition.value != '*') filterList += filterDefinition.field + filterIcon.active + filterDefinition.value + '\n';
       }
 
-      let listButton = document.getElementById('filterList');  //NB - hardcoded reference qualifier
+      var listButton = document.getElementById('filterList');  //NB - hardcoded reference qualifier
       if (filterList == '') listButton.innerText = filterIcon.inactive;
       else listButton.innerText = filterList;
 
-      let measureSelect = document.getElementById('measureFlex');  //NB - hardcoded reference qualifier
+      var measureSelect = document.getElementById('measureFlex');  //NB - hardcoded reference qualifier
       if (this.flexMeasure == null) measureSelect.selectedIndex = 0;
 
-      for (let fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //update all selects
-        let fieldName = this.chartFields[fieldIndex].field;
-        let flexDimensionButton = document.getElementById(fieldName + '.flexDimension');  //NB - hardcoded reference qualifier
+      for (var fieldIndex = 0; fieldIndex < this.chartFields.length; fieldIndex++) {  //update all selects
+        var fieldName = this.chartFields[fieldIndex].field;
+        var flexDimensionButton = document.getElementById(fieldName + '.flexDimension');  //NB - hardcoded reference qualifier
         if (this.flexDimension != null && fieldName == this.flexDimension.field) {
           flexDimensionButton.style.backgroundColor = '#444444';
           flexDimensionButton.style.color = '#ffffff';
@@ -1334,10 +1334,10 @@ localBi.filterChart = function(filterMeasures) {
     filterChart.chartTable = localBi.filterTable( { tableName : 'Invoices', tableFields : fields, tableRecords : records, tableFunctions : localMeasures });  //relies on filterData.js to be loaded first
     filterChart.chartFields = JSON.parse(document.getElementById("localFields").dataset.lbiFields);
     filterChart.chartMeasures = JSON.parse(document.getElementById("localFields").dataset.lbiMeasures);
-    let localFields = filterChart.buildFields('localFields');
-    let localHeader = filterChart.buildHeader('localHeader');
-    let localFooter = filterChart.buildFooter('localFooter');
-    let localLoader = document.getElementById("localLoader");
+    var localFields = filterChart.buildFields('localFields');
+    var localHeader = filterChart.buildHeader('localHeader');
+    var localFooter = filterChart.buildFooter('localFooter');
+    var localLoader = document.getElementById("localLoader");
     localLoader.style.display = 'none';  //hide loader
     localFields.style.display = 'inline-block';  //show fields
     localHeader.style.display = 'inline-block';  //show header
@@ -1349,15 +1349,15 @@ localBi.filterChart = function(filterMeasures) {
 </script>
     <script>
 
-      let localMeasures = {  //measures are functions that access the aggregated node data
+      var localMeasures = {  //measures are functions that access the aggregated node data
 
         totalIncidents(table, node) {  //each master measure operates on the fact rows directly!
-          let incidentIndex = table.findField('Incidents').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
-          let incidentTotal = 0;  //numeric result expected
-          for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
-            let filterGroup = node.groups[groupIndex];
-            for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
-              let filterRecord = filterGroup.groupRecords[rowIndex];
+          var incidentIndex = table.findField('Incidents').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
+          var incidentTotal = 0;  //numeric result expected
+          for (var groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
+            var filterGroup = node.groups[groupIndex];
+            for (var rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
+              var filterRecord = filterGroup.groupRecords[rowIndex];
               incidentTotal += parseFloat(filterRecord.recordValues[incidentIndex].valueName);  //pick the correct column in the row as defined for the measure
             }
           }
@@ -1370,7 +1370,7 @@ localBi.filterChart = function(filterMeasures) {
 
       };
 
-      let localChart = localBi.filterChart(localMeasures);  //..and run..
+      var localChart = localBi.filterChart(localMeasures);  //..and run..
 
     </script>
   </body>
