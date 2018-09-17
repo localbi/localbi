@@ -14,8 +14,12 @@ var localBi = localBi || {};
  */
 localBi.filterChart = function(filterMeasures) {
   const filterIcon = {
-    active: String.fromCharCode(9670),
-    inactive: String.fromCharCode(9671)
+    active: String.fromCharCode(9672),
+    inactive: String.fromCharCode(9671),
+    flex: String.fromCharCode(10070),
+    invert: String.fromCharCode(11030),
+    ascending: String.fromCharCode(9650),
+    descending: String.fromCharCode(9660)
   }
 
   let filterChart = {  //define filterChart
@@ -103,14 +107,14 @@ localBi.filterChart = function(filterMeasures) {
         let flexDimensionButton = document.createElement('button');  //button to set which field is used to flexDimension the charts
         flexDimensionButton.className = 'filterAdjust';
         flexDimensionButton.onclick = function() {  //-1 = set all options to inverted
-          if (filterChart.flexDimension != null && fieldName == filterChart.flexDimension.fieldName) filterChart.flexDimension = null;  //if set to this field, unset
+          if (filterChart.flexDimension != null && fieldName == filterChart.flexDimension.field) filterChart.flexDimension = null;  //if set to this field, unset
           else filterChart.flexDimension = {  //
             field: fieldName, 
             label: fieldName 
           };  //otherwise set
           filterChart.refresh();
         };
-        flexDimensionButton.textContent = String.fromCharCode(10070);
+        flexDimensionButton.textContent = filterIcon.flex;
         flexDimensionButton.id = fieldName + '.flexDimension';  //NB - this id is used by other code!
         buttonsDiv.appendChild(flexDimensionButton);
 
@@ -120,7 +124,7 @@ localBi.filterChart = function(filterMeasures) {
           filterChart.adjustSelect(fieldName,-1);
           filterChart.refresh();
         };
-        invertButton.textContent = String.fromCharCode(11030);  //9931
+        invertButton.textContent = filterIcon.invert;  //9931
         invertButton.id = fieldName + '.invert';  //NB - this id is used by other code!
         buttonsDiv.appendChild(invertButton);
         
@@ -145,7 +149,7 @@ localBi.filterChart = function(filterMeasures) {
       filterHeader.onclick = function() {  //help text
       };
       let span1 = document.createElement('span');  //heading
-      span1.textContent = 'Sales Report';
+      span1.textContent = document.title;  //'Sales Report';
       filterHeader.appendChild(span1);
       return filterHeader;
     },
@@ -155,15 +159,6 @@ localBi.filterChart = function(filterMeasures) {
      */
     buildFooter(elementId) {
       let filterFooter = document.getElementById(elementId);  //container for footer
-      // filterFooter.onclick = function() {  //help text
-      //   alert('localBI - the analysis engine that runs locally\n\n' +
-      //     'Click a field value to filter\n' +
-      //     'Click a field heading to sort ascending/descending\n' +
-      //     String.fromCharCode(9670) + ' Active value (no dormant records)\n' +
-      //     String.fromCharCode(9672) + ' Active and dormant value (active and dormant records)\n' +
-      //     String.fromCharCode(9671) + ' Dormant value (no active records)\n' +
-      //     ''); 
-      // };
       let anchor = document.createElement('a');  //local
       anchor.href = "https://github.com/localbi/localbi";
       anchor.target = "_blank";
@@ -206,7 +201,7 @@ localBi.filterChart = function(filterMeasures) {
         let option = options[optionIndex];
         let fieldValue = filterField.fieldValues[option.value];  //this gets the value by its index
         let fieldIcon = 'x'; //unassigned
-        if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows > 0) fieldIcon = String.fromCharCode(9672);  //both = bullseye//9673//10687
+        if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows > 0) fieldIcon = filterIcon.active;  //we're simplifying this display to only be active/dormant, as most people have trouble interpreting the 'both' state
         else if (fieldValue.valueActiveRows == 0 && fieldValue.valueDormantRows > 0) fieldIcon = filterIcon.inactive; //dormant = empty//9898//11096//9675
         else if (fieldValue.valueActiveRows > 0 && fieldValue.valueDormantRows == 0) fieldIcon = filterIcon.active; //active = full//9899//11044//9679
         option.text = fieldIcon + fieldValue.valueName; //prepend icon to option text
@@ -283,21 +278,19 @@ localBi.filterChart = function(filterMeasures) {
       for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {  //get unsorted options
         unsortedOptions.push(options[optionIndex]);
       }
-      if (action == 1 || sortIcon == 'x') sortIcon = String.fromCharCode(9650);  //we check the unassiged char here, so we can keep all the unicode stuff in one place - default to asc first time
+      if (action == 1 || sortIcon == 'x') sortIcon = filterIcon.ascending;  //we check the unassiged char here, so we can keep all the unicode stuff in one place - default to asc first time
       else if (action == -1) {  //update icon to inverse
-        if (sortIcon == String.fromCharCode(9650)) sortIcon = String.fromCharCode(9660);
-        else sortIcon = String.fromCharCode(9650);
+        if (sortIcon == filterIcon.ascending) sortIcon = filterIcon.descending;
+        else sortIcon = filterIcon.ascending;
       }
       title.textContent = sortIcon + title.textContent.substr(1);  //update title
-      if (sortIcon == String.fromCharCode(9650)) {  //sort options ascending
+      if (sortIcon == filterIcon.ascending) {  //sort options ascending
         sortedOptions = unsortedOptions.sort(function (a, b) {
           let aIcon = a.text.substr(0,1);
-          if (aIcon == filterIcon.inactive) aIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let bIcon = b.text.substr(0,1);
-          if (bIcon == filterIcon.inactive) bIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let aValue = a.text.substr(1);
           let bValue = b.text.substr(1);
-          let iconCompare = aIcon.localeCompare(bIcon);
+          let iconCompare = bIcon.localeCompare(aIcon);
           let valueCompare = false;
           if (fieldSort == 'text' || fieldSort == 'number') valueCompare = aValue.localeCompare(bValue);  //by default do text and number the same
           else if (fieldSort.length > 0) valueCompare = fieldSort.indexOf(aValue) - fieldSort.indexOf(bValue);  //else use defined sort order
@@ -307,12 +300,10 @@ localBi.filterChart = function(filterMeasures) {
       else {  //sort options descending
         sortedOptions = unsortedOptions.sort(function (a, b) {
           let aIcon = a.text.substr(0,1);
-          if (aIcon == filterIcon.inactive) aIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let bIcon = b.text.substr(0,1);
-          if (bIcon == filterIcon.inactive) bIcon = String.fromCharCode(9673);  //reassign dormant icon to get correct sort order
           let aValue = a.text.substr(1);
           let bValue = b.text.substr(1);
-          let iconCompare = aIcon.localeCompare(bIcon);
+          let iconCompare = bIcon.localeCompare(aIcon);
           let valueCompare = false;
           if (fieldSort == 'text' || fieldSort == 'number') valueCompare = bValue.localeCompare(aValue);  //by default do text and number the same
           else if (fieldSort.length > 0) valueCompare = fieldSort.indexOf(bValue) - fieldSort.indexOf(aValue);  //else use defined sort order
@@ -729,7 +720,7 @@ localBi.filterChart = function(filterMeasures) {
       this.chartTable.filter(filterDefinitions);  //implement the filter definition
 
       let filterList = '';  //display the filter list
-      if (this.flexDimension != null) filterList += String.fromCharCode(10070) + this.flexDimension.label + '\n\n';  //show flexDimension field
+      if (this.flexDimension != null) filterList += filterIcon.flex + this.flexDimension.label + '\n\n';  //show flexDimension field
       for (let filterIndex = 0; filterIndex < filterDefinitions.length; filterIndex++) {  //list filtered items
         let filterDefinition = filterDefinitions[filterIndex];
         if (filterDefinition.value != '*') filterList += filterDefinition.field + filterIcon.active + filterDefinition.value + '\n';

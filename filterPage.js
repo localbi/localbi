@@ -113,6 +113,7 @@ localBi.filterPage = function() {
         let parse = require('csv-parse/lib/sync');
         let mailData = parse(fs.readFileSync('filterMail.csv'), {delimiter: ','});
         let mailContent = buildPage('localBi.html')
+        
         for (let mailIndex = 1; mailIndex < mailData.length; mailIndex++) {  //skip header
             mailPage({
                 user: mailData[mailIndex][mailData[0].indexOf('user')],
@@ -125,6 +126,7 @@ localBi.filterPage = function() {
                 content: mailContent
             });
         }
+        
     }
 }
 

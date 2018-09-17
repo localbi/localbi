@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Consumer sales</title>
+    <title>Crime incidents: South Africa 2013-2018</title>
     <link rel="stylesheet" href="filterStyle.css">
   </head>
   <body>
@@ -13,44 +13,37 @@
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"kpi","flexDimension":"none","flexMeasure":"replace","sort":"none","width":"400","height":"400"},
           "dimensions":[{"label":"Totals","field":"Total"}],
-          "measures":[{"label":"Total sales","calculation":"totalSales","format":"formatMoney"}]}'>
+          "measures":[{"label":"Total incidents","calculation":"totalIncidents","format":"formatInteger"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"doughnut","flexDimension":"replace","flexMeasure":"replace","sort":"measure","width":"400","height":"400"},
-          "dimensions":[{"label":"Managers","field":"Manager"}],
-          "measures":[{"label":"Sales","calculation":"totalSales"}]}'>
+          "dimensions":[{"label":"Category","field":"Category"}],
+          "measures":[{"label":"Incidents","calculation":"totalIncidents"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"line","flexDimension":"add","flexMeasure":"replace","sort":"dimension","width":"400","height":"400"},
-          "dimensions":[{"label":"Months","field":"Month"}],
-          "measures":[{"label":"Sales","calculation":"totalSales"}]}'>
+          "dimensions":[{"label":"Year","field":"Year"}],
+          "measures":[{"label":"Incidents","calculation":"totalIncidents"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"bar","flexDimension":"add","flexMeasure":"replace","sort":"measure","width":"400","height":"400"},
-          "dimensions":[{"label":"Categories","field":"Category"}],
-          "measures":[{"label":"Sales","calculation":"totalSales"}]}'>
+          "dimensions":[{"label":"Province","field":"Province"}],
+          "measures":[{"label":"Incidents","calculation":"totalIncidents"}]}'>
         </div>
         <div name="lbiChart" class="filterChart" data-lbi-chart='{
           "display":{"type":"pivot","flexDimension":"add","flexMeasure":"none","sort":"none","width":"400","height":"400"},
-          "dimensions":[{"label":"Regions","field":"Region"},{"label":"Stores","field":"Store"}],
+          "dimensions":[{"label":"Province","field":"Province"},{"label":"Category","field":"Category"}],
           "measures":[
-          {"label":"Sales","calculation":"totalSales","format":"formatMoney"},
-          {"label":"Cost","calculation":"totalCost","format":"formatMoney"},
-          {"label":"GP%","calculation":"grossProfitPercentage","format":"formatPercentage"}]}'>
+          {"label":"Total Incidents","calculation":"totalIncidents","format":"formatInteger"}]}'>
         </div>
       </div>
       <div id="localFields" class="filterFields" data-lbi-fields='[
-        {"label":"Years","field":"Year","sort":"number"},
-        {"label":"Months","field":"Month","sort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]},
-        {"label":"countries","field":"Country","sort":"text"},
-        {"label":"regions","field":"Region","sort":"text"},
-        {"label":"stores","field":"Store","sort":"text"},
-        {"label":"categories","field":"Category","sort":"text"},
-        {"label":"products","field":"Product","sort":"text"},
-        {"label":"managers","field":"Manager","sort":"text"},
-        {"label":"employees","field":"Employee","sort":"text"}]' data-lbi-measures='[
-        {"label":"Sales","calculation":"totalSales","format":"formatMoney"},
-        {"label":"GP%","calculation":"grossProfitPercentage","format":"formatPercentage"}]'></div>
+        {"label":"Year","field":"Year","sort":"number"},
+        {"label":"Category","field":"Category","sort":"text"},
+        {"label":"Crime","field":"Crime","sort":"text"},
+        {"label":"Province","field":"Province","sort":"text"},
+        {"label":"Precinct","field":"Precinct","sort":"text"}]' data-lbi-measures='[
+        {"label":"Total Incidents","calculation":"totalIncidents","format":"formatInteger"}]'></div>
     </div>
     <div id="localFooter" class="filterFooter"></div>
 
@@ -62,72 +55,24 @@
 
       let localMeasures = {  //measures are functions that access the aggregated node data
 
-        totalSales(table, node) {  //each master measure operates on the fact rows directly!
-          let salesAmountIndex = table.findField('SalesAmount').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
-          let salesAmountTotal = 0;  //numeric result expected
+        totalIncidents(table, node) {  //each master measure operates on the fact rows directly!
+          let incidentIndex = table.findField('Incidents').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
+          let incidentTotal = 0;  //numeric result expected
           for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
             let filterGroup = node.groups[groupIndex];
             for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
               let filterRecord = filterGroup.groupRecords[rowIndex];
-              salesAmountTotal += parseFloat(filterRecord.recordValues[salesAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
+              incidentTotal += parseFloat(filterRecord.recordValues[incidentIndex].valueName);  //pick the correct column in the row as defined for the measure
             }
           }
-          return salesAmountTotal;
+          return incidentTotal;
         },
 
-        totalCost(table, node) {  //each master measure operates on the fact rows directly!
-          let costAmountIndex = table.findField('CostAmount').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
-          let costAmountTotal = 0;  //numeric result expected
-          for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
-            let filterGroup = node.groups[groupIndex];
-            for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
-              let filterRecord = filterGroup.groupRecords[rowIndex];
-              costAmountTotal += parseFloat(filterRecord.recordValues[costAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
-            }
-          }
-          return costAmountTotal;
-        },
-
-        grossProfitPercentage(table, node) {  //each master measure operates on the fact rows directly!
-          let salesAmountIndex = table.findField('SalesAmount').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
-          let costAmountIndex = table.findField('CostAmount').fieldIndex;  //helper method from rows to get the index - faster to do this outside the loop
-          let salesAmountTotal = 0;  //numeric result expected
-          let costAmountTotal = 0;
-          for (let groupIndex = 0; groupIndex < node.groups.length; groupIndex++) {  //do all groups in node
-            let filterGroup = node.groups[groupIndex];
-            for (let rowIndex = 0; rowIndex < filterGroup.groupRecords.length; rowIndex++) {  //aggregate all linked filterRecords in group
-              let filterRecord = filterGroup.groupRecords[rowIndex];
-              salesAmountTotal += parseFloat(filterRecord.recordValues[salesAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
-              costAmountTotal += parseFloat(filterRecord.recordValues[costAmountIndex].valueName);  //pick the correct column in the row as defined for the measure
-            }
-          }
-          let result = (salesAmountTotal-costAmountTotal) / salesAmountTotal;
-          
-          return result;
-        },
-
-        formatMoney(value) {
-          return value.toLocaleString();
-        },
-
-        formatPercentage(value) {
-          return value.toLocaleString("en", {style: "percent"});
+        formatInteger(value) {
+          return value.toLocaleString("en", {style: "decimal"});
         }
 
       };
-
-
-      /* check if it still works :-)
-      let ft = localBi.filterTable( { tableName : 'Invoices', tableFields : fields, tableRecords : records, tableFunctions : localMeasures });
-      console.log(ft);
-
-      let result = ft.aggregate({
-        dimensions: [{field: 'Category'}, {field: 'Product'}],
-        measures: [{calculation: 'totalSales'}]
-      })
-
-      console.log(result);
-      */
 
       let localChart = localBi.filterChart(localMeasures);  //..and run..
 
