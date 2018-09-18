@@ -141,7 +141,7 @@ localBi.filterTable = function(tableDefinition) {
 		/** 
 		 * @function findValue
 		 * @description Finds an existing filterValue by valueName, in a specified filterField.
-		 * @param {filterField} filterField.
+		 * @param {filterField} filterField - filterField in which to search.
 		 * @param {string} valueName - Value name.
 		 * @returns {filterValue} Found filterValue, or null if not found.
 		 */
