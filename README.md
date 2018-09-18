@@ -28,4 +28,4 @@ ___
 
 Special shout out to BrowserStack for an awesome toolset to check mobile cross-browser compatibility. You guys rule!
 
-[![Check out BrowserStack.com](./docs/images/Browserstack-logo@2x.png)](https://www.browserstack.com/)
+[![Check out BrowserStack.com](docs/images/Browserstack-logo@2x.png)](https://www.browserstack.com/)
