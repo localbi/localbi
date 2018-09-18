@@ -73,29 +73,11 @@ localBi.filterTable = function(tableDefinition) {
 		 * @property {string} fieldName - Name of field.
 		 * @property {number} fieldIndex - Position in parent array.
 		 * @property {filterValue[]} fieldValues - Array of filterValues, one index for each unique value.
-		 * @property {findValue} findValue - Function that finds an existing filterValue by valueName.
 		 */
 		var filterField = {  //@typeDef filterField
 			fieldName : tableField[0],  //get field name from header
 			fieldIndex : fieldIndex,  //track position in filterFields
-			fieldValues : filterValues,  //unique field values
-
-			/** 
-			 * @function findValue
-			 * @description Finds an existing filterValue by valueName.
-			 * @param {string} valueName - Value name.
-			 * @returns {filterValue} Found filterValue, or null if not found.
-			 */
-			findValue(valueName) {
-				var valueIsFound = false;  //to check if filterValue exists
-				var valueIndex = 0;  //position of found filterValue
-				while (valueIsFound == false && valueIndex < filterField.fieldValues.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
-					if (valueName == filterField.fieldValues[valueIndex].valueName) valueIsFound = true;
-					else valueIndex++;
-				}
-				if (valueIsFound == false) return null;
-				else return filterField.fieldValues[valueIndex];
-			}			
+			fieldValues : filterValues  //unique field values
 		}
 		filterFields[fieldIndex] = filterField;  //indices here will correspond to the tableRecord indices
 	}
@@ -129,6 +111,7 @@ localBi.filterTable = function(tableDefinition) {
 	 * @property {filterRecord[]} filterRecords - Array of filterRecords, containing references to unique field values.
 	 * @property {function[]} filterFunctions - Array of aggregation functions.
 	 * @property {findField} findField - Function that finds an existing filterField by name.
+	 * @property {findValue} findValue - Function that finds an existing filterValue by name, in a specified filterField.
 	 * @property {filter} filter - Function that filters the dataset.
 	 * @property {aggregate} aggregate - Function that aggregates the dataset.
 	 */
@@ -154,6 +137,24 @@ localBi.filterTable = function(tableDefinition) {
 			if (fieldIsFound == false) return null;
 			else return filterTable.filterFields[fieldIndex];
 		},
+		
+		/** 
+		 * @function findValue
+		 * @description Finds an existing filterValue by valueName, in a specified filterField.
+		 * @param {filterField} filterField.
+		 * @param {string} valueName - Value name.
+		 * @returns {filterValue} Found filterValue, or null if not found.
+		 */
+		findValue(filterField, valueName) {
+			var valueIsFound = false;  //to check if filterValue exists
+			var valueIndex = 0;  //position of found filterValue
+			while (valueIsFound == false && valueIndex < filterField.fieldValues.length) {  //search until we can confirm it doesn't exist in the list - use while so we can exit early
+				if (valueName == filterField.fieldValues[valueIndex].valueName) valueIsFound = true;
+				else valueIndex++;
+			}
+			if (valueIsFound == false) return null;
+			else return filterField.fieldValues[valueIndex];
+		},
 
 		/** 
 		 * @function filter
@@ -176,7 +177,7 @@ localBi.filterTable = function(tableDefinition) {
 					var filterField = fieldsToFilter[fieldIndex];
 					var valuesToFilter = [];  //placeholder for subset of values to filter
 					if (filterSpecification.value == '*') valuesToFilter = filterField.fieldValues;  //special case for all values
-					else valuesToFilter[0] = filterField.findValue(filterSpecification.value);  //or single element array with one named value
+					else valuesToFilter[0] = filterTable.findValue(filterField,filterSpecification.value);  //or single element array with one named value
 					for (var valueIndex = 0; valueIndex < valuesToFilter.length; valueIndex++) {  //potentially we can set all filterValues' states
 						var filterValue = valuesToFilter[valueIndex];
 						if (filterSpecification.isActive == true) filterValue.valueIsActive = true;  //true

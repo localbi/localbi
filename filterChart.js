@@ -65,6 +65,7 @@ localBi.filterChart = function(filterMeasures) {
       defaultOption.text = filterIcon.inactive;  //label
       defaultOption.value = null;  //calculation function
       measureSelect.add(defaultOption);
+
       for (var measureIndex = 0; measureIndex < this.chartMeasures.length; measureIndex++) {  //build field navigation for all fields
         var measureItem = this.chartMeasures[measureIndex];
         var option = document.createElement('option');
@@ -82,9 +83,11 @@ localBi.filterChart = function(filterMeasures) {
 
         var titleButton = document.createElement('button');  //title button, click to sort
         titleButton.className = 'filterTitle';
-        titleButton.onclick = function() {  //sort and toggle through asc/desc
-          filterChart.sortSelect(fieldName, -1);
-        };
+        titleButton.onclick = (function(localFieldName) {  //closure syntax
+          return function() {  //sort and toggle through asc/desc
+            filterChart.sortSelect(localFieldName, -1);
+          }
+        })(fieldName);
         titleButton.textContent = 'x' + this.chartFields[fieldIndex].label;  //initial sort order is unassigned
         titleButton.id = fieldName + '.sort';  //NB - this id is used by other code!
         fieldDiv.appendChild(titleButton);
@@ -105,34 +108,40 @@ localBi.filterChart = function(filterMeasures) {
         
         var flexDimensionButton = document.createElement('button');  //button to set which field is used to flexDimension the charts
         flexDimensionButton.className = 'filterAdjust';
-        flexDimensionButton.onclick = function() {  //-1 = set all options to inverted
-          if (filterChart.flexDimension != null && fieldName == filterChart.flexDimension.field) filterChart.flexDimension = null;  //if set to this field, unset
-          else filterChart.flexDimension = {  //
-            field: fieldName, 
-            label: fieldName 
-          };  //otherwise set
-          filterChart.refresh();
-        };
+        flexDimensionButton.onclick = (function(localFieldName) {  //closure syntax
+          return function() {   //-1 = set all options to inverted
+            if (filterChart.flexDimension != null && localFieldName == filterChart.flexDimension.field) filterChart.flexDimension = null;  //if set to this field, unset
+            else filterChart.flexDimension = {  //
+              field: localFieldName, 
+              label: localFieldName 
+            };  //otherwise set
+            filterChart.refresh();
+          }
+        })(fieldName);
         flexDimensionButton.textContent = filterIcon.flex;
         flexDimensionButton.id = fieldName + '.flexDimension';  //NB - this id is used by other code!
         buttonsDiv.appendChild(flexDimensionButton);
 
         var invertButton = document.createElement('button');  //button to invert field filter
         invertButton.className = 'filterAdjust';
-        invertButton.onclick = function() {  //-1 = set all options to inverted
-          filterChart.adjustSelect(fieldName,-1);
-          filterChart.refresh();
-        };
+        invertButton.onclick = (function(localFieldName) {  //closure syntax
+          return function() {  //-1 = set all options to inverted
+            filterChart.adjustSelect(localFieldName,-1);
+            filterChart.refresh();
+          }
+        })(fieldName);
         invertButton.textContent = filterIcon.invert;  //9931
         invertButton.id = fieldName + '.invert';  //NB - this id is used by other code!
         buttonsDiv.appendChild(invertButton);
         
         var clearButton = document.createElement('button');  //button to clear field filters
         clearButton.className = 'filterAdjust';
-        clearButton.onclick = function() {  //0 = set all options to false
-          filterChart.adjustSelect(fieldName,0);
-          filterChart.refresh();
-        };
+        clearButton.onclick = (function(localFieldName) {  //closure syntax
+          return function() {  //0 = set all options to false
+            filterChart.adjustSelect(localFieldName,0);
+            filterChart.refresh();
+          }
+        })(fieldName);
         clearButton.textContent = filterIcon.inactive;
         clearButton.id = fieldName + '.clear';  //NB - this id is used by other code!
         buttonsDiv.appendChild(clearButton);
@@ -145,8 +154,6 @@ localBi.filterChart = function(filterMeasures) {
      */
     buildHeader(elementId) {
       var filterHeader = document.getElementById(elementId);  //container for footer
-      filterHeader.onclick = function() {  //help text
-      };
       var span1 = document.createElement('span');  //heading
       span1.textContent = document.title;  //'Sales Report';
       filterHeader.appendChild(span1);
@@ -320,9 +327,15 @@ localBi.filterChart = function(filterMeasures) {
     buildCharts() {  //looks like we cater for max 2 dims and 2 meas, some charts will have more or less
 
       function getIndexedColorArray(alpha) {  //returns all chart colours, with an alpha
+        
+        function shadeColor2(color, percent) {  //https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+          var f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
+          return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
+        }
+
         var kellyColors = ['#FFB300','#803E75','#FF6800','#A6BDD7','#C10020','#CEA262','#817066','#007D34','#F6768E','#00538A','#FF7A5C','#53377A','#FF8E00','#B32851','#F4C800','#7F180D','#93AA00','#593315','#F13A13','#232C16'];  //Kelly's colors of maximum contrast
         for (var colorIndex = 0; colorIndex < kellyColors.length; colorIndex++) {
-          kellyColors[colorIndex] = kellyColors[colorIndex] + alpha;  //add alpha value (hex expected)
+          kellyColors[colorIndex] = shadeColor2(kellyColors[colorIndex], alpha);  //lighten/darken rgb (rgba doesn't work on safari 9)
         }
         return kellyColors;
       };
@@ -440,11 +453,11 @@ localBi.filterChart = function(filterMeasures) {
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'bar',
-                  backgroundColor: getIndexedColor(datasetIndex, '88'),
-                  borderColor : getIndexedColor(datasetIndex, 'FF'),
+                  backgroundColor: getIndexedColor(datasetIndex, 0.5),
+                  borderColor : getIndexedColor(datasetIndex, 0),
                   borderWidth : 1,
-                  hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                  hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                  hoverBackgroundColor: getIndexedColor(datasetIndex, 0.2),
+                  hoverBordercolor : getIndexedColor(datasetIndex, 0),
                   hoverBorderWidth : 1,
                   data: []
                 }
@@ -455,11 +468,11 @@ localBi.filterChart = function(filterMeasures) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     type: 'bar',
-                    backgroundColor: getIndexedColor(datasetIndex, '88'),
-                    borderColor : getIndexedColor(datasetIndex, 'FF'),
+                    backgroundColor: getIndexedColor(datasetIndex, 0.5),
+                    borderColor : getIndexedColor(datasetIndex, 0),
                     borderWidth : 1,
-                    hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                    hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                    hoverBackgroundColor: getIndexedColor(datasetIndex, 0.2),
+                    hoverBordercolor : getIndexedColor(datasetIndex, 0),
                     hoverBorderWidth : 1,
                     data: []
                   }
@@ -507,11 +520,11 @@ localBi.filterChart = function(filterMeasures) {
                   label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'line',
                   fill: false,
-                  backgroundColor: getIndexedColor(datasetIndex, '88'),
-                  borderColor : getIndexedColor(datasetIndex, 'FF'),
+                  backgroundColor: getIndexedColor(datasetIndex, 0.5),
+                  borderColor : getIndexedColor(datasetIndex, 0),
                   borderWidth : 1,
-                  hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                  hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                  hoverBackgroundColor: getIndexedColor(datasetIndex, 0.2),
+                  hoverBordercolor : getIndexedColor(datasetIndex, 0),
                   hoverBorderWidth : 1,
                   data: []
                 }
@@ -523,11 +536,11 @@ localBi.filterChart = function(filterMeasures) {
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     type: 'line',
                     fill: false,
-                    backgroundColor: getIndexedColor(datasetIndex, '88'),
-                    borderColor : getIndexedColor(datasetIndex, 'FF'),
+                    backgroundColor: getIndexedColor(datasetIndex, 0.5),
+                    borderColor : getIndexedColor(datasetIndex, 0),
                     borderWidth : 1,
-                    hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                    hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                    hoverBackgroundColor: getIndexedColor(datasetIndex, 0.2),
+                    hoverBordercolor : getIndexedColor(datasetIndex, 0),
                     hoverBorderWidth : 1,
                     data: []
                   }
@@ -567,11 +580,11 @@ localBi.filterChart = function(filterMeasures) {
                 var datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
-                  backgroundColor: getIndexedColorArray('88'),
-                  borderColor : getIndexedColorArray('FF'),
+                  backgroundColor: getIndexedColorArray(0.5),
+                  borderColor : getIndexedColorArray(0),
                   borderWidth : 1,
-                  hoverBackgroundColor: getIndexedColorArray('CC'),
-                  hoverBordercolor : getIndexedColorArray('FF'),
+                  hoverBackgroundColor: getIndexedColorArray(0.2),
+                  hoverBordercolor : getIndexedColorArray(0),
                   hoverBorderWidth : 1,
                   data: []
                 }
@@ -581,11 +594,11 @@ localBi.filterChart = function(filterMeasures) {
                 for (var datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
-                    backgroundColor: getIndexedColorArray('88'),
-                    borderColor : getIndexedColorArray('FF'),
+                    backgroundColor: getIndexedColorArray(0.5),
+                    borderColor : getIndexedColorArray(0),
                     borderWidth : 1,
-                    hoverBackgroundColor: getIndexedColorArray('CC'),
-                    hoverBordercolor : getIndexedColorArray('FF'),
+                    hoverBackgroundColor: getIndexedColorArray(0.2),
+                    hoverBordercolor : getIndexedColorArray(0),
                     hoverBorderWidth : 1,
                     data: []
                   }
