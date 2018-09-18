@@ -899,9 +899,14 @@ localBi.filterChart = function(filterMeasures) {
     buildCharts() {  //looks like we cater for max 2 dims and 2 meas, some charts will have more or less
 
       function getIndexedColorArray(alpha) {  //returns all chart colours, with an alpha
+        function shadeColor2(color, percent) {   
+          var f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
+          return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
+        }
+
         var kellyColors = ['#FFB300','#803E75','#FF6800','#A6BDD7','#C10020','#CEA262','#817066','#007D34','#F6768E','#00538A','#FF7A5C','#53377A','#FF8E00','#B32851','#F4C800','#7F180D','#93AA00','#593315','#F13A13','#232C16'];  //Kelly's colors of maximum contrast
         for (var colorIndex = 0; colorIndex < kellyColors.length; colorIndex++) {
-          kellyColors[colorIndex] = kellyColors[colorIndex];  //add alpha value (hex expected)
+          kellyColors[colorIndex] = shadeColor2(kellyColors[colorIndex], alpha);  //add alpha value (hex expected)
         }
         return kellyColors;
       };
@@ -1019,11 +1024,11 @@ localBi.filterChart = function(filterMeasures) {
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'bar',
-                  backgroundColor: getIndexedColor(datasetIndex, '88'),
-                  borderColor : getIndexedColor(datasetIndex, 'FF'),
+                  backgroundColor: getIndexedColor(datasetIndex, 0.2),
+                  borderColor : getIndexedColor(datasetIndex, 0),
                   borderWidth : 1,
-                  hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                  hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                  hoverBackgroundColor: getIndexedColor(datasetIndex, 0.4),
+                  hoverBordercolor : getIndexedColor(datasetIndex, 0),
                   hoverBorderWidth : 1,
                   data: []
                 }
@@ -1034,11 +1039,11 @@ localBi.filterChart = function(filterMeasures) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     type: 'bar',
-                    backgroundColor: getIndexedColor(datasetIndex, '88'),
-                    borderColor : getIndexedColor(datasetIndex, 'FF'),
+                    backgroundColor: getIndexedColor(datasetIndex, 0.2),
+                    borderColor : getIndexedColor(datasetIndex, 0),
                     borderWidth : 1,
-                    hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                    hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                    hoverBackgroundColor: getIndexedColor(datasetIndex, 0.4),
+                    hoverBordercolor : getIndexedColor(datasetIndex, 0),
                     hoverBorderWidth : 1,
                     data: []
                   }
@@ -1086,11 +1091,11 @@ localBi.filterChart = function(filterMeasures) {
                   label: chartSpecification.measures[0].label,//chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
                   type: 'line',
                   fill: false,
-                  backgroundColor: getIndexedColor(datasetIndex, '88'),
-                  borderColor : getIndexedColor(datasetIndex, 'FF'),
+                  backgroundColor: getIndexedColor(datasetIndex, 0.2),
+                  borderColor : getIndexedColor(datasetIndex, 0),
                   borderWidth : 1,
-                  hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                  hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                  hoverBackgroundColor: getIndexedColor(datasetIndex, 0.4),
+                  hoverBordercolor : getIndexedColor(datasetIndex, 0),
                   hoverBorderWidth : 1,
                   data: []
                 }
@@ -1102,11 +1107,11 @@ localBi.filterChart = function(filterMeasures) {
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
                     type: 'line',
                     fill: false,
-                    backgroundColor: getIndexedColor(datasetIndex, '88'),
-                    borderColor : getIndexedColor(datasetIndex, 'FF'),
+                    backgroundColor: getIndexedColor(datasetIndex, 0.2),
+                    borderColor : getIndexedColor(datasetIndex, 0),
                     borderWidth : 1,
-                    hoverBackgroundColor: getIndexedColor(datasetIndex, 'CC'),
-                    hoverBordercolor : getIndexedColor(datasetIndex, 'FF'),
+                    hoverBackgroundColor: getIndexedColor(datasetIndex, 0.4),
+                    hoverBordercolor : getIndexedColor(datasetIndex, 0),
                     hoverBorderWidth : 1,
                     data: []
                   }
@@ -1146,11 +1151,11 @@ localBi.filterChart = function(filterMeasures) {
                 var datasetIndex = 0;
                 if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                   label: chartHierarchy[datasetIndex].measures[0].label,  //only one dimension, so use measure label
-                  backgroundColor: getIndexedColorArray('88'),
-                  borderColor : getIndexedColorArray('FF'),
+                  backgroundColor: getIndexedColorArray(0.2),
+                  borderColor : getIndexedColorArray(0),
                   borderWidth : 1,
-                  hoverBackgroundColor: getIndexedColorArray('CC'),
-                  hoverBordercolor : getIndexedColorArray('FF'),
+                  hoverBackgroundColor: getIndexedColorArray(0.4),
+                  hoverBordercolor : getIndexedColorArray(0),
                   hoverBorderWidth : 1,
                   data: []
                 }
@@ -1160,11 +1165,11 @@ localBi.filterChart = function(filterMeasures) {
                 for (var datasetIndex = 0; datasetIndex < chartLabel.children.length; datasetIndex++) {
                   if (datasets[datasetIndex] == null) datasets[datasetIndex] = {  //only init the first time round, specific per chart type
                     label: chartLabel.children[datasetIndex].value,  //when more than one dimension, use second dimension value
-                    backgroundColor: getIndexedColorArray('88'),
-                    borderColor : getIndexedColorArray('FF'),
+                    backgroundColor: getIndexedColorArray(0.2),
+                    borderColor : getIndexedColorArray(0),
                     borderWidth : 1,
-                    hoverBackgroundColor: getIndexedColorArray('CC'),
-                    hoverBordercolor : getIndexedColorArray('FF'),
+                    hoverBackgroundColor: getIndexedColorArray(0.4),
+                    hoverBordercolor : getIndexedColorArray(0),
                     hoverBorderWidth : 1,
                     data: []
                   }
